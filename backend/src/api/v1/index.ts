@@ -16,6 +16,8 @@ import proctorEventRoutes from "./routes/proctorEvent.routes";
 
 import dashboardSummaryRoutes from "./routes/dashboardSummary.routes";
 
+import submissionRoutes from "./routes/submission.routes";
+
 const router = Router();
 
 router.use("/auth", authRoutes);
@@ -24,6 +26,8 @@ router.use("/questions", questionRoutes);
 router.use("/exams", examRoutes);
 
 router.use("/sessions", examSessionRoutes);
+
+router.use("/submissions", submissionRoutes);
 
 router.use("/proctoring", proctorEventRoutes);
 
