@@ -102,6 +102,8 @@ import type {
   QuestionListResponse,
 } from "@/types/question";
 
+import type { DraftQuestion, BulkImportParseResponse, BulkImportConfirmResponse } from "@/types/bulkImport";
+
 export const questionService = {
   async list(filters: Omit<QuestionListFilters, "search">): Promise<QuestionListResponse> {
     const { data } = await apiClient.get<QuestionListResponse>("/questions", {
@@ -145,5 +147,24 @@ export const questionService = {
       { headers: { "Content-Type": "multipart/form-data" } }
     );
     return data;
+  },
+    async bulkImportParse(file: File): Promise<DraftQuestion[]> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const { data } = await apiClient.post<BulkImportParseResponse>(
+      "/questions/bulk-import/parse",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return data.questions;
+  },
+
+  /** Saves the examiner-reviewed/edited draft list to the Question Bank. */
+  async bulkImportConfirm(questions: QuestionFormPayload[]): Promise<Question[]> {
+    const { data } = await apiClient.post<BulkImportConfirmResponse>(
+      "/questions/bulk-import/confirm",
+      { questions }
+    );
+    return data.questions;
   },
 };

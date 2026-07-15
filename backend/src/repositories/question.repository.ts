@@ -294,3 +294,17 @@ export async function updateModelAnswerFileUrl(id: string, fileUrl: string) {
     include: { options: { orderBy: { sortOrder: "asc" } } },
   });
 }
+
+/**
+ * Distinct subject strings currently in the Question Bank — used by
+ * the bulk-import parser to fuzzy-match a parsed doc's subject text
+ * against subjects that already exist, instead of always creating a
+ * new/duplicate subject string.
+ */
+export async function findDistinctSubjects(): Promise<string[]> {
+  const rows = await prisma.questionBank.findMany({
+    select: { subject: true },
+    distinct: ["subject"],
+  });
+  return rows.map((r) => r.subject);
+}

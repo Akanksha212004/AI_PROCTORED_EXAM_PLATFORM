@@ -14,6 +14,8 @@ import {
   type UpdateQuestionInput,
 } from '../schemas/question.schema';
 
+import { confirmBulkImportSchema } from '../schemas/bulkImport.schema';
+
 /**
  * Minimal shape of the authenticated user your JWT auth middleware
  * attaches to `req.user`.
@@ -160,4 +162,27 @@ export async function attachModelAnswer(
 
   const updated = await questionRepository.updateModelAnswerFileUrl(id, publicPath);
   return sanitizeQuestion(updated, currentUser.role);
+}
+
+
+/**
+ * Confirms examiner-reviewed bulk-import drafts and persists them.
+ * Reuses questionRepository.createWithOptions per question — same
+ * single-question creation path as createQuestion() above, just
+ * looped. If any question fails validation, confirmBulkImportSchema
+ * rejects the whole payload before any DB write happens (all-or-nothing
+ * at the validation stage; each createWithOptions call below is still
+ * its own transaction though — a failure partway through the loop
+ * will leave earlier-created questions saved).
+ */
+export async function confirmBulkImport(payload: unknown, currentUser: AuthUser) {
+  const parsed = confirmBulkImportSchema.safeParse(payload);
+  if (!parsed.success) throw zodErrorToApiError(parsed.error);
+
+  const created = [];
+  for (const q of parsed.data.questions) {
+    const question = await questionRepository.createWithOptions(q, currentUser.id);
+    created.push(sanitizeQuestion(question, currentUser.role));
+  }
+  return created;
 }

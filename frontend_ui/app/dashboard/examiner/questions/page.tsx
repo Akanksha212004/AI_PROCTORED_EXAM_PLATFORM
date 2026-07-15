@@ -10,7 +10,7 @@
 // block below for `<RoleGuard allow={["EXAMINER"]}>...</RoleGuard>` —
 // paste RoleGuard.tsx and I'll do that swap for you.
 
-import { Loader2, Plus } from "lucide-react";
+import { FileUp, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -26,6 +26,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { QuestionFormDialog } from "@/components/questions/QuestionFormDialog";
 import { QuestionViewModal } from "@/components/questions/QuestionViewModal";
 import { DeleteQuestionDialog } from "@/components/questions/DeleteQuestionDialog";
+import { BulkImportDialog } from "@/components/questions/BulkImportDialog";
 import type { Question } from "@/types/question";
 
 const PAGE_SIZE = 10;
@@ -62,14 +63,9 @@ export default function QuestionBankPage() {
   );
   const [viewingQuestion, setViewingQuestion] = useState<Question | null>(null);
   const [deletingQuestion, setDeletingQuestion] = useState<Question | null>(null);
-
-//   const subjectOptions = useMemo(
-//     () => Array.from(new Set(items.map((q) => q.subject))).sort(),
-//     [items]
-//   );
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
 
   const subjectOptions = stats?.subjects ?? [];
-
 
   function handleFilterChange(next: FilterState) {
     setFilters(next);
@@ -103,19 +99,29 @@ export default function QuestionBankPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold text-paper">Question Bank</h1>
           <p className="text-sm text-muted">Create, organize, and manage exam questions.</p>
         </div>
-        <Button
-          onClick={() => setFormState({ open: true, mode: "create", question: null })}
-          className="w-auto px-4"
-        >
-          <Plus className="h-4 w-4" />
-          New Question
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => setBulkImportOpen(true)}
+            className="w-auto px-4"
+          >
+            <FileUp className="h-4 w-4" />
+            Bulk Import
+          </Button>
+          <Button
+            onClick={() => setFormState({ open: true, mode: "create", question: null })}
+            className="w-auto px-4"
+          >
+            <Plus className="h-4 w-4" />
+            New Question
+          </Button>
+        </div>
       </div>
 
       <QuestionStatsCards stats={stats} isLoading={isStatsLoading} />
@@ -151,6 +157,12 @@ export default function QuestionBankPage() {
         question={deletingQuestion}
         onClose={() => setDeletingQuestion(null)}
         onDeleted={handleDeleted}
+      />
+
+      <BulkImportDialog
+        open={bulkImportOpen}
+        onClose={() => setBulkImportOpen(false)}
+        onImported={handleSaved}
       />
     </div>
   );
