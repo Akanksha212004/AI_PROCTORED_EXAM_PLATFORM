@@ -24,7 +24,9 @@ function zodErrorToApiError(zodError: ZodError): ApiError {
   return new ApiError(422, message);
 }
 
-function computeGradingStatus(session: SubmissionListItem): "FULLY_AUTO_GRADED" | "PENDING_REVIEW" | "FULLY_GRADED" {
+function computeGradingStatus(session: {
+  answers: { grading: { status: string } | null }[];
+}): "FULLY_AUTO_GRADED" | "PENDING_REVIEW" | "FULLY_GRADED" {
   const gradings = session.answers.map((a) => a.grading).filter(Boolean);
   if (gradings.length === 0) return "FULLY_AUTO_GRADED";
   const pending = gradings.filter((g) => g!.status === "PENDING").length;
@@ -101,10 +103,10 @@ function shapeSubmissionDetail(session: SessionForGrading) {
         answerId: answer?.id ?? null,
         grading: answer?.grading
           ? {
-              status: answer.grading.status,
-              examinerScore: answer.grading.examinerScore,
-              feedback: answer.grading.feedback,
-            }
+            status: answer.grading.status,
+            examinerScore: answer.grading.examinerScore,
+            feedback: answer.grading.feedback,
+          }
           : null,
       };
     }),
@@ -143,4 +145,45 @@ export async function finalizeSubmission(sessionId: string, currentUser: AuthUse
   }
 
   return submissionRepository.finalizeResult(sessionId);
+}
+
+export async function listMySubmissions(rawQuery: unknown, currentUser: AuthUser) {
+  const parsed = listSubmissionsQuerySchema.safeParse(rawQuery);
+  if (!parsed.success) throw zodErrorToApiError(parsed.error);
+
+  const { page, limit } = parsed.data;
+  const { items, total } = await submissionRepository.findSubmittedSessionsForStudent(currentUser.id, {
+    page,
+    limit,
+  });
+
+  const shaped = items.map((s) => ({
+    id: s.id,
+    examId: s.examId,
+    examTitle: s.exam.title,
+    examSubject: s.exam.subject,
+    status: s.status,
+    submittedAt: s.endTime,
+    totalMarks: s.result?.totalMarks ?? 0,
+    maxMarks: s.exam.totalMarks,
+    passingMarks: s.exam.passingMarks,
+    gradingStatus: computeGradingStatus(s),
+  }));
+
+  return {
+    items: shaped,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  };
+}
+
+export async function getMySubmissionReport(sessionId: string, currentUser: AuthUser) {
+  const session = await submissionRepository.findSessionForGrading(sessionId);
+  if (!session) throw new ApiError(404, "Submission not found");
+  if (session.studentId !== currentUser.id) {
+    throw new ApiError(403, "You do not have access to this submission");
+  }
+  if (session.status === "IN_PROGRESS") {
+    throw new ApiError(400, "This exam has not been submitted yet");
+  }
+  return shapeSubmissionDetail(session);
 }

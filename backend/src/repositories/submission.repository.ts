@@ -109,3 +109,38 @@ export async function finalizeResult(sessionId: string) {
     update: { totalMarks, finalExaminerScore: totalMarks },
   });
 }
+
+export type SubmissionListItemForStudent = Prisma.ExamSessionGetPayload<{
+  include: {
+    exam: { select: { id: true; title: true; subject: true; totalMarks: true; passingMarks: true } };
+    result: true;
+    answers: { include: { grading: true } };
+  };
+}>;
+
+export async function findSubmittedSessionsForStudent(
+  studentId: string,
+  filters: { page: number; limit: number }
+) {
+  const where: Prisma.ExamSessionWhereInput = {
+    studentId,
+    status: { in: [SessionStatus.SUBMITTED, SessionStatus.AUTO_SUBMITTED] },
+  };
+
+  const [items, total] = await Promise.all([
+    prisma.examSession.findMany({
+      where,
+      include: {
+        exam: { select: { id: true, title: true, subject: true, totalMarks: true, passingMarks: true } },
+        result: true,
+        answers: { include: { grading: true } },
+      },
+      orderBy: { endTime: "desc" },
+      skip: (filters.page - 1) * filters.limit,
+      take: filters.limit,
+    }),
+    prisma.examSession.count({ where }),
+  ]);
+
+  return { items, total };
+}

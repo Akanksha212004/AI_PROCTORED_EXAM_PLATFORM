@@ -28,6 +28,8 @@ export function useExamSession(sessionId: string) {
   const textDebounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const hasAutoSubmitted = useRef(false);
 
+  const [visitedQuestionIds, setVisitedQuestionIds] = useState<Set<string>>(new Set());
+
   const fetchSession = useCallback(async () => {
     try {
       const data = await examSessionService.getSession(sessionId);
@@ -109,7 +111,7 @@ export function useExamSession(sessionId: string) {
         ...s,
         questions: s.questions.map((q) =>
           q.questionId === questionId
-            ? { ...q, answer: { ...(q.answer ?? { submittedFileUrl: null, selectedOptionIds: [] }), submittedText: text } }
+            ? { ...q, answer: { ...(q.answer ?? { submittedFileUrl: null, selectedOptionIds: [], markedForReview: false }), submittedText: text } }
             : q
         ),
       };
@@ -127,6 +129,15 @@ export function useExamSession(sessionId: string) {
     }, TEXT_AUTOSAVE_DEBOUNCE_MS);
   }
 
+  const markVisited = useCallback((questionId: string) => {
+    setVisitedQuestionIds((prev) => {
+      if (prev.has(questionId)) return prev; // no-op, avoids extra re-render
+      const next = new Set(prev);
+      next.add(questionId);
+      return next;
+    });
+  }, []);
+
   async function uploadFile(questionId: string, file: File) {
     try {
       const updated = await examSessionService.submitAnswerFile(sessionId, questionId, file);
@@ -137,15 +148,42 @@ export function useExamSession(sessionId: string) {
     }
   }
 
+  async function toggleMarkForReview(questionId: string, current: boolean) {
+  try {
+    const updated = await examSessionService.setMarkedForReview(sessionId, questionId, !current);
+    setSession(updated);
+  } catch (err) {
+    toast.error(extractExamErrorMessage(err));
+  }
+}
+
+async function clearAnswer(questionId: string) {
+  // pending debounced text-save ko cancel karo, warna clear ke baad purana text wapas aa sakta hai
+  if (textDebounceTimers.current[questionId]) {
+    clearTimeout(textDebounceTimers.current[questionId]);
+  }
+  try {
+    const updated = await examSessionService.clearAnswer(sessionId, questionId);
+    setSession(updated);
+    toast.success("Response cleared");
+  } catch (err) {
+    toast.error(extractExamErrorMessage(err));
+  }
+}
+
   return {
     session,
-    timeRemaining,
-    isLoading,
-    isSubmitting,
-    finalResult,
-    selectOptions,
-    setTextDraft,
-    uploadFile,
-    submitExam,
+  timeRemaining,
+  isLoading,
+  isSubmitting,
+  finalResult,
+  visitedQuestionIds,   
+  markVisited,          
+  toggleMarkForReview,
+  clearAnswer,        
+  selectOptions,
+  setTextDraft,
+  uploadFile,
+  submitExam,
   };
 }

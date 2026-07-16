@@ -78,6 +78,8 @@ import { examSessionService } from "@/services/examSessionService";
 import { extractExamErrorMessage } from "@/components/exams/examErrors";
 import { cn } from "@/lib/utils";
 
+import type { MySubmissionListItem } from "@/types/examSession";
+
 export default function StudentDashboardPage() {
   return (
     <RoleGuard allowedRole="STUDENT">
@@ -97,7 +99,8 @@ function getGreeting(date: Date): string {
 
 function StudentDashboardContent() {
   const { user, logout } = useAuth();
-  const { isLoading, todaysExams, upcomingExams, stats } = useStudentDashboard();
+  const { isLoading, isLoadingSubmissions, todaysExams, upcomingExams, stats, examHistory, recentResults } =
+    useStudentDashboard();
 
   const firstName = user?.name?.split(" ")[0] ?? "there";
   const greeting = getGreeting(new Date());
@@ -118,8 +121,8 @@ function StudentDashboardContent() {
             {stats.liveCount > 0
               ? `${stats.liveCount} exam${stats.liveCount === 1 ? "" : "s"} live right now.`
               : stats.todayCount > 0
-              ? `${stats.todayCount} exam${stats.todayCount === 1 ? "" : "s"} scheduled today.`
-              : "Nothing on your plate right now — you're all caught up."}
+                ? `${stats.todayCount} exam${stats.todayCount === 1 ? "" : "s"} scheduled today.`
+                : "Nothing on your plate right now — you're all caught up."}
           </p>
         </div>
 
@@ -231,9 +234,9 @@ function StudentDashboardContent() {
           <ActionCard
             icon={History}
             title="Exam history"
-            description="Past attempts will appear here once this is available."
+            description="Review every exam you've submitted, with scores where available."
+            href="/dashboard/student/history"
             accent="sky"
-            disabled
           />
           <ActionCard
             icon={BarChart3}
@@ -249,13 +252,15 @@ function StudentDashboardContent() {
       <section>
         <h2 className="mb-4 font-display text-xl font-semibold text-paper">Your progress</h2>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <EmptyStateCard
+          {/* <EmptyStateCard
             icon={BarChart3}
             title="Recent results"
             description="Once your exams are graded, your latest scores will show up right here."
             footnote="Awaiting graded exams"
             accent="sky"
-          />
+          /> */}
+          <RecentResultsCard results={recentResults} isLoading={isLoadingSubmissions} />
+
           <EmptyStateCard
             icon={Sparkles}
             title="Performance analytics"
@@ -263,13 +268,15 @@ function StudentDashboardContent() {
             footnote="Awaiting graded exams"
             accent="teal"
           />
-          <EmptyStateCard
+          {/* <EmptyStateCard
             icon={History}
             title="Exam history"
             description="Every exam you complete — live, auto-submitted, or scored — will be logged here for easy reference."
             footnote="Awaiting first submission"
             accent="rose"
-          />
+          /> */}
+          <ExamHistoryPreviewCard history={examHistory} isLoading={isLoadingSubmissions} />
+
           <EmptyStateCard
             icon={ShieldCheck}
             title="Proctoring & system readiness"
@@ -377,9 +384,9 @@ function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
           <CalendarClock className="h-3.5 w-3.5" />
           {isUpcoming
             ? `Starts ${new Date(exam.startTime).toLocaleString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}`
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`
             : new Date(exam.startTime).toLocaleDateString()}
         </span>
         <span>{exam.durationMinutes} min</span>
@@ -448,4 +455,105 @@ function ActionCard({
   }
 
   return <Link href={href}>{content}</Link>;
+}
+
+function RecentResultsCard({
+  results,
+  isLoading,
+}: {
+  results: MySubmissionListItem[];
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return <div className="h-full min-h-[220px] animate-pulse rounded-2xl border border-border bg-surface-muted" />;
+  }
+
+  if (results.length === 0) {
+    return (
+      <EmptyStateCard
+        icon={BarChart3}
+        title="Recent results"
+        description="Once your exams are graded, your latest scores will show up right here."
+        footnote="Awaiting graded exams"
+        accent="sky"
+      />
+    );
+  }
+
+  return (
+    <Card className="flex h-full flex-col gap-4 p-6">
+      <p className="font-display text-base font-semibold text-paper">Recent results</p>
+      <div className="space-y-3">
+        {results.map((r) => (
+          <Link
+            key={r.id}
+            href={`/dashboard/student/report/${r.id}`}
+            className="flex items-center justify-between rounded-xl border border-border p-3 transition-colors hover:bg-white/5"
+          >
+            <div>
+              <p className="text-sm font-medium text-paper">{r.examTitle}</p>
+              <p className="text-xs text-paper/50">{r.examSubject}</p>
+            </div>
+            <span className="text-sm font-semibold text-accent-teal">
+              {r.totalMarks}/{r.maxMarks}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function ExamHistoryPreviewCard({
+  history,
+  isLoading,
+}: {
+  history: MySubmissionListItem[];
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return <div className="h-full min-h-[220px] animate-pulse rounded-2xl border border-border bg-surface-muted" />;
+  }
+
+  if (history.length === 0) {
+    return (
+      <EmptyStateCard
+        icon={History}
+        title="Exam history"
+        description="Every exam you complete — live, auto-submitted, or scored — will be logged here for easy reference."
+        footnote="Awaiting first submission"
+        accent="rose"
+      />
+    );
+  }
+
+  return (
+    <Card className="flex h-full flex-col gap-4 p-6">
+      <div className="flex items-center justify-between">
+        <p className="font-display text-base font-semibold text-paper">Exam history</p>
+        <Link href="/dashboard/student/history" className="text-xs font-medium text-accent-sky hover:text-accent-sky/80">
+          View all →
+        </Link>
+      </div>
+      <div className="space-y-3">
+        {history.slice(0, 3).map((r) => (
+          <Link
+            key={r.id}
+            href={`/dashboard/student/report/${r.id}`}
+            className="flex items-center justify-between rounded-xl border border-border p-3 transition-colors hover:bg-white/5"
+          >
+            <div>
+              <p className="text-sm font-medium text-paper">{r.examTitle}</p>
+              <p className="text-xs text-paper/50">
+                {r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : "—"}
+              </p>
+            </div>
+            <span className="rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-paper/50">
+              {r.gradingStatus === "PENDING_REVIEW" ? "Pending review" : "Graded"}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </Card>
+  );
 }

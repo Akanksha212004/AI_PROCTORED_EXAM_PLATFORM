@@ -15,6 +15,8 @@ import {
   submitAnswer,
   submitAnswerFile,
   submitSession,
+  listMySubmissions,
+  getMySubmissionReport 
 } from "../controllers/examSession.controller";
 import { authenticate, requireRoles } from "../../../middlewares/auth.middleware";
 import { validateBody } from "../../../middlewares/validate.middleware";
@@ -27,7 +29,9 @@ const router = Router();
 // sessions through the separate "Submissions to Review" module.
 router.use(authenticate, requireRoles("STUDENT"));
 
+router.get("/mine", listMySubmissions);
 router.get("/:id", getSession);
+router.get("/:id/report", getMySubmissionReport);
 router.post("/:id/answers", validateBody(submitAnswerSchema), submitAnswer);
 router.post("/:id/answers/:questionId/upload", uploadAnswerFile, submitAnswerFile);
 router.post("/:id/submit", submitSession);

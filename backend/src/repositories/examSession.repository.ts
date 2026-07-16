@@ -107,8 +107,9 @@ export async function upsertAnswer(params: {
   questionId: string;
   submittedText?: string;
   selectedOptionIds?: string[];
+  markedForReview?: boolean;
 }) {
-  const { examSessionId, studentId, questionId, submittedText, selectedOptionIds } = params;
+  const { examSessionId, studentId, questionId, submittedText, selectedOptionIds, markedForReview } = params;
 
   return prisma.$transaction(async (tx) => {
     const answer = await tx.answer.upsert({
@@ -118,10 +119,12 @@ export async function upsertAnswer(params: {
         studentId,
         questionId,
         submittedText,
+        ...(markedForReview !== undefined ? { markedForReview } : {}),
       },
       update: {
         submittedText,
         timeOfSubmission: new Date(),
+        ...(markedForReview !== undefined ? { markedForReview } : {}),
       },
     });
 
@@ -133,6 +136,43 @@ export async function upsertAnswer(params: {
         });
       }
     }
+
+    return answer;
+  });
+}
+
+/** Toggles the review-flag only — never touches submittedText/options/fileUrl. */
+export async function setMarkedForReview(params: {
+  examSessionId: string;
+  studentId: string;
+  questionId: string;
+  markedForReview: boolean;
+}) {
+  const { examSessionId, studentId, questionId, markedForReview } = params;
+
+  return prisma.answer.upsert({
+    where: { examSessionId_questionId: { examSessionId, questionId } },
+    create: { examSessionId, studentId, questionId, markedForReview },
+    update: { markedForReview },
+  });
+}
+
+/** Wipes an answer's content (text/options/file) but keeps the row — markedForReview is preserved. */
+export async function clearAnswer(params: {
+  examSessionId: string;
+  studentId: string;
+  questionId: string;
+}) {
+  const { examSessionId, studentId, questionId } = params;
+
+  return prisma.$transaction(async (tx) => {
+    const answer = await tx.answer.upsert({
+      where: { examSessionId_questionId: { examSessionId, questionId } },
+      create: { examSessionId, studentId, questionId },
+      update: { submittedText: null, submittedFileUrl: null },
+    });
+
+    await tx.answerOption.deleteMany({ where: { answerId: answer.id } });
 
     return answer;
   });

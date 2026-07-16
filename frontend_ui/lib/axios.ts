@@ -8,6 +8,8 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   "http://localhost:8000/api/v1";
 
+export const STATIC_FILE_ORIGIN = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,

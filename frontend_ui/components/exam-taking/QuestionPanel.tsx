@@ -4,6 +4,7 @@ import { ImageIcon, Upload } from "lucide-react";
 import { useRef } from "react";
 
 import { Badge, difficultyTone, questionTypeLabel } from "@/components/ui/Badge";
+import { STATIC_FILE_ORIGIN } from "@/lib/axios";
 import type { SessionQuestionView } from "@/types/examSession";
 
 interface Props {
@@ -105,7 +106,7 @@ export function QuestionPanel({ question, index, total, onSelectOptions, onTextC
           {question.answer?.submittedFileUrl ? (
             <div className="flex items-center justify-between rounded-lg border border-border bg-surface-muted px-4 py-3">
               <a
-                href={question.answer.submittedFileUrl}
+                href={`${STATIC_FILE_ORIGIN}${question.answer.submittedFileUrl}`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 text-sm text-accent-sky underline"

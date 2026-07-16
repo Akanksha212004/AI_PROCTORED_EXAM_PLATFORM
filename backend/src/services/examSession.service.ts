@@ -114,6 +114,7 @@ function toStudentSessionView(session: SessionWithPaper, timeRemainingSeconds: n
               submittedText: existingAnswer.submittedText,
               submittedFileUrl: existingAnswer.submittedFileUrl,
               selectedOptionIds: existingAnswer.selectedOptions.map((so) => so.optionId),
+              markedForReview: existingAnswer.markedForReview,
             }
           : null,
       };
@@ -198,17 +199,38 @@ export async function submitAnswer(sessionId: string, payload: unknown, currentU
 
   const session = await assertSessionWritable(sessionId, currentUser);
 
-  const { questionId, selectedOptionIds, submittedText } = parsed.data as SubmitAnswerInput;
+  const { questionId, selectedOptionIds, submittedText, markedForReview, clearAnswer } =
+    parsed.data as SubmitAnswerInput;
 
   const sessionQuestion = session.sessionQuestions.find((sq) => sq.questionId === questionId);
   if (!sessionQuestion) throw new ApiError(400, "This question is not part of your paper");
 
   const { questionType } = sessionQuestion.question;
 
+  // Pure "mark for review" toggle or "clear answer" — no content validation needed,
+  // these bypass the per-type answer checks below.
+  if (clearAnswer) {
+    await examSessionRepository.clearAnswer({
+      examSessionId: sessionId,
+      studentId: currentUser.id,
+      questionId,
+    });
+    return getSession(sessionId, currentUser);
+  }
+
+  if (markedForReview !== undefined && selectedOptionIds === undefined && submittedText === undefined) {
+    await examSessionRepository.setMarkedForReview({
+      examSessionId: sessionId,
+      studentId: currentUser.id,
+      questionId,
+      markedForReview,
+    });
+    return getSession(sessionId, currentUser);
+  }
+
   if (questionType === QuestionType.IMAGE_UPLOAD) {
     throw new ApiError(400, "Use the file-upload endpoint for IMAGE_UPLOAD questions");
   }
-
   if (questionType === QuestionType.MCQ && (selectedOptionIds ?? []).length !== 1) {
     throw new ApiError(422, "MCQ requires exactly one selected option");
   }
@@ -235,6 +257,7 @@ export async function submitAnswer(sessionId: string, payload: unknown, currentU
     submittedText,
     selectedOptionIds:
       questionType === QuestionType.MCQ || questionType === QuestionType.MULTI_SELECT ? selectedOptionIds : undefined,
+    markedForReview, // pass through so an answer + review-flag can be saved in one call too
   });
 
   return getSession(sessionId, currentUser);

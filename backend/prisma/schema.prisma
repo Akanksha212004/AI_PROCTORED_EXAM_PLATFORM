@@ -195,6 +195,7 @@ model Answer {
   /// Auto-graded (MCQ/MULTI_SELECT) or examiner-finalized score for
   /// this answer, after net negative marking. Null until graded.
   marksAwarded     Float?             @map("marks_awarded")
+  markedForReview  Boolean            @default(false) @map("marked_for_review")   // NEW  
   selectedOptions  AnswerOption[]
   examSession      ExamSession        @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   question         QuestionBank       @relation(fields: [questionId], references: [id])

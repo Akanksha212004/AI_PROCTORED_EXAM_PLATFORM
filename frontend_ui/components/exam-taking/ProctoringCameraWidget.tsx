@@ -20,7 +20,8 @@ export function ProctoringCameraWidget({ status, faceCount, gazeDirection, video
   const isLookingAway = gazeDirection === "AWAY";
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 w-44 overflow-hidden rounded-xl border border-border bg-surface shadow-card">
+    // <div className="fixed top-20 right-4 z-40 w-44 overflow-hidden rounded-xl border border-border bg-surface shadow-card">
+    <div className="fixed top-24 right-4 z-40 w-44 overflow-hidden rounded-xl border border-border bg-surface shadow-card">
       <div className="relative aspect-video bg-black">
         <video ref={videoRef} muted playsInline className="h-full w-full object-cover" />
         <canvas ref={canvasRef} className="hidden" />

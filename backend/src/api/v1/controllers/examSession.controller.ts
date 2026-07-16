@@ -5,6 +5,8 @@ import * as examSessionService from "../../../services/examSession.service";
 import { asyncHandler } from "../../../utils/asyncHandler";
 import { ApiError } from "../../../utils/apiError";
 
+import * as submissionService from "../../../services/submission.service";
+
 // POST /exams/:examId/sessions — start (or resume) a session
 export const startSession = asyncHandler(async (req: Request, res: Response) => {
   const session = await examSessionService.startSession(req.params.examId, req.user!);
@@ -39,4 +41,16 @@ export const submitAnswerFile = asyncHandler(async (req: Request, res: Response)
 export const submitSession = asyncHandler(async (req: Request, res: Response) => {
   const result = await examSessionService.submitSession(req.params.id, req.user!);
   res.status(200).json(result);
+});
+
+// GET /sessions/mine — student's own submission history
+export const listMySubmissions = asyncHandler(async (req: Request, res: Response) => {
+  const result = await submissionService.listMySubmissions(req.query, req.user!);
+  res.status(200).json(result);
+});
+
+// GET /sessions/:id/report — full per-question report for a submitted session
+export const getMySubmissionReport = asyncHandler(async (req: Request, res: Response) => {
+  const report = await submissionService.getMySubmissionReport(req.params.id, req.user!);
+  res.status(200).json(report);
 });

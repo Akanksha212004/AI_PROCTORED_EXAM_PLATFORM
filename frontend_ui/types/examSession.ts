@@ -23,6 +23,7 @@ export interface SessionAnswer {
   submittedText: string | null;
   submittedFileUrl: string | null;
   selectedOptionIds: string[];
+  markedForReview: boolean;
 }
 
 export interface SessionQuestionView {
@@ -64,6 +65,8 @@ export interface SubmitAnswerPayload {
   questionId: string;
   selectedOptionIds?: string[];
   submittedText?: string;
+  markedForReview?: boolean;
+  clearAnswer?: boolean;
 }
 
 export interface SubmitSessionResult {
@@ -71,4 +74,62 @@ export interface SubmitSessionResult {
   autoGradedMarks?: number;
   pendingSubjectiveCount?: number;
   alreadyFinalized?: boolean;
+}
+
+// --- Student's own submission history + report (added for dashboard) ---
+
+export type GradingStatus = "FULLY_AUTO_GRADED" | "PENDING_REVIEW" | "FULLY_GRADED";
+
+export interface MySubmissionListItem {
+  id: string;
+  examId: string;
+  examTitle: string;
+  examSubject: string;
+  status: SessionStatus;
+  submittedAt: string | null;
+  totalMarks: number;
+  maxMarks: number;
+  passingMarks: number;
+  gradingStatus: GradingStatus;
+}
+
+export interface MySubmissionListResponse {
+  items: MySubmissionListItem[];
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+}
+
+export interface ReportOption {
+  id: string;
+  optionText: string;
+  isCorrect: boolean;
+}
+
+export interface ReportQuestion {
+  questionId: string;
+  questionText: string;
+  questionType: QuestionType;
+  marksAllocated: number;
+  isObjective: boolean;
+  options?: ReportOption[];
+  selectedOptionIds: string[];
+  submittedText: string | null;
+  submittedFileUrl: string | null;
+  marksAwarded: number | null;
+  answerId: string | null;
+  grading: {
+    status: string;
+    examinerScore: number | null;
+    feedback: string | null;
+  } | null;
+}
+
+export interface SubmissionReport {
+  id: string;
+  examTitle: string;
+  studentName: string;
+  studentEmail: string;
+  submittedAt: string | null;
+  status: SessionStatus;
+  totalMarks: number;
+  questions: ReportQuestion[];
 }
