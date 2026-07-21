@@ -25,10 +25,21 @@ export async function createEvent(params: {
   });
 }
 
+// export async function findSessionOwnedByStudent(sessionId: string, studentId: string) {
+//   return prisma.examSession.findFirst({
+//     where: { id: sessionId, studentId },
+//     select: { id: true, status: true },
+//   });
+// }
+
 export async function findSessionOwnedByStudent(sessionId: string, studentId: string) {
   return prisma.examSession.findFirst({
     where: { id: sessionId, studentId },
-    select: { id: true, status: true },
+    select: {
+      id: true,
+      status: true,
+      exam: { select: { gazeSensitivity: true, multiFaceDetectionEnabled: true } },
+    },
   });
 }
 

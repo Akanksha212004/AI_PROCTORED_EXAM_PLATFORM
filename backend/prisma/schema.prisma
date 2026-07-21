@@ -226,6 +226,7 @@ model ProctorEvent {
   snapshotUrl    String?          @map("snapshot_url")
   gazeDirection  String?          @map("gaze_direction")
   gazeConfidence Float?           @map("gaze_confidence")
+  faceCount      Int?             @map("face_count")
   isFlagged      Boolean          @default(false) @map("is_flagged")
   occurredAt     DateTime         @default(now()) @map("occurred_at")
   createdAt      DateTime         @default(now()) @map("created_at")
@@ -330,6 +331,7 @@ enum ProctorEventType {
   WEBCAM_SNAPSHOT
   GAZE_LOG
   TAB_SWITCH
+  MULTI_FACE_DETECTED
 }
 
 enum GradingStatus {

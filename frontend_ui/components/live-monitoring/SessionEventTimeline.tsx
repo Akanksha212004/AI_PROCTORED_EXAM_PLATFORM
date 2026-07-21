@@ -1,5 +1,7 @@
 "use client";
 
+import { STATIC_FILE_ORIGIN } from "@/lib/axios";
+
 import { AlertTriangle, Camera, Eye, MonitorX, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -48,7 +50,9 @@ export function SessionEventTimeline({ session, onClose }: Props) {
       .finally(() => setIsLoading(false));
   }, [session]);
 
-  const snapshots = events.filter((e) => e.eventType === "WEBCAM_SNAPSHOT" && e.snapshotUrl);
+  // const snapshots = events.filter((e) => e.eventType === "WEBCAM_SNAPSHOT" && e.snapshotUrl);
+
+  const snapshots = events.filter((e) => e.snapshotUrl);
 
   return (
     <Dialog
@@ -68,9 +72,9 @@ export function SessionEventTimeline({ session, onClose }: Props) {
               </p>
               <div className="grid grid-cols-4 gap-2">
                 {snapshots.slice(0, 8).map((s) => (
-                  <a key={s.id} href={s.snapshotUrl ?? "#"} target="_blank" rel="noreferrer">
+                  <a key={s.id} href={`${STATIC_FILE_ORIGIN}${s.snapshotUrl}`} target="_blank" rel="noreferrer">
                     <img
-                      src={s.snapshotUrl ?? ""}
+                      src={`${STATIC_FILE_ORIGIN}${s.snapshotUrl}`}
                       alt="Webcam snapshot"
                       className="aspect-video w-full rounded-lg border border-border object-cover"
                     />
@@ -89,9 +93,8 @@ export function SessionEventTimeline({ session, onClose }: Props) {
                 events.map((e) => (
                   <div
                     key={e.id}
-                    className={`flex items-center gap-3 rounded-lg border px-3.5 py-2 text-sm ${
-                      e.isFlagged ? "border-accent-rose/30 bg-accent-rose/5" : "border-border"
-                    }`}
+                    className={`flex items-center gap-3 rounded-lg border px-3.5 py-2 text-sm ${e.isFlagged ? "border-accent-rose/30 bg-accent-rose/5" : "border-border"
+                      }`}
                   >
                     <div className={`rounded-md p-1.5 ${e.isFlagged ? "bg-accent-rose/15 text-accent-rose" : "bg-white/5 text-muted"}`}>
                       {EVENT_ICONS[e.eventType]}

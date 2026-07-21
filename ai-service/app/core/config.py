@@ -1,13 +1,8 @@
-# app/core/config.py
-#
-# This service is INTERNAL — it must never be directly reachable from
-# the browser. Only the Node backend calls it, authenticated with a
-# shared secret. Deploy it on a private network / internal port, and
-# additionally keep this header check as defense in depth.
-
 import os
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
+load_dotenv()
 
 class Settings(BaseSettings):
     internal_api_key: str = os.environ.get("AI_SERVICE_INTERNAL_KEY", "")
@@ -15,7 +10,15 @@ class Settings(BaseSettings):
 
     # Detection thresholds
     face_detection_min_confidence: float = 0.5
-    gaze_offset_threshold: float = 0.18  # same heuristic threshold as before, now computed server-side
+
+    # Gaze offset thresholds, as a fraction of face-box width.
+    # These are MEDIUM-sensitivity defaults, used when the caller
+    # (Node backend) doesn't pass per-exam overrides.
+    #   |offset| <= near_threshold           -> CENTER
+    #   near_threshold < |offset| <= far     -> LEFT / RIGHT
+    #   |offset| > far_threshold             -> AWAY
+    gaze_near_threshold: float = 0.08
+    gaze_far_threshold: float = 0.16
 
 
 settings = Settings()
