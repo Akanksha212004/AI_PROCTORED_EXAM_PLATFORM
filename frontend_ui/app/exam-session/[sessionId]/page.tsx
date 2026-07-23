@@ -1,13 +1,10 @@
 // "use client";
 
 // // app/exam-session/[sessionId]/page.tsx
-// //
-// // Deliberately OUTSIDE DashboardShell — an active exam should be
-// // distraction-free (no sidebar/nav chrome).
 
-// import { useCallback, useMemo, useState } from "react";
+// import { useCallback, useEffect, useMemo, useState } from "react";
 // import { useParams, useRouter } from "next/navigation";
-// import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+// import { Loader2, ChevronLeft, ChevronRight, CheckCircle2, Flag, Eraser } from "lucide-react";
 
 // import { RoleGuard } from "@/components/auth/RoleGuard";
 // import { Button } from "@/components/ui/Button";
@@ -20,6 +17,8 @@
 // import { SubmitConfirmDialog } from "@/components/exam-taking/SubmitConfirmDialog";
 // import { FullScreenGate } from "@/components/exam-taking/FullScreenGate";
 // import { ProctoringCameraWidget } from "@/components/exam-taking/ProctoringCameraWidget";
+
+// const REDIRECT_SECONDS = 5;
 
 // export default function ExamSessionPage() {
 //   return (
@@ -40,6 +39,8 @@
 //     finalResult,
 //     visitedQuestionIds,
 //     markVisited,
+//     toggleMarkForReview,
+//     clearAnswer,
 //     selectOptions,
 //     setTextDraft,
 //     uploadFile,
@@ -48,6 +49,7 @@
 
 //   const [activeIndex, setActiveIndex] = useState(0);
 //   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+//   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
 
 //   const handleExceeded = useCallback(() => {
 //     submitExam();
@@ -55,7 +57,7 @@
 
 //   const isActive = Boolean(session && session.status === "IN_PROGRESS");
 
-//   const { isFullscreen, requestFullscreen } = useProctoringSignals({
+//   const { isFullscreen, requestFullscreen, suppressNextBlur } = useProctoringSignals({
 //     sessionId: params.sessionId,
 //     enabled: isActive,
 //     fullScreenModeEnabled: session?.exam.fullScreenModeEnabled ?? false,
@@ -83,6 +85,25 @@
 //     }).length;
 //   }, [session]);
 
+//   const activeQuestion = session?.questions[activeIndex];
+
+//   // Mark the current question as visited the moment it becomes active
+//   // (covers both direct palette clicks and Next/Previous navigation).
+//   useEffect(() => {
+//     if (activeQuestion) markVisited(activeQuestion.questionId);
+//   }, [activeQuestion, markVisited]);
+
+//   // Post-submit: 5s countdown then auto-redirect to the dashboard.
+//   useEffect(() => {
+//     if (!finalResult || finalResult.status === "IN_PROGRESS") return;
+//     if (countdown <= 0) {
+//       router.push("/dashboard/student");
+//       return;
+//     }
+//     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+//     return () => clearTimeout(timer);
+//   }, [finalResult, countdown, router]);
+
 //   if (isLoading) {
 //     return (
 //       <div className="flex min-h-screen items-center justify-center bg-ink text-muted">
@@ -91,41 +112,41 @@
 //     );
 //   }
 
+//   // Beautiful centered success card — no marks/score shown, per spec.
 //   if (finalResult && finalResult.status !== "IN_PROGRESS") {
 //     return (
 //       <div className="flex min-h-screen items-center justify-center bg-ink px-4">
 //         <div className="max-w-md rounded-2xl border border-border bg-surface p-8 text-center shadow-card">
-//           <h1 className="font-display text-xl font-semibold text-paper">
-//             {finalResult.status === "AUTO_SUBMITTED" ? "Exam Auto-Submitted" : "Exam Submitted"}
+//           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-teal/15">
+//             <CheckCircle2 className="h-8 w-8 text-accent-teal" />
+//           </div>
+//           <h1 className="mt-4 font-display text-xl font-semibold text-paper">
+//             {finalResult.status === "AUTO_SUBMITTED" ? "Exam Auto-Submitted" : "Exam Submitted Successfully"}
 //           </h1>
 //           <p className="mt-2 text-sm text-muted">
-//             {finalResult.status === "AUTO_SUBMITTED"
-//               ? "Your time ran out (or a proctoring limit was reached), so your exam was submitted automatically."
-//               : "Your answers have been recorded."}
+//             Your responses have been recorded successfully.
+//             {Boolean(finalResult.pendingSubjectiveCount) &&
+//               " If your exam contains subjective questions, final results will be available after examiner evaluation."}
 //           </p>
-//           {typeof finalResult.autoGradedMarks === "number" && (
-//             <p className="mt-4 text-sm text-paper">
-//               Auto-graded score so far:{" "}
-//               <span className="font-semibold text-accent-sky">{finalResult.autoGradedMarks}</span>
-//             </p>
-//           )}
-//           {Boolean(finalResult.pendingSubjectiveCount) && (
-//             <p className="mt-1 text-xs text-muted">
-//               {finalResult.pendingSubjectiveCount} answer(s) are awaiting examiner review before your final score is
-//               ready.
-//             </p>
-//           )}
-//           <Button onClick={() => router.push("/dashboard/student/exams")} className="mt-6 w-auto px-5">
-//             Back to My Exams
-//           </Button>
+//           <p className="mt-6 text-xs text-muted">Redirecting to Dashboard in {countdown}...</p>
 //         </div>
 //       </div>
 //     );
 //   }
 
-//   if (!session) return null;
+//   if (!session || !activeQuestion) return null;
 
-//   const activeQuestion = session.questions[activeIndex];
+//   const isMarked = activeQuestion.answer?.markedForReview ?? false;
+//   const hasContent = Boolean(
+//     (activeQuestion.answer?.selectedOptionIds.length ?? 0) > 0 ||
+//     activeQuestion.answer?.submittedText?.trim() ||
+//     activeQuestion.answer?.submittedFileUrl
+//   );
+//   const isLastQuestion = activeIndex === session.questions.length - 1;
+
+//   function goNext() {
+//     setActiveIndex((i) => Math.min(session!.questions.length - 1, i + 1));
+//   }
 
 //   return (
 //     <div className="min-h-screen bg-ink">
@@ -162,39 +183,67 @@
 //         </aside>
 
 //         <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface p-6">
-//           {activeQuestion && (
-//             <QuestionPanel
-//               question={activeQuestion}
-//               index={activeIndex}
-//               total={session.questions.length}
-//               onSelectOptions={(ids) => selectOptions(activeQuestion.questionId, ids)}
-//               onTextChange={(text) => setTextDraft(activeQuestion.questionId, text)}
-//               onFileUpload={(file) => uploadFile(activeQuestion.questionId, file)}
-//             />
-//           )}
+//           <QuestionPanel
+//             question={activeQuestion}
+//             index={activeIndex}
+//             total={session.questions.length}
+//             onSelectOptions={(ids) => selectOptions(activeQuestion.questionId, ids)}
+//             onTextChange={(text) => setTextDraft(activeQuestion.questionId, text)}
+//             onFileUpload={(file) => uploadFile(activeQuestion.questionId, file)}
+//             onBeforeFilePick={suppressNextBlur}
+//           />
 
-//           <div className="mt-8 flex items-center justify-between border-t border-border pt-5">
-//             <Button
-//               variant="secondary"
-//               onClick={() => setActiveIndex((i) => Math.max(0, i - 1))}
-//               disabled={activeIndex === 0}
-//               className="w-auto px-4"
-//             >
-//               <ChevronLeft className="h-4 w-4" /> Previous
-//             </Button>
-
-//             {activeIndex < session.questions.length - 1 ? (
-//               <Button onClick={() => setActiveIndex((i) => i + 1)} className="w-auto px-4">
-//                 Next <ChevronRight className="h-4 w-4" />
-//               </Button>
-//             ) : (
+//           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
+//             <div className="flex flex-wrap gap-2">
 //               <Button
-//                 onClick={() => setShowSubmitConfirm(true)}
-//                 className="w-auto bg-accent-teal px-5 hover:bg-accent-teal/90"
+//                 variant="secondary"
+//                 onClick={() => setActiveIndex((i) => Math.max(0, i - 1))}
+//                 disabled={activeIndex === 0}
+//                 className="w-auto px-4"
 //               >
-//                 Submit Exam
+//                 <ChevronLeft className="h-4 w-4" /> Previous
 //               </Button>
-//             )}
+
+//               <Button
+//                 variant="secondary"
+//                 onClick={() => clearAnswer(activeQuestion.questionId)}
+//                 disabled={!hasContent}
+//                 className="w-auto px-4"
+//               >
+//                 <Eraser className="h-4 w-4" /> Clear Response
+//               </Button>
+
+//               <Button
+//                 variant="secondary"
+//                 onClick={() => {
+//                   toggleMarkForReview(activeQuestion.questionId, isMarked);
+//                   goNext();
+//                 }}
+//                 className={`w-auto px-4 ${isMarked ? "border-violet-400 text-violet-300" : ""}`}
+//               >
+//                 <Flag className="h-4 w-4" /> {isMarked ? "Unmark" : "Mark for Review"} & Next
+//               </Button>
+//             </div>
+
+//             <div className="flex gap-2">
+//               {!isLastQuestion ? (
+//                 <>
+//                   <Button variant="secondary" onClick={goNext} className="w-auto px-4">
+//                     Next <ChevronRight className="h-4 w-4" />
+//                   </Button>
+//                   <Button onClick={goNext} className="w-auto px-5">
+//                     Save & Next
+//                   </Button>
+//                 </>
+//               ) : (
+//                 <Button
+//                   onClick={() => setShowSubmitConfirm(true)}
+//                   className="w-auto bg-accent-teal px-5 hover:bg-accent-teal/90"
+//                 >
+//                   Submit Exam
+//                 </Button>
+//               )}
+//             </div>
 //           </div>
 //         </main>
 //       </div>
@@ -275,7 +324,7 @@ function ExamSessionContent() {
 
   const isActive = Boolean(session && session.status === "IN_PROGRESS");
 
-  const { isFullscreen, requestFullscreen } = useProctoringSignals({
+  const { isFullscreen, requestFullscreen, suppressNextBlur } = useProctoringSignals({
     sessionId: params.sessionId,
     enabled: isActive,
     fullScreenModeEnabled: session?.exam.fullScreenModeEnabled ?? false,
@@ -357,8 +406,8 @@ function ExamSessionContent() {
   const isMarked = activeQuestion.answer?.markedForReview ?? false;
   const hasContent = Boolean(
     (activeQuestion.answer?.selectedOptionIds.length ?? 0) > 0 ||
-      activeQuestion.answer?.submittedText?.trim() ||
-      activeQuestion.answer?.submittedFileUrl
+    activeQuestion.answer?.submittedText?.trim() ||
+    activeQuestion.answer?.submittedFileUrl
   );
   const isLastQuestion = activeIndex === session.questions.length - 1;
 
@@ -408,6 +457,7 @@ function ExamSessionContent() {
             onSelectOptions={(ids) => selectOptions(activeQuestion.questionId, ids)}
             onTextChange={(text) => setTextDraft(activeQuestion.questionId, text)}
             onFileUpload={(file) => uploadFile(activeQuestion.questionId, file)}
+            onBeforeFilePick={suppressNextBlur}
           />
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">

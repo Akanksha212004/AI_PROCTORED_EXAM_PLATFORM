@@ -11,7 +11,7 @@ import { proctorEventService } from "@/services/proctorEventService";
 import type { LiveSessionItem, ProctorEventRecord } from "@/types/proctorEvent";
 
 interface Props {
-  session: LiveSessionItem | null;
+  session: Pick<LiveSessionItem, "sessionId" | "studentName"> | null;
   onClose: () => void;
 }
 

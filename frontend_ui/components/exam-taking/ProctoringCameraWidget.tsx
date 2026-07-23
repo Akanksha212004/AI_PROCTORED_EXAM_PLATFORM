@@ -125,9 +125,9 @@ export function ProctoringCameraWidget({ status, faceCount, gazeDirection, video
       {hasWarning && (
         <button
           onClick={() => setShowDetail((v) => !v)}
-          className="flex w-full items-center gap-1.5 border-t border-accent-rose/30 bg-accent-rose/90 px-2.5 py-2 text-left text-xs font-medium text-white transition-colors hover:bg-accent-rose"
+          className="flex w-full items-center gap-1.5 border-t border-accent-rose/30 bg-accent-rose/90 px-2.5 py-2 text-left text-sm font-medium text-white transition-colors hover:bg-accent-rose"
         >
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          <AlertTriangle className="h-4 w-4 shrink-0" />
           {warningText}
         </button>
       )}

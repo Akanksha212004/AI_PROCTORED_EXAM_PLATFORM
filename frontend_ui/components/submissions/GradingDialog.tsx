@@ -233,6 +233,9 @@ import { CheckCircle2, Circle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+import { Eye } from "lucide-react";
+import { SessionEventTimeline } from "@/components/live-monitoring/SessionEventTimeline";
+
 import { Dialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -255,13 +258,12 @@ function ObjectiveAnswerView({ q }: { q: SubmissionQuestionDetail }) {
         return (
           <div
             key={opt.id}
-            className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2 text-sm ${
-              opt.isCorrect
+            className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2 text-sm ${opt.isCorrect
                 ? "border-accent-teal/40 bg-accent-teal/10 text-paper"
                 : wasSelected
-                ? "border-accent-rose/40 bg-accent-rose/10 text-paper"
-                : "border-border text-muted"
-            }`}
+                  ? "border-accent-rose/40 bg-accent-rose/10 text-paper"
+                  : "border-border text-muted"
+              }`}
           >
             {opt.isCorrect ? (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-accent-teal" />
@@ -381,6 +383,7 @@ function SubjectiveGradingRow({
 }
 
 export function GradingDialog({ sessionId, onClose, onGraded }: Props) {
+  const [showProctoring, setShowProctoring] = useState(false);
   const [detail, setDetail] = useState<SubmissionDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFinalizing, setIsFinalizing] = useState(false);
@@ -424,54 +427,69 @@ export function GradingDialog({ sessionId, onClose, onGraded }: Props) {
   const pendingCount = detail?.questions.filter((q) => q.grading?.status === "PENDING").length ?? 0;
 
   return (
-    <Dialog open={Boolean(sessionId)} onClose={onClose} title={detail ? `Grading — ${detail.studentName}` : "Grading"} size="lg">
-      {isLoading ? (
-        <p className="py-10 text-center text-sm text-muted">Loading submission...</p>
-      ) : detail ? (
-        <div className="space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
-            <div>
-              <p className="text-sm text-paper">{detail.examTitle}</p>
-              <p className="text-xs text-muted">
-                Submitted {detail.submittedAt ? new Date(detail.submittedAt).toLocaleString() : "—"}
-              </p>
-            </div>
-            <Badge tone="sky">Total so far: {detail.totalMarks}</Badge>
-          </div>
-
-          <div className="max-h-[50vh] space-y-4 overflow-y-auto pr-1">
-            {detail.questions.map((q, i) => (
-              <div key={q.questionId} className="space-y-2">
-                <p className="text-sm font-medium text-paper">
-                  Q{i + 1}. {q.questionText}{" "}
-                  <span className="font-normal text-muted">({q.marksAllocated} marks)</span>
+    <>
+      <Dialog open={Boolean(sessionId)} onClose={onClose} title={detail ? `Grading — ${detail.studentName}` : "Grading"} size="lg">
+        {isLoading ? (
+          <p className="py-10 text-center text-sm text-muted">Loading submission...</p>
+        ) : detail ? (
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
+              <div>
+                <p className="text-sm text-paper">{detail.examTitle}</p>
+                <p className="text-xs text-muted">
+                  Submitted {detail.submittedAt ? new Date(detail.submittedAt).toLocaleString() : "—"}
                 </p>
-                {q.isObjective ? (
-                  <ObjectiveAnswerView q={q} />
-                ) : (
-                  <SubjectiveGradingRow q={q} onSave={handleGrade} />
-                )}
               </div>
-            ))}
-          </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowProctoring(true)}
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-paper/80 transition-colors hover:bg-white/5"
+                >
+                  <Eye className="h-3.5 w-3.5" /> View Proctoring
+                </button>
+                <Badge tone="sky">Total so far: {detail.totalMarks}</Badge>
+              </div>
+            </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-4">
-            <p className="text-xs text-muted">
-              {pendingCount > 0 ? `${pendingCount} answer(s) still need grading` : "All answers graded"}
-            </p>
-            <Button
-              onClick={handleFinalize}
-              isLoading={isFinalizing}
-              disabled={pendingCount > 0}
-              className="w-auto bg-accent-teal px-5 hover:bg-accent-teal/90"
-            >
-              Finalize Result
-            </Button>
+            <div className="max-h-[50vh] space-y-4 overflow-y-auto pr-1">
+              {detail.questions.map((q, i) => (
+                <div key={q.questionId} className="space-y-2">
+                  <p className="text-sm font-medium text-paper">
+                    Q{i + 1}. {q.questionText}{" "}
+                    <span className="font-normal text-muted">({q.marksAllocated} marks)</span>
+                  </p>
+                  {q.isObjective ? (
+                    <ObjectiveAnswerView q={q} />
+                  ) : (
+                    <SubjectiveGradingRow q={q} onSave={handleGrade} />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between border-t border-border pt-4">
+              <p className="text-xs text-muted">
+                {pendingCount > 0 ? `${pendingCount} answer(s) still need grading` : "All answers graded"}
+              </p>
+              <Button
+                onClick={handleFinalize}
+                isLoading={isFinalizing}
+                disabled={pendingCount > 0}
+                className="w-auto bg-accent-teal px-5 hover:bg-accent-teal/90"
+              >
+                Finalize Result
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <p className="py-10 text-center text-sm text-muted">Submission not found.</p>
-      )}
-    </Dialog>
+        ) : (
+          <p className="py-10 text-center text-sm text-muted">Submission not found.</p>
+        )}
+      </Dialog>
+
+      <SessionEventTimeline
+        session={showProctoring && detail ? { sessionId: detail.id, studentName: detail.studentName } : null}
+        onClose={() => setShowProctoring(false)}
+      />
+    </>
   );
 }

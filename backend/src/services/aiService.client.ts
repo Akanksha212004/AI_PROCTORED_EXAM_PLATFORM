@@ -32,12 +32,12 @@ export interface GazeThresholds {
 export function thresholdsForSensitivity(sensitivity: GazeSensitivity): GazeThresholds {
   switch (sensitivity) {
     case GazeSensitivity.HIGH:
-      return { near: 0.05, far: 0.10 };
+      return { near: 0.10, far: 0.20 };
     case GazeSensitivity.LOW:
-      return { near: 0.12, far: 0.22 };
+      return { near: 0.20, far: 0.38 };
     case GazeSensitivity.MEDIUM:
     default:
-      return { near: 0.08, far: 0.16 };
+      return { near: 0.15, far: 0.30 };
   }
 }
 

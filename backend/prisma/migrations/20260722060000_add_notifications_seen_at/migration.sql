@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "public"."users" ADD COLUMN     "notifications_seen_at" TIMESTAMP(3);
