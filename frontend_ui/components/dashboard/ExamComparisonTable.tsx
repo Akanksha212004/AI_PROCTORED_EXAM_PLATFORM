@@ -26,7 +26,7 @@ export function ExamComparisonTable({ data, isLoading }: Props) {
           <ListOrdered className="h-4 w-4 text-accent-amber" />
           Exam Comparison
         </p>
-        <p className="text-xs text-muted">By attempts</p>
+        {/* <p className="text-xs text-muted">By attempts</p> */}
       </div>
 
       {isLoading ? (

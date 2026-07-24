@@ -7,9 +7,11 @@ import type { QuestionPagination } from "@/types/question";
 interface Props {
   pagination: QuestionPagination;
   onPageChange: (page: number) => void;
+  /** The noun shown after the count, e.g. "exams", "submissions". Defaults to "questions". */
+  itemLabel?: string;
 }
 
-export function Pagination({ pagination, onPageChange }: Props) {
+export function Pagination({ pagination, onPageChange, itemLabel = "questions" }: Props) {
   const { page, totalPages, total, limit } = pagination;
   if (total === 0) return null;
 
@@ -20,7 +22,7 @@ export function Pagination({ pagination, onPageChange }: Props) {
     <div className="flex flex-col items-center justify-between gap-3 border-t border-border px-1 py-4 sm:flex-row">
       <p className="text-sm text-muted">
         Showing <span className="text-paper">{start}</span>–<span className="text-paper">{end}</span> of{" "}
-        <span className="text-paper">{total}</span> questions
+        <span className="text-paper">{total}</span> {itemLabel}
       </p>
       <div className="flex items-center gap-2">
         <button

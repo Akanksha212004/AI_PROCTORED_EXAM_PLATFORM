@@ -5,9 +5,9 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RegisterPayload {

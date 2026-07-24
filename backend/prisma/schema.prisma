@@ -336,6 +336,7 @@ enum ProctorEventType {
   GAZE_LOG
   TAB_SWITCH
   MULTI_FACE_DETECTED
+  FULLSCREEN_EXIT
 }
 
 enum GradingStatus {

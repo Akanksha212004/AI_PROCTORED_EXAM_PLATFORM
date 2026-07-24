@@ -16,7 +16,7 @@ export async function findExamsForReports(examinerId: string) {
 export async function findExamOwnedByExaminer(examinerId: string, examId: string) {
   return prisma.exam.findFirst({
     where: { id: examId, createdById: examinerId },
-    select: { id: true, title: true },
+    select: { id: true, title: true, subject: true, passingMarks: true },
   });
 }
 

@@ -2,7 +2,7 @@
 
 import { STATIC_FILE_ORIGIN } from "@/lib/axios";
 
-import { AlertTriangle, Camera, Eye, MonitorX, Users } from "lucide-react";
+import { AlertTriangle, Camera, Eye, Maximize, MonitorX, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Dialog } from "@/components/ui/Dialog";
@@ -20,6 +20,7 @@ const EVENT_ICONS: Record<string, React.ReactNode> = {
   GAZE_LOG: <Eye className="h-4 w-4" />,
   TAB_SWITCH: <MonitorX className="h-4 w-4" />,
   MULTI_FACE_DETECTED: <Users className="h-4 w-4" />,
+  FULLSCREEN_EXIT: <Maximize className="h-4 w-4" />,
 };
 
 function eventLabel(e: ProctorEventRecord): string {
@@ -32,6 +33,8 @@ function eventLabel(e: ProctorEventRecord): string {
       return "Left the exam tab";
     case "MULTI_FACE_DETECTED":
       return e.faceCount === 0 ? "No face detected" : `${e.faceCount} faces detected`;
+    case "FULLSCREEN_EXIT":
+      return "Exited fullscreen";
     default:
       return e.eventType;
   }
