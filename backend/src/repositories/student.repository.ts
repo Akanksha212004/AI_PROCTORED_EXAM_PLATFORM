@@ -76,3 +76,13 @@ export async function findSessionsForStudent(examinerId: string, studentId: stri
     orderBy: { startTime: "desc" },
   });
 }
+
+/** Flips a student's account active/deactivated. Caller is responsible for
+ *  first confirming the student is in this examiner's scope (findStudentById). */
+export async function updateStudentActiveStatus(studentId: string, isActive: boolean) {
+  return prisma.user.update({
+    where: { id: studentId },
+    data: { isActive },
+    select: { id: true, name: true, email: true, isActive: true, createdAt: true },
+  });
+}

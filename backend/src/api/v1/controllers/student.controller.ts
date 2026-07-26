@@ -13,3 +13,12 @@ export const getStudent = asyncHandler(async (req: Request, res: Response) => {
   const result = await studentService.getStudentDetail(req.user!.id, req.params.studentId as string);
   res.status(200).json(result);
 });
+
+export const updateStudentStatus = asyncHandler(async (req: Request, res: Response) => {
+  const result = await studentService.setStudentActiveStatus(
+    req.user!.id,
+    req.params.studentId as string,
+    req.body.isActive
+  );
+  res.status(200).json(result);
+});

@@ -13,6 +13,7 @@
 // Resulting endpoints:
 //   POST /api/v1/proctoring/sessions/:id/events            (student)
 //   POST /api/v1/proctoring/sessions/:id/events/snapshot   (student)
+//   POST /api/v1/proctoring/sessions/:id/events/audio      (student)
 //   GET  /api/v1/proctoring/sessions/:id/events             (examiner/admin)
 //   GET  /api/v1/proctoring/live-sessions                   (examiner/admin)
 //
@@ -28,6 +29,7 @@ import { Router } from "express";
 import {
   submitEvent,
   submitSnapshot,
+  submitAudioClip,
   getSessionEvents,
   getLiveSessions,
 } from "../controllers/proctorEvent.controller";
@@ -35,6 +37,7 @@ import { authenticate, requireRoles } from "../../../middlewares/auth.middleware
 import { validateBody } from "../../../middlewares/validate.middleware";
 import { submitProctorEventSchema } from "../../../schemas/proctorEvent.schema";
 import { uploadProctorSnapshot } from "../../../middlewares/uploadProctorSnapshot.middleware";
+import { uploadProctorAudio } from "../../../middlewares/uploadProctorAudio.middleware";
 
 const router = Router();
 
@@ -47,6 +50,7 @@ router.post(
   submitEvent
 );
 router.post("/sessions/:id/events/snapshot", requireRoles("STUDENT"), uploadProctorSnapshot, submitSnapshot);
+router.post("/sessions/:id/events/audio", requireRoles("STUDENT"), uploadProctorAudio, submitAudioClip);
 
 router.get("/sessions/:id/events", requireRoles("EXAMINER", "ADMIN"), getSessionEvents);
 router.get("/live-sessions", requireRoles("EXAMINER", "ADMIN"), getLiveSessions);

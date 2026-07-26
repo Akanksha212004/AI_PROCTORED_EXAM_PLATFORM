@@ -44,6 +44,7 @@ export interface SessionExamView {
   durationMinutes: number;
   negativeMarkingEnabled: boolean;
   webcamMonitoringEnabled: boolean;
+  audioMonitoringEnabled: boolean;
   multiFaceDetectionEnabled: boolean;
   fullScreenModeEnabled: boolean;
   gazeSensitivity: GazeSensitivity;

@@ -7,11 +7,14 @@
 // Resulting endpoints:
 //   GET /api/v1/examiner/students?search=&page=&limit=
 //   GET /api/v1/examiner/students/:studentId
+//   PATCH /api/v1/examiner/students/:studentId/status
 
 import { Router } from "express";
 
-import { getStudent, listStudents } from "../controllers/student.controller";
+import { getStudent, listStudents, updateStudentStatus } from "../controllers/student.controller";
 import { authenticate, requireRoles } from "../../../middlewares/auth.middleware";
+import { validateBody } from "../../../middlewares/validate.middleware";
+import { updateStudentStatusSchema } from "../../../schemas/student.schema";
 
 const router = Router();
 
@@ -19,5 +22,6 @@ router.use(authenticate, requireRoles("EXAMINER", "ADMIN"));
 
 router.get("/students", listStudents);
 router.get("/students/:studentId", getStudent);
+router.patch("/students/:studentId/status", validateBody(updateStudentStatusSchema), updateStudentStatus);
 
 export default router;

@@ -18,6 +18,13 @@ export const submitSnapshot = asyncHandler(async (req: Request, res: Response) =
   res.status(201).json(event);
 });
 
+// POST /sessions/:id/proctor-events/audio (student, multipart WAV file)
+export const submitAudioClip = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.file) throw ApiError.badRequest("No audio file uploaded");
+  const event = await proctorEventService.submitAudioClip(req.params.id, req.file.path, req.user!);
+  res.status(201).json(event);
+});
+
 // GET /sessions/:id/proctor-events (examiner/admin — event timeline for review)
 export const getSessionEvents = asyncHandler(async (req: Request, res: Response) => {
   const result = await proctorEventService.getSessionEvents(req.params.id, req.query as never, req.user!);

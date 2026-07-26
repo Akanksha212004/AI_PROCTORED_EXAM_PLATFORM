@@ -90,6 +90,7 @@ function toStudentSessionView(session: SessionWithPaper, timeRemainingSeconds: n
       durationMinutes: session.exam.durationMinutes,
       negativeMarkingEnabled: session.exam.negativeMarkingEnabled,
       webcamMonitoringEnabled: session.exam.webcamMonitoringEnabled,
+      audioMonitoringEnabled: session.exam.audioMonitoringEnabled,
       multiFaceDetectionEnabled: session.exam.multiFaceDetectionEnabled,
       fullScreenModeEnabled: session.exam.fullScreenModeEnabled,
       gazeSensitivity: session.exam.gazeSensitivity,

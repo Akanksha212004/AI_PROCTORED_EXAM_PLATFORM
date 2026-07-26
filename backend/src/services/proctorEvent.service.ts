@@ -118,7 +118,7 @@ import type { ZodError } from "zod";
 
 import * as proctorEventRepository from "../repositories/proctorEvent.repository";
 import { submitProctorEventSchema, listProctorEventsQuerySchema } from "../schemas/proctorEvent.schema";
-import { analyzeSnapshot, thresholdsForSensitivity } from "./aiService.client";
+import { analyzeSnapshot, analyzeAudioClip, thresholdsForSensitivity } from "./aiService.client";
 
 export interface AuthUser {
   id: string;
@@ -206,6 +206,43 @@ export async function submitSnapshot(sessionId: string, filePath: string, curren
     gazeDirection: analysis.gazeDirection ?? undefined,
     gazeConfidence: analysis.gazeConfidence ?? undefined,
     isFlagged: analysis.gazeDirection === "AWAY",
+  });
+}
+
+/**
+ * Student uploads a short recorded audio clip (WAV). Forwarded to
+ * ai-service for real Voice Activity Detection (webrtcvad) — replaces
+ * the earlier "client computes its own RMS volume and decides for
+ * itself" approach with a server-side verdict the client can't fake
+ * or skip. Unlike webcam snapshots, the audio file is NEVER kept
+ * after analysis — it's deleted in every code path below, success or
+ * failure, since there's no proctoring reason to retain raw audio
+ * once a voice-activity verdict has been extracted from it.
+ */
+export async function submitAudioClip(sessionId: string, filePath: string, currentUser: AuthUser) {
+  const session = await proctorEventRepository.findSessionOwnedByStudent(sessionId, currentUser.id);
+  if (!session) {
+    fs.unlink(filePath, () => undefined);
+    throw new ApiError(404, "Session not found");
+  }
+  if (session.status !== SessionStatus.IN_PROGRESS) {
+    fs.unlink(filePath, () => undefined);
+    throw new ApiError(409, "This session is no longer active");
+  }
+
+  const analysis = await analyzeAudioClip(filePath);
+  fs.unlink(filePath, () => undefined); // always discard the clip — analyzed, not stored
+
+  // ai-service unreachable / failed — fail open rather than silently
+  // dropping the signal: no event is recorded for this cycle, the
+  // next clip will retry. (Mirrors submitSnapshot's fail-open policy.)
+  if (!analysis) return null;
+
+  return proctorEventRepository.createEvent({
+    examSessionId: sessionId,
+    eventType: ProctorEventType.AUDIO_ANOMALY,
+    audioLevel: analysis.voicedFrameRatio,
+    isFlagged: analysis.isSpeechDetected,
   });
 }
 

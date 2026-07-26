@@ -231,6 +231,7 @@ model ProctorEvent {
   gazeDirection  String?          @map("gaze_direction")
   gazeConfidence Float?           @map("gaze_confidence")
   faceCount      Int?             @map("face_count")
+  audioLevel     Float?           @map("audio_level")
   isFlagged      Boolean          @default(false) @map("is_flagged")
   occurredAt     DateTime         @default(now()) @map("occurred_at")
   createdAt      DateTime         @default(now()) @map("created_at")
@@ -336,7 +337,7 @@ enum ProctorEventType {
   GAZE_LOG
   TAB_SWITCH
   MULTI_FACE_DETECTED
-  FULLSCREEN_EXIT
+  AUDIO_ANOMALY
 }
 
 enum GradingStatus {

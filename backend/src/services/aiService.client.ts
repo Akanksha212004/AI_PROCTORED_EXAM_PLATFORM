@@ -25,19 +25,22 @@ export interface GazeThresholds {
 }
 
 /**
- * Maps the exam's configured gazeSensitivity to actual offset
- * thresholds. HIGH = narrower bands = flags sooner. LOW = wider bands
- * = more lenient. MEDIUM mirrors ai-service's own internal defaults.
+ * Maps the exam's configured gazeSensitivity to actual yaw-offset
+ * thresholds, in DEGREES (ai-service now does real solvePnP head-pose
+ * estimation — see face_analysis.py — not the old eye-width-ratio
+ * heuristic, so these are a physically meaningful unit).
+ * HIGH = narrower bands = flags sooner. LOW = wider bands = more
+ * lenient. MEDIUM mirrors ai-service's own internal defaults.
  */
 export function thresholdsForSensitivity(sensitivity: GazeSensitivity): GazeThresholds {
   switch (sensitivity) {
     case GazeSensitivity.HIGH:
-      return { near: 0.10, far: 0.20 };
+      return { near: 8, far: 18 };
     case GazeSensitivity.LOW:
-      return { near: 0.20, far: 0.38 };
+      return { near: 16, far: 34 };
     case GazeSensitivity.MEDIUM:
     default:
-      return { near: 0.15, far: 0.30 };
+      return { near: 12, far: 25 };
   }
 }
 
@@ -45,6 +48,61 @@ export interface AiAnalysisResult {
   faceCount: number;
   gazeDirection: "CENTER" | "LEFT" | "RIGHT" | "AWAY" | null;
   gazeConfidence: number | null;
+}
+
+export interface AudioAnalysisResult {
+  voicedFrameRatio: number;
+  isSpeechDetected: boolean;
+}
+
+/**
+ * Sends a short recorded WAV clip to ai-service for real Voice
+ * Activity Detection (webrtcvad) — replaces the old naive
+ * client-side "is volume above X" check with an actual speech-vs-
+ * noise classifier. Returns null (rather than throwing) on any
+ * failure, same fail-open policy as analyzeSnapshot: an AI-service
+ * hiccup should never block the exam.
+ */
+export async function analyzeAudioClip(filePath: string): Promise<AudioAnalysisResult | null> {
+  if (!AI_SERVICE_URL || !AI_SERVICE_INTERNAL_KEY) {
+    // eslint-disable-next-line no-console
+    console.error("aiService.client: AI_SERVICE_URL or AI_SERVICE_INTERNAL_KEY not configured");
+    return null;
+  }
+
+  try {
+    const buffer = await fs.readFile(filePath);
+
+    const form = new FormData();
+    form.append("file", new Blob([buffer], { type: "audio/wav" }), path.basename(filePath));
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(`${AI_SERVICE_URL}/analyze-audio`, {
+        method: "POST",
+        headers: { "X-Internal-Api-Key": AI_SERVICE_INTERNAL_KEY },
+        body: form,
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        // eslint-disable-next-line no-console
+        console.error(`aiService.client: /analyze-audio returned ${response.status}`);
+        return null;
+      }
+
+      const data = (await response.json()) as AudioAnalysisResult;
+      return data;
+    } finally {
+      clearTimeout(timeout);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("aiService.client: analyze-audio request failed", err);
+    return null;
+  }
 }
 
 /**

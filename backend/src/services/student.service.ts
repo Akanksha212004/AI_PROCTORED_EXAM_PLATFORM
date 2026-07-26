@@ -114,3 +114,21 @@ export async function getStudentDetail(examinerId: string, studentId: string) {
     examHistory,
   };
 }
+
+/** Activates/deactivates a student's account. Deactivating blocks their next
+ *  login attempt (enforced in auth.service/auth.middleware) but does not
+ *  end any session already in progress. */
+export async function setStudentActiveStatus(examinerId: string, studentId: string, isActive: boolean) {
+  const student = await studentRepository.findStudentById(examinerId, studentId);
+  if (!student) throw new ApiError(404, "Student not found");
+
+  const updated = await studentRepository.updateStudentActiveStatus(studentId, isActive);
+
+  return {
+    id: updated.id,
+    name: updated.name,
+    email: updated.email,
+    isActive: updated.isActive,
+    joinedAt: updated.createdAt,
+  };
+}

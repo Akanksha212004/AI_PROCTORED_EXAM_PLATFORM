@@ -1,18 +1,16 @@
+
+
 // types/proctorEvent.ts
 
-export type ProctorEventType =
-  | "WEBCAM_SNAPSHOT"
-  | "GAZE_LOG"
-  | "TAB_SWITCH"
-  | "MULTI_FACE_DETECTED"
-  | "FULLSCREEN_EXIT";
+export type ProctorEventType = "WEBCAM_SNAPSHOT" | "GAZE_LOG" | "TAB_SWITCH" | "MULTI_FACE_DETECTED" | "AUDIO_ANOMALY";
 export type GazeDirection = "CENTER" | "LEFT" | "RIGHT" | "AWAY";
 
-/** TAB_SWITCH and FULLSCREEN_EXIT are the only client-submittable events —
- *  GAZE_LOG / MULTI_FACE_DETECTED are created server-side from ai-service's
- *  analysis, never trusted from the client. */
+/** Only TAB_SWITCH is client-submittable via this generic endpoint.
+ *  GAZE_LOG / MULTI_FACE_DETECTED / AUDIO_ANOMALY are all created
+ *  server-side, from ai-service's analysis of an uploaded snapshot or
+ *  audio clip — never trusted from the client directly. */
 export interface SubmitProctorEventPayload {
-  eventType: "TAB_SWITCH" | "FULLSCREEN_EXIT";
+  eventType: "TAB_SWITCH";
   isFlagged?: boolean;
 }
 
@@ -23,6 +21,7 @@ export interface ProctorEventRecord {
   gazeDirection: string | null;
   gazeConfidence: number | null;
   faceCount: number | null;
+  audioLevel: number | null;
   isFlagged: boolean;
   occurredAt: string;
 }

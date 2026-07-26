@@ -81,3 +81,12 @@ export function useStudents(search: string, page: number, limit = 10) {
     refetch: fetchStudents,
   };
 }
+
+/** Activates/deactivates a student's account. Returns the updated record so
+ *  callers can patch their local list without a full refetch. */
+export async function updateStudentStatus(studentId: string, isActive: boolean) {
+  return authedFetch(`/examiner/students/${studentId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ isActive }),
+  }) as Promise<{ id: string; name: string; email: string; isActive: boolean; joinedAt: string }>;
+}

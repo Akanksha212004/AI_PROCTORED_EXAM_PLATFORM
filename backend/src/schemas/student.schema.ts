@@ -9,3 +9,9 @@ export const listStudentsQuerySchema = z.object({
 });
 
 export type ListStudentsQuery = z.infer<typeof listStudentsQuerySchema>;
+
+export const updateStudentStatusSchema = z.object({
+  isActive: z.boolean(),
+});
+
+export type UpdateStudentStatusInput = z.infer<typeof updateStudentStatusSchema>;

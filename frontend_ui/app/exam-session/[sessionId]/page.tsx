@@ -17,6 +17,7 @@ import { QuestionPanel } from "@/components/exam-taking/QuestionPanel";
 import { SubmitConfirmDialog } from "@/components/exam-taking/SubmitConfirmDialog";
 import { FullScreenGate } from "@/components/exam-taking/FullScreenGate";
 import { ProctoringCameraWidget } from "@/components/exam-taking/ProctoringCameraWidget";
+import { PreExamChecklist } from "@/components/exam-taking/PreExamChecklist";
 
 const REDIRECT_SECONDS = 5;
 
@@ -50,12 +51,16 @@ function ExamSessionContent() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
+  // Gates the real exam UI (fullscreen enforcement, camera monitoring,
+  // question rendering) behind the guidelines/permissions checklist —
+  // set once the student explicitly clicks "Begin Exam".
+  const [hasStartedExam, setHasStartedExam] = useState(false);
 
   const handleExceeded = useCallback(() => {
     submitExam();
   }, [submitExam]);
 
-  const isActive = Boolean(session && session.status === "IN_PROGRESS");
+  const isActive = Boolean(session && session.status === "IN_PROGRESS") && hasStartedExam;
 
   const { isFullscreen, requestFullscreen, suppressNextBlur } = useProctoringSignals({
     sessionId: params.sessionId,
@@ -84,6 +89,16 @@ function ExamSessionContent() {
       );
     }).length;
   }, [session]);
+
+  function handleBeginExam() {
+    // Fire the fullscreen request synchronously inside this click
+    // handler (not inside a later effect) so browsers that require a
+    // direct user gesture for the Fullscreen API still allow it.
+    if (session?.exam.fullScreenModeEnabled && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => undefined);
+    }
+    setHasStartedExam(true);
+  }
 
   const activeQuestion = session?.questions[activeIndex];
 
@@ -135,6 +150,25 @@ function ExamSessionContent() {
   }
 
   if (!session || !activeQuestion) return null;
+
+  // Guidelines + camera/mic permission + acknowledgement, shown once
+  // before any question is revealed.
+  if (session.status === "IN_PROGRESS" && !hasStartedExam) {
+    return (
+      <PreExamChecklist
+        examTitle={session.exam.title}
+        examSubject={session.exam.subject}
+        durationMinutes={session.exam.durationMinutes}
+        fullScreenModeEnabled={session.exam.fullScreenModeEnabled}
+        webcamMonitoringEnabled={session.exam.webcamMonitoringEnabled}
+        audioMonitoringEnabled={session.exam.audioMonitoringEnabled}
+        multiFaceDetectionEnabled={session.exam.multiFaceDetectionEnabled}
+        negativeMarkingEnabled={session.exam.negativeMarkingEnabled}
+        maxTabSwitchWarnings={session.exam.maxTabSwitchWarnings}
+        onBegin={handleBeginExam}
+      />
+    );
+  }
 
   const isMarked = activeQuestion.answer?.markedForReview ?? false;
   const hasContent = Boolean(

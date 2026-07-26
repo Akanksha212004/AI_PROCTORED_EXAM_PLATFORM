@@ -9,6 +9,7 @@ export async function createEvent(params: {
   gazeDirection?: string;
   gazeConfidence?: number;
   faceCount?: number;
+  audioLevel?: number;
   isFlagged: boolean;
   snapshotUrl?: string;
 }) {
@@ -19,6 +20,7 @@ export async function createEvent(params: {
       gazeDirection: params.gazeDirection,
       gazeConfidence: params.gazeConfidence,
       faceCount: params.faceCount,
+      audioLevel: params.audioLevel,
       isFlagged: params.isFlagged,
       snapshotUrl: params.snapshotUrl,
     },
