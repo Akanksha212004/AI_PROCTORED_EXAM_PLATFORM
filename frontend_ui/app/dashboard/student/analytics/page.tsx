@@ -104,7 +104,14 @@ function buildExamComparison(submissions: MySubmissionListItem[]): ExamCompariso
       latest: e.latest,
     }))
     .sort((a, b) => b.latest - a.latest)
-    .map(({ latest, ...row }) => row);
+    .map((entry) => ({
+      examId: entry.examId,
+      examTitle: entry.examTitle,
+      subject: entry.subject,
+      attempts: entry.attempts,
+      averageScore: entry.averageScore,
+      passRate: entry.passRate,
+    }));
 }
 
 export default function StudentAnalyticsPage() {

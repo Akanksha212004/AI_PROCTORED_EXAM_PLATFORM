@@ -6,18 +6,15 @@ import { FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { extractErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/authService";
-import type { UserRole } from "@/types/auth";
 
 interface FormState {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  role: UserRole;
 }
 
 interface FormErrors {
@@ -43,7 +40,6 @@ export function RegisterForm() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "STUDENT" as UserRole,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +73,6 @@ export function RegisterForm() {
         name: form.name.trim(),
         email: form.email.trim().toLowerCase(),
         password: form.password,
-        role: form.role,
       });
       toast.success("Account created — please sign in");
       router.replace("/login");
@@ -107,15 +102,6 @@ export function RegisterForm() {
         onChange={(e) => update("email", e.target.value)}
         error={errors.email}
       />
-      <Select
-        label="Register as"
-        value={form.role}
-        onChange={(e) => update("role", e.target.value as UserRole)}
-      >
-        <option value="STUDENT">Student</option>
-        <option value="EXAMINER">Examiner</option>
-      </Select>
-
       <div>
         <Input
           label="Password"

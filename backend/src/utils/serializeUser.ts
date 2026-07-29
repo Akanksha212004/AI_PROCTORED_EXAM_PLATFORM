@@ -11,6 +11,7 @@ export function toUserRead(user: User) {
     email: user.email,
     role: user.role,
     isActive: user.isActive,
+    approvalStatus: user.approvalStatus,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

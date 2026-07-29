@@ -17,6 +17,7 @@ export interface ExamReportRow {
   subject: string;
   status: ExamReportStatus;
   createdAt: string;
+  examinerName: string | null;
   attempts: number;
   averageScore: number | null;
   passRate: number | null;

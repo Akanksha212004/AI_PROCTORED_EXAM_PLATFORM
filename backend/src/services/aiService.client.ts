@@ -48,6 +48,9 @@ export interface AiAnalysisResult {
   faceCount: number;
   gazeDirection: "CENTER" | "LEFT" | "RIGHT" | "AWAY" | null;
   gazeConfidence: number | null;
+  mobileDeviceDetected: boolean;
+  mobileDeviceConfidence: number | null;
+  mobileDeviceBoundingBox: { x: number; y: number; width: number; height: number } | null;
 }
 
 export interface AudioAnalysisResult {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PREFIX = "/dashboard";
-const AUTH_PAGES = ["/login", "/register"];
+const AUTH_PAGES = ["/login", "/register", "/examiner-portal"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
@@ -24,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/examiner-portal", "/examiner-portal/:path*"],
 };

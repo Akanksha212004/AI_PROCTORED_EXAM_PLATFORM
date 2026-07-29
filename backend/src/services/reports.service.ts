@@ -11,7 +11,7 @@ function csvEscape(value: string | number): string {
   return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
-export async function listExamReports(examinerId: string) {
+export async function listExamReports(examinerId: string | undefined) {
   const [exams, finalizedSessions] = await Promise.all([
     reportsRepository.findExamsForReports(examinerId),
     analyticsRepository.findFinalizedSessionsForAnalytics(examinerId),
@@ -39,6 +39,7 @@ export async function listExamReports(examinerId: string) {
       subject: exam.subject,
       status: exam.status,
       createdAt: exam.createdAt,
+      examinerName: exam.createdBy?.name ?? null,
       attempts: bucket?.attempts ?? 0,
       averageScore: bucket && bucket.count > 0 ? Math.round(bucket.sum / bucket.count) : null,
       passRate: bucket && bucket.attempts > 0 ? Math.round((bucket.passed / bucket.attempts) * 100) : null,
@@ -57,7 +58,7 @@ interface ReportRow {
 }
 
 /** Shared by the "View" (JSON), CSV export, and PDF export — one query, three presentations. */
-async function buildExamReportData(examinerId: string, examId: string) {
+async function buildExamReportData(examinerId: string | undefined, examId: string) {
   const exam = await reportsRepository.findExamOwnedByExaminer(examinerId, examId);
   if (!exam) throw new ApiError(404, "Exam not found");
 
@@ -101,11 +102,11 @@ async function buildExamReportData(examinerId: string, examId: string) {
 }
 
 /** Used by the "View" button — same data as the exports, just JSON for the in-app modal. */
-export async function getExamReportDetail(examinerId: string, examId: string) {
+export async function getExamReportDetail(examinerId: string | undefined, examId: string) {
   return buildExamReportData(examinerId, examId);
 }
 
-export async function exportExamReportCsv(examinerId: string, examId: string): Promise<{ filename: string; csv: string }> {
+export async function exportExamReportCsv(examinerId: string | undefined, examId: string): Promise<{ filename: string; csv: string }> {
   const { exam, rows } = await buildExamReportData(examinerId, examId);
 
   const header = ["Student Name", "Email", "Status", "Marks Obtained", "Max Marks", "Percentage", "Submitted At"];
@@ -143,7 +144,7 @@ function drawPdfRow(
   });
 }
 
-export async function exportExamReportPdf(examinerId: string, examId: string): Promise<{ filename: string; buffer: Buffer }> {
+export async function exportExamReportPdf(examinerId: string | undefined, examId: string): Promise<{ filename: string; buffer: Buffer }> {
   const { exam, rows, summary } = await buildExamReportData(examinerId, examId);
 
   const buffer = await new Promise<Buffer>((resolve, reject) => {

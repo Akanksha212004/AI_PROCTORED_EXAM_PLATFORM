@@ -10,6 +10,8 @@ export async function createEvent(params: {
   gazeConfidence?: number;
   faceCount?: number;
   audioLevel?: number;
+  mobileDeviceConfidence?: number;
+  mobileDeviceBoundingBox?: object;
   isFlagged: boolean;
   snapshotUrl?: string;
 }) {
@@ -21,6 +23,8 @@ export async function createEvent(params: {
       gazeConfidence: params.gazeConfidence,
       faceCount: params.faceCount,
       audioLevel: params.audioLevel,
+      mobileDeviceConfidence: params.mobileDeviceConfidence,
+      mobileDeviceBoundingBox: params.mobileDeviceBoundingBox,
       isFlagged: params.isFlagged,
       snapshotUrl: params.snapshotUrl,
     },

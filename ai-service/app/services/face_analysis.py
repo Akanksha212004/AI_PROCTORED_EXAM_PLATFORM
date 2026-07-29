@@ -66,14 +66,33 @@ _face_mesh = mp_face_mesh.FaceMesh(
 # used across most solvePnP-based head-pose implementations (a generic
 # face model, not any real individual's geometry) — solvePnP is fairly
 # tolerant of that for yaw/pitch purposes.
+#
+# IMPORTANT — axis convention: the commonly-copied version of these
+# points (LearnOpenCV/PyImageSearch head-pose tutorials) uses a
+# Y-up, Z-toward-viewer object frame. That's fine for those tutorials
+# because they only ever *project* the model back into the image to
+# draw a direction line — they never decompose the rotation matrix
+# into Euler angles. Here we DO decompose into yaw/pitch via atan2,
+# and that decomposition implicitly assumes the object frame matches
+# OpenCV's camera convention (Y-down, Z-into-the-scene). With the
+# Y-up/Z-toward-viewer points, solvePnP still fits the 2D landmarks
+# fine, but the recovered rotation is the "flipped" solution — for a
+# face looking straight at the camera it comes back as a ~180 degree
+# rotation about X, which makes pitch read ~180 degrees instead of
+# ~0. Every frame reported "looking down" regardless of actual pose.
+# Negating Y and Z here (vs. the tutorial original) puts the model in
+# the same convention the Euler decomposition expects, so pitch (and
+# yaw) come out as the actual physical angle. Verified against real
+# frames: a straight-on face went from pitch=174 (bogus) to pitch=-6
+# (correct) with this change.
 _MODEL_POINTS_3D = np.array(
     [
         (0.0, 0.0, 0.0),  # Nose tip
-        (0.0, -330.0, -65.0),  # Chin
-        (-225.0, 170.0, -135.0),  # Left eye, left corner
-        (225.0, 170.0, -135.0),  # Right eye, right corner
-        (-150.0, -150.0, -125.0),  # Left mouth corner
-        (150.0, -150.0, -125.0),  # Right mouth corner
+        (0.0, 330.0, 65.0),  # Chin
+        (-225.0, -170.0, 135.0),  # Left eye, left corner
+        (225.0, -170.0, 135.0),  # Right eye, right corner
+        (-150.0, 150.0, 125.0),  # Left mouth corner
+        (150.0, 150.0, 125.0),  # Right mouth corner
     ],
     dtype=np.float64,
 )
@@ -86,10 +105,26 @@ _RIGHT_EYE_RIGHT_CORNER = 263
 _LEFT_MOUTH_CORNER = 61
 _RIGHT_MOUTH_CORNER = 291
 
-# Downward pitch allowance, independent of the yaw far-threshold, since
-# reading on-screen exam text naturally involves a small downward tilt —
-# only flag pitch once it clearly exceeds "reading the screen" territory.
-_DOWN_PITCH_ALLOWANCE_DEGREES = 25.0
+# Downward pitch allowance is now configurable — see
+# settings.gaze_down_pitch_allowance_degrees in config.py.
+
+# How many degrees PAST a threshold it takes for confidence to reach
+# 1.0. Without this, confidence used to jump straight to 100% the
+# instant a threshold was crossed by even a fraction of a degree —
+# which is why borderline, noisy single-frame readings were showing
+# up as "100% confidence AWAY". Now confidence ramps smoothly, so
+# marginal frames report low confidence and only sustained, clear
+# deviations report high confidence.
+_CONFIDENCE_SATURATION_MARGIN_DEGREES = 15.0
+
+# Maximum acceptable mean reprojection error (pixels, normalized by
+# image width) for a solvePnP fit to be trusted. The 6-point method
+# has no camera calibration and is sensitive to landmark noise (e.g.
+# glare on glasses, slight blur) — when the fit doesn't actually
+# explain the landmarks well, the resulting yaw/pitch can be
+# spuriously large. Rather than confidently flagging AWAY on a bad
+# fit, we fall back to "unknown".
+_MAX_REPROJECTION_ERROR_RATIO = 0.03
 
 
 @dataclass
@@ -101,10 +136,16 @@ class AnalysisResult:
     pitch_degrees: float | None = None
 
 
-def _estimate_head_pose(landmarks, image_width: int, image_height: int) -> tuple[float, float] | None:
-    """Returns (yaw_degrees, pitch_degrees), or None if solvePnP fails.
+def _estimate_head_pose(
+    landmarks, image_width: int, image_height: int
+) -> tuple[float, float, float] | None:
+    """Returns (yaw_degrees, pitch_degrees, reprojection_error_ratio), or
+    None if solvePnP fails.
 
     Positive yaw = turned toward the image's right. Positive pitch = tilted down.
+    reprojection_error_ratio is the mean pixel error between the fitted
+    model and the actual landmarks, normalized by image width — a
+    measure of how much to trust this particular fit.
     """
     image_points = np.array(
         [
@@ -142,6 +183,14 @@ def _estimate_head_pose(landmarks, image_width: int, image_height: int) -> tuple
     if not success:
         return None
 
+    projected_points, _ = cv2.projectPoints(
+        _MODEL_POINTS_3D, rotation_vector, _translation_vector, camera_matrix, dist_coeffs
+    )
+    reprojection_error_px = float(
+        np.mean(np.linalg.norm(projected_points.reshape(-1, 2) - image_points, axis=1))
+    )
+    reprojection_error_ratio = reprojection_error_px / image_width
+
     rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
 
     # Standard rotation-matrix -> Euler angle decomposition.
@@ -154,7 +203,7 @@ def _estimate_head_pose(landmarks, image_width: int, image_height: int) -> tuple
         pitch = np.arctan2(-rotation_matrix[1, 2], rotation_matrix[1, 1])
         yaw = np.arctan2(-rotation_matrix[2, 0], sy)
 
-    return float(np.degrees(yaw)), float(np.degrees(pitch))
+    return float(np.degrees(yaw)), float(np.degrees(pitch)), reprojection_error_ratio
 
 
 def analyze_frame(
@@ -193,18 +242,32 @@ def analyze_frame(
     if pose is None:
         return AnalysisResult(face_count=1, gaze_direction=None, gaze_confidence=None)
 
-    yaw, pitch = pose
+    yaw, pitch, reprojection_error_ratio = pose
+
+    # If the 6-point fit doesn't actually explain the landmarks well
+    # (noisy/blurry frame, glasses glare, partial occlusion), don't
+    # trust the resulting angle enough to flag someone as AWAY on it.
+    if reprojection_error_ratio > _MAX_REPROJECTION_ERROR_RATIO:
+        return AnalysisResult(face_count=1, gaze_direction=None, gaze_confidence=None)
 
     # Looking down past the reading-allowance is flagged AWAY directly —
     # it has no meaningful LEFT/RIGHT reading. Otherwise the flagging axis
     # is yaw (turning toward/away from the screen), banded the same
     # near/far way as before.
-    looking_down = pitch > max(far, _DOWN_PITCH_ALLOWANCE_DEGREES)
+    pitch_threshold = max(far, settings.gaze_down_pitch_allowance_degrees)
+    looking_down = pitch > pitch_threshold
 
     abs_yaw = abs(yaw)
     if looking_down or abs_yaw > far:
         direction = "AWAY"
-        confidence = 1.0 if looking_down else min(1.0, abs_yaw / far)
+        if looking_down:
+            excess = pitch - pitch_threshold
+        else:
+            excess = abs_yaw - far
+        # Graduated: right at the threshold reads as low confidence;
+        # confidence only approaches 1.0 once the deviation is clearly
+        # past the threshold, not the instant it's crossed.
+        confidence = min(1.0, excess / _CONFIDENCE_SATURATION_MARGIN_DEGREES)
     elif abs_yaw > near:
         direction = "RIGHT" if yaw > 0 else "LEFT"
         span = max(far - near, 0.001)

@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Eye, FileBarChart, FileText, X } from "lucide-react";
+import { Eye, FileBarChart, FileText, X } from "lucide-react";
 
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { DashboardShell } from "@/components/layout/DashboardShell";

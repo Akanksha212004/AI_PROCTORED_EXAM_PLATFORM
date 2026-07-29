@@ -1,25 +1,42 @@
 export type UserRole = "STUDENT" | "EXAMINER" | "ADMIN";
 
+export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
   isActive: boolean;
+  /** Only meaningful for EXAMINER accounts; STUDENT/ADMIN are always APPROVED. */
+  approvalStatus?: ApprovalStatus;
   createdAt: string;
   updatedAt: string;
 }
 
+/** Public self-registration is STUDENT-only — examiners use ExaminerAccessRequestPayload instead. */
 export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-  role: UserRole;
 }
 
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+/** Submitted via the Examiner Portal's "Request Examiner Access" form. */
+export interface ExaminerAccessRequestPayload {
+  name: string;
+  email: string;
+  password: string;
+  institution: string;
+  department: string;
+  designation: string;
+  employeeId?: string;
+  yearsOfExperience?: number;
+  accessRequestReason: string;
 }
 
 export interface AuthTokenResponse {

@@ -46,7 +46,9 @@ export async function listSubmissions(rawQuery: unknown, currentUser: AuthUser) 
   if (!parsed.success) throw zodErrorToApiError(parsed.error);
 
   const { page, limit, examId, status } = parsed.data;
-  const { items, total } = await submissionRepository.findSubmittedSessions(currentUser.id, {
+  // ADMIN sees submissions across every examiner's exams; EXAMINER only their own.
+  const scopeToExaminerId = currentUser.role === Role.ADMIN ? undefined : currentUser.id;
+  const { items, total } = await submissionRepository.findSubmittedSessions(scopeToExaminerId, {
     examId,
     page,
     limit,
@@ -57,6 +59,7 @@ export async function listSubmissions(rawQuery: unknown, currentUser: AuthUser) 
     examId: s.examId,
     examTitle: s.exam.title,
     examSubject: s.exam.subject,
+    examinerName: s.exam.createdBy?.name ?? null,
     studentName: s.student.name,
     studentEmail: s.student.email,
     submittedAt: s.endTime,

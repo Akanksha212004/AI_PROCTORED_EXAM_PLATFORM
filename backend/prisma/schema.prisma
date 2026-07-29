@@ -18,6 +18,27 @@ model User {
   /// Notifications with a timestamp after this are "unread". Null
   /// means every notification is still unread (never opened it yet).
   notificationsSeenAt DateTime?        @map("notifications_seen_at")
+
+  /// Approval state for account access. STUDENT/ADMIN accounts (and any
+  /// EXAMINER created directly by an admin) default to APPROVED and can
+  /// log in immediately. EXAMINER accounts created via the public
+  /// "Request Examiner Access" flow start at PENDING and cannot log in
+  /// until an admin approves them (see authService.login).
+  approvalStatus   ApprovalStatus      @default(APPROVED) @map("approval_status")
+
+  /// The fields below are only populated for EXAMINER accounts created
+  /// through the Request Examiner Access flow — optional/null for
+  /// STUDENT, ADMIN, and examiners created directly by an admin.
+  institution        String?           @db.VarChar(200)
+  department         String?           @db.VarChar(150)
+  designation        String?           @db.VarChar(150)
+  employeeId         String?           @map("employee_id") @db.VarChar(100)
+  yearsOfExperience  Int?              @map("years_of_experience")
+  accessRequestReason String?          @map("access_request_reason")
+  /// Set when an admin rejects an examiner access request, so the
+  /// rejection reason (if any) can be surfaced back to the applicant.
+  rejectionReason    String?           @map("rejection_reason")
+
   createdAt        DateTime            @default(now()) @map("created_at")
   updatedAt        DateTime            @updatedAt @map("updated_at")
   answers          Answer[]            @relation("StudentAnswers")
@@ -28,6 +49,7 @@ model User {
   gradingsDone     SubjectiveGrading[] @relation("ExaminerGradings")
 
   @@index([role])
+  @@index([role, approvalStatus])
   @@map("users")
 }
 
@@ -232,6 +254,8 @@ model ProctorEvent {
   gazeConfidence Float?           @map("gaze_confidence")
   faceCount      Int?             @map("face_count")
   audioLevel     Float?           @map("audio_level")
+  mobileDeviceConfidence Float?   @map("mobile_device_confidence")
+  mobileDeviceBoundingBox Json?   @map("mobile_device_bounding_box")
   isFlagged      Boolean          @default(false) @map("is_flagged")
   occurredAt     DateTime         @default(now()) @map("occurred_at")
   createdAt      DateTime         @default(now()) @map("created_at")
@@ -299,6 +323,12 @@ enum Role {
   ADMIN
 }
 
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum QuestionType {
   MCQ
   MULTI_SELECT
@@ -338,6 +368,8 @@ enum ProctorEventType {
   TAB_SWITCH
   MULTI_FACE_DETECTED
   AUDIO_ANOMALY
+  FULLSCREEN_EXIT
+  MOBILE_PHONE_DETECTED
 }
 
 enum GradingStatus {

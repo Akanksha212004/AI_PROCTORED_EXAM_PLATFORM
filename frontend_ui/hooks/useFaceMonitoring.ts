@@ -202,6 +202,7 @@
 // so this is spaced out further than the old client-side interval was.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { proctorEventService } from "@/services/proctorEventService";
 import type { GazeDirection } from "@/types/proctorEvent";
 
@@ -213,6 +214,7 @@ export function useFaceMonitoring(sessionId: string, enabled: boolean) {
   const [status, setStatus] = useState<MonitoringStatus>("idle");
   const [faceCount, setFaceCount] = useState<number | null>(null);
   const [gazeDirection, setGazeDirection] = useState<GazeDirection | null>(null);
+  const [mobileDeviceDetected, setMobileDeviceDetected] = useState(false);
   const [flagCount, setFlagCount] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -220,6 +222,10 @@ export function useFaceMonitoring(sessionId: string, enabled: boolean) {
   const streamRef = useRef<MediaStream | null>(null);
   const captureTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inFlightRef = useRef(false);
+  // Rising-edge trackers so a phone/away-gaze held for a while triggers
+  // ONE toast, not one every CAPTURE_INTERVAL_MS while it's still there.
+  const wasMobileFlaggedRef = useRef(false);
+  const wasOtherFlaggedRef = useRef(false);
 
   const captureAndAnalyze = useCallback(async () => {
     const video = videoRef.current;
@@ -244,7 +250,36 @@ export function useFaceMonitoring(sessionId: string, enabled: boolean) {
 
       setFaceCount(record.faceCount);
       setGazeDirection((record.gazeDirection as GazeDirection | null) ?? null);
+      setMobileDeviceDetected(record.mobileDeviceDetected);
       if (record.isFlagged) setFlagCount((c) => c + 1);
+
+      // Live warnings — previously these were only visible to the
+      // examiner afterward in the dashboard event log; the student
+      // taking the exam got no on-screen signal at all that a phone
+      // (or sustained away-gaze / multi-face) had just been flagged.
+      if (record.mobileDeviceDetected) {
+        if (!wasMobileFlaggedRef.current) {
+          toast.error("Mobile phone detected — this has been flagged.", { icon: "📵" });
+        }
+        wasMobileFlaggedRef.current = true;
+      } else {
+        wasMobileFlaggedRef.current = false;
+      }
+
+      if (record.isFlagged && record.eventType !== "MOBILE_PHONE_DETECTED") {
+        if (!wasOtherFlaggedRef.current) {
+          const label =
+            record.eventType === "MULTI_FACE_DETECTED"
+              ? (record.faceCount ?? 0) > 1
+                ? "Multiple faces detected — this has been flagged."
+                : "No face detected — this has been flagged."
+              : "Looking away from the screen — this has been flagged.";
+          toast(label, { icon: "⚠️" });
+        }
+        wasOtherFlaggedRef.current = true;
+      } else {
+        wasOtherFlaggedRef.current = false;
+      }
     } catch {
       // Transient upload/analysis failure — skip this cycle silently,
       // next interval tick will retry.
@@ -291,5 +326,5 @@ export function useFaceMonitoring(sessionId: string, enabled: boolean) {
     };
   }, [enabled, captureAndAnalyze]);
 
-  return { status, faceCount, gazeDirection, flagCount, videoRef, canvasRef };
+  return { status, faceCount, gazeDirection, mobileDeviceDetected, flagCount, videoRef, canvasRef };
 }

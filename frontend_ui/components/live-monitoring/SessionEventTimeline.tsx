@@ -2,7 +2,7 @@
 
 import { STATIC_FILE_ORIGIN } from "@/lib/axios";
 
-import { AlertTriangle, Camera, Eye, Maximize, MonitorX, Users } from "lucide-react";
+import { AlertTriangle, Camera, Eye, Maximize, MonitorX, Smartphone, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Dialog } from "@/components/ui/Dialog";
@@ -20,6 +20,7 @@ const EVENT_ICONS: Record<string, React.ReactNode> = {
   GAZE_LOG: <Eye className="h-4 w-4" />,
   TAB_SWITCH: <MonitorX className="h-4 w-4" />,
   MULTI_FACE_DETECTED: <Users className="h-4 w-4" />,
+  MOBILE_PHONE_DETECTED: <Smartphone className="h-4 w-4" />,
   FULLSCREEN_EXIT: <Maximize className="h-4 w-4" />,
 };
 
@@ -33,6 +34,10 @@ function eventLabel(e: ProctorEventRecord): string {
       return "Left the exam tab";
     case "MULTI_FACE_DETECTED":
       return e.faceCount === 0 ? "No face detected" : `${e.faceCount} faces detected`;
+    case "MOBILE_PHONE_DETECTED":
+      return e.mobileDeviceConfidence
+        ? `Mobile phone detected (${Math.round(e.mobileDeviceConfidence * 100)}% confidence)`
+        : "Mobile phone detected";
     case "FULLSCREEN_EXIT":
       return "Exited fullscreen";
     default:
@@ -89,7 +94,7 @@ export function SessionEventTimeline({ session, onClose }: Props) {
 
           <div>
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Event Log</p>
-            <div className="max-h-72 space-y-1.5 overflow-y-auto">
+            <div className="space-y-1.5">
               {events.length === 0 ? (
                 <p className="py-6 text-center text-sm text-muted">No events yet.</p>
               ) : (

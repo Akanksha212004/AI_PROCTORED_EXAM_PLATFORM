@@ -74,6 +74,7 @@ function ExamSessionContent() {
     status: cameraStatus,
     faceCount,
     gazeDirection,
+    mobileDeviceDetected,
     videoRef,
     canvasRef,
   } = useFaceMonitoring(params.sessionId, isActive && Boolean(session?.exam.webcamMonitoringEnabled));
@@ -193,6 +194,7 @@ function ExamSessionContent() {
           status={cameraStatus}
           faceCount={faceCount}
           gazeDirection={gazeDirection}
+          mobileDeviceDetected={mobileDeviceDetected}
           videoRef={videoRef}
           canvasRef={canvasRef}
         />

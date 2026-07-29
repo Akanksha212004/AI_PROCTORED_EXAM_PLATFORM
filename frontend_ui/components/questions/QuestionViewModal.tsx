@@ -13,18 +13,6 @@ interface Props {
   onClose: () => void;
 }
 
-function resolveBackendOrigin() {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  if (!base) return "http://localhost:8000";
-
-  try {
-    return new URL(base).origin;
-  } catch {
-    return "http://localhost:8000";
-  }
-}
-
 export function QuestionViewModal({ question, onClose }: Props) {
   if (!question) return null;
   const showOptions = question.questionType === "MCQ" || question.questionType === "MULTI_SELECT";

@@ -62,8 +62,12 @@ export async function listQuestions(rawQuery: unknown, currentUser: AuthUser) {
   const parsedQuery = listQuestionsQuerySchema.safeParse(rawQuery);
   if (!parsedQuery.success) throw zodErrorToApiError(parsedQuery.error);
 
+  // ADMIN sees the whole bank; EXAMINER only ever sees questions they
+  // created. Enforced here (backend), not left to frontend filtering.
+  const scopeToOwnerId = currentUser.role === Role.ADMIN ? undefined : currentUser.id;
+
   const { page, limit } = parsedQuery.data;
-  const { items, total } = await questionRepository.findMany(parsedQuery.data);
+  const { items, total } = await questionRepository.findMany(parsedQuery.data, scopeToOwnerId);
 
   return {
     items: items.map((q) => sanitizeQuestion(q, currentUser.role)),
@@ -79,6 +83,15 @@ export async function listQuestions(rawQuery: unknown, currentUser: AuthUser) {
 export async function getQuestionById(id: string, currentUser: AuthUser) {
   const question = await questionRepository.findById(id);
   if (!question) throw new ApiError(404, 'Question not found');
+
+  // An examiner may never view another examiner's question, even
+  // read-only — same rule as modify, just without the admin bypass note.
+  const isOwner = question.createdById === currentUser.id;
+  const isAdmin = currentUser.role === Role.ADMIN;
+  if (!isOwner && !isAdmin) {
+    throw new ApiError(404, 'Question not found');
+  }
+
   return sanitizeQuestion(question, currentUser.role);
 }
 

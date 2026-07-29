@@ -79,11 +79,19 @@ export const passwordSchema = z
     "Password must contain at least one special character"
   );
 
+/**
+ * Public self-registration is STUDENT-only. Examiners no longer get a
+ * `role` field to self-elevate with — they go through
+ * `requestExaminerAccessSchema` (see examinerAccess.schema.ts) instead,
+ * which creates a PENDING account that can't log in until an admin
+ * approves it. authService.register additionally hardcodes role:
+ * "STUDENT" server-side regardless of what a raw API call sends, so
+ * this isn't just a frontend-enforced rule.
+ */
 export const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(150),
   email: z.string().email("Enter a valid email address").toLowerCase(),
   password: passwordSchema,
-  role: RoleEnum.default("STUDENT"),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 

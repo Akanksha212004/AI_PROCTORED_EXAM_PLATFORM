@@ -84,6 +84,17 @@ export function LoginForm() {
           Create one
         </Link>
       </p>
+
+      <div className="mt-2 border-t border-border pt-5 text-center">
+        <p className="text-sm text-paper/60">Examiner?</p>
+        <p className="mt-0.5 text-xs text-paper/40">Access the Examiner Portal</p>
+        <Link
+          href="/examiner-portal"
+          className="mt-3 inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-paper transition-colors hover:bg-white/5"
+        >
+          Examiner Portal
+        </Link>
+      </div>
     </form>
   );
 }

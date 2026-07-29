@@ -72,30 +72,40 @@ interface Props {
   status: MonitoringStatus;
   faceCount: number | null;
   gazeDirection: GazeDirection | null;
+  mobileDeviceDetected: boolean;
   videoRef: RefObject<HTMLVideoElement>;
   canvasRef: RefObject<HTMLCanvasElement>;
 }
 
-export function ProctoringCameraWidget({ status, faceCount, gazeDirection, videoRef, canvasRef }: Props) {
+export function ProctoringCameraWidget({
+  status,
+  faceCount,
+  gazeDirection,
+  mobileDeviceDetected,
+  videoRef,
+  canvasRef,
+}: Props) {
   const [showDetail, setShowDetail] = useState(false);
 
   const isProblem = faceCount !== null && faceCount !== 1;
   const isLookingAway = gazeDirection === "AWAY";
-  const hasWarning = status === "active" && (isProblem || isLookingAway);
+  const hasWarning = status === "active" && (isProblem || isLookingAway || mobileDeviceDetected);
 
-  const warningText =
-    faceCount === 0
-      ? "No face detected"
-      : faceCount && faceCount > 1
-      ? "Multiple faces detected"
-      : "Look at the screen";
+  const warningText = mobileDeviceDetected
+    ? "Mobile phone detected"
+    : faceCount === 0
+    ? "No face detected"
+    : faceCount && faceCount > 1
+    ? "Multiple faces detected"
+    : "Look at the screen";
 
-  const warningDetail =
-    faceCount === 0
-      ? "Your camera doesn't currently see a face. Make sure you're clearly visible and well-lit."
-      : faceCount && faceCount > 1
-      ? "More than one person appears to be in frame. Only the student taking the exam should be visible."
-      : "Your gaze has moved away from the screen for an extended period. Please keep your eyes on the exam.";
+  const warningDetail = mobileDeviceDetected
+    ? "A mobile phone was seen in your camera frame. This has been flagged."
+    : faceCount === 0
+    ? "Your camera doesn't currently see a face. Make sure you're clearly visible and well-lit."
+    : faceCount && faceCount > 1
+    ? "More than one person appears to be in frame. Only the student taking the exam should be visible."
+    : "Your gaze has moved away from the screen for an extended period. Please keep your eyes on the exam.";
 
   return (
     <div className="fixed top-24 right-4 z-40 w-44 overflow-visible rounded-xl border border-border bg-surface shadow-card">

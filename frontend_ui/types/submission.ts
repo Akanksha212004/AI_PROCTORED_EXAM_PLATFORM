@@ -9,6 +9,7 @@ export interface SubmissionListItem {
   examId: string;
   examTitle: string;
   examSubject: string;
+  examinerName: string | null;
   studentName: string;
   studentEmail: string;
   submittedAt: string | null;

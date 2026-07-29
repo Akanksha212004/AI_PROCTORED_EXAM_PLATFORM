@@ -11,6 +11,12 @@ import type { CreateExamInput, UpdateExamInput, ListExamsQuery } from "../schema
 export type ExamWithDetails = Prisma.ExamGetPayload<{
   include: {
     selectionRules: true;
+    createdBy: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
     examQuestions: {
       include: {
         question: {
@@ -30,6 +36,12 @@ export type ExamWithDetails = Prisma.ExamGetPayload<{
 
 const detailIncludes = {
   selectionRules: true,
+  createdBy: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
   examQuestions: {
     include: {
       question: {
@@ -120,12 +132,15 @@ export async function findById(id: string): Promise<ExamWithDetails | null> {
   });
 }
 
-export async function findMany(filters: ListExamsQuery) {
+export async function findMany(filters: ListExamsQuery, createdById?: string) {
   const { subject, status, page, limit } = filters;
 
   const where: Prisma.ExamWhereInput = {
     ...(subject ? { subject } : {}),
     ...(status ? { status } : {}),
+    // Scoped by the service to the acting examiner's own id — undefined
+    // (ADMIN) means no ownership filter, i.e. see every exam.
+    ...(createdById ? { createdById } : {}),
   };
 
   const [items, total] = await Promise.all([

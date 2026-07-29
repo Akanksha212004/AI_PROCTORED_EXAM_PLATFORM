@@ -7,6 +7,7 @@ from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from app.core.config import settings
 from app.services.face_analysis import analyze_frame
 from app.services.audio_analysis import analyze_audio_clip
+from app.services.object_detection import detect_mobile_device
 
 router = APIRouter()
 
@@ -34,6 +35,7 @@ async def analyze(
 
     try:
         result = analyze_frame(image_bytes, near_threshold=near_threshold, far_threshold=far_threshold)
+        mobile_device = detect_mobile_device(image_bytes)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -41,6 +43,11 @@ async def analyze(
         "faceCount": result.face_count,
         "gazeDirection": result.gaze_direction,
         "gazeConfidence": result.gaze_confidence,
+        "yawDegrees": result.yaw_degrees,
+        "pitchDegrees": result.pitch_degrees,
+        "mobileDeviceDetected": mobile_device.detected,
+        "mobileDeviceConfidence": mobile_device.confidence,
+        "mobileDeviceBoundingBox": mobile_device.bounding_box,
     }
 
 

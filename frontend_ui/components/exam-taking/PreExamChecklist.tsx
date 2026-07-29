@@ -227,7 +227,7 @@ export function PreExamChecklist({
                         <AlertTriangle className="h-4 w-4" /> Permission denied
                       </p>
                       <p className="text-xs text-muted">
-                        Allow camera/microphone access in your browser's site settings, then try again. This exam
+                        Allow camera/microphone access in your browser&apos;s site settings, then try again. This exam
                         cannot be started without it.
                       </p>
                       <Button variant="secondary" onClick={requestMediaAccess} className="w-auto px-4">
@@ -239,7 +239,7 @@ export function PreExamChecklist({
                   {mediaStatus === "error" && (
                     <div className="space-y-2">
                       <p className="flex items-center gap-2 text-sm font-medium text-accent-rose">
-                        <AlertTriangle className="h-4 w-4" /> Couldn't access your device
+                        <AlertTriangle className="h-4 w-4" /> Couldn&apos;t access your device
                       </p>
                       <p className="text-xs text-muted">
                         Make sure no other application is using your camera or microphone, then try again.

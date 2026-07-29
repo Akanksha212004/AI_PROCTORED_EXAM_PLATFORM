@@ -5,20 +5,23 @@ import { Prisma, SessionStatus, GradingStatus } from "@prisma/client";
 
 export type SubmissionListItem = Prisma.ExamSessionGetPayload<{
   include: {
-    exam: { select: { id: true; title: true; subject: true } };
+    exam: { select: { id: true; title: true; subject: true; createdBy: { select: { id: true; name: true } } } };
     student: { select: { id: true; name: true; email: true } };
     result: true;
     answers: { include: { grading: true } };
   };
 }>;
 
+/** Pass `examinerId: undefined` to see submitted sessions across every examiner
+ *  (platform-wide — used for ADMIN callers). Pass a specific id to scope to
+ *  just that examiner's own exams (used for EXAMINER callers). */
 export async function findSubmittedSessions(
-  examinerId: string,
+  examinerId: string | undefined,
   filters: { examId?: string; page: number; limit: number }
 ) {
   const where: Prisma.ExamSessionWhereInput = {
     status: { in: [SessionStatus.SUBMITTED, SessionStatus.AUTO_SUBMITTED] },
-    exam: { createdById: examinerId },
+    ...(examinerId ? { exam: { createdById: examinerId } } : {}),
     ...(filters.examId ? { examId: filters.examId } : {}),
   };
 
@@ -26,7 +29,7 @@ export async function findSubmittedSessions(
     prisma.examSession.findMany({
       where,
       include: {
-        exam: { select: { id: true, title: true, subject: true } },
+        exam: { select: { id: true, title: true, subject: true, createdBy: { select: { id: true, name: true } } } },
         student: { select: { id: true, name: true, email: true } },
         result: true,
         answers: { include: { grading: true } },

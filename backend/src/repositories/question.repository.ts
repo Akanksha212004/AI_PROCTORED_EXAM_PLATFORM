@@ -210,7 +210,8 @@ export async function findById(id: string) {
 }
 
 export async function findMany(
-  filters: ListQuestionsQuery
+  filters: ListQuestionsQuery,
+  createdById?: string
 ) {
   const {
     subject,
@@ -224,6 +225,9 @@ export async function findMany(
     ...(subject ? { subject } : {}),
     ...(questionType ? { questionType } : {}),
     ...(difficultyLevel ? { difficultyLevel } : {}),
+    // Scoped by the service to the acting examiner's own id — undefined
+    // (ADMIN) means no ownership filter, i.e. see every question.
+    ...(createdById ? { createdById } : {}),
   };
 
   const [items, total] = await Promise.all([

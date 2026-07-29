@@ -8,6 +8,9 @@ import type { SubmissionListItem } from "@/types/submission";
 interface Props {
   submissions: SubmissionListItem[];
   isLoading: boolean;
+  /** Shows an "Examiner" column with who created the exam. Off by default —
+   *  only the admin's platform-wide submissions page opts in. */
+  showExaminer?: boolean;
   onReview: (s: SubmissionListItem) => void;
 }
 
@@ -23,7 +26,7 @@ function statusLabel(status: string): string {
   return "Auto-Graded";
 }
 
-export function SubmissionsTable({ submissions, isLoading, onReview }: Props) {
+export function SubmissionsTable({ submissions, isLoading, showExaminer = false, onReview }: Props) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-muted">
@@ -45,11 +48,12 @@ export function SubmissionsTable({ submissions, isLoading, onReview }: Props) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[860px] text-left text-sm">
+      <table className={`w-full text-left text-sm ${showExaminer ? "min-w-[980px]" : "min-w-[860px]"}`}>
         <thead>
           <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
             <th className="py-3 pr-4 font-medium">Student</th>
             <th className="py-3 pr-4 font-medium">Exam</th>
+            {showExaminer && <th className="py-3 pr-4 font-medium">Examiner</th>}
             <th className="py-3 pr-4 font-medium">Submitted</th>
             <th className="py-3 pr-4 font-medium">Auto-Score</th>
             <th className="py-3 pr-4 font-medium">Status</th>
@@ -67,6 +71,9 @@ export function SubmissionsTable({ submissions, isLoading, onReview }: Props) {
                 <p className="text-paper">{s.examTitle}</p>
                 <p className="text-xs text-muted">{s.examSubject}</p>
               </td>
+              {showExaminer && (
+                <td className="py-3.5 pr-4 text-muted">{s.examinerName ?? "—"}</td>
+              )}
               <td className="py-3.5 pr-4 text-muted">
                 {s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "—"}
               </td>

@@ -255,12 +255,16 @@ export async function createExam(payload: unknown, currentUser: AuthUser) {
   );
 }
 
-export async function listExams(rawQuery: unknown) {
+export async function listExams(rawQuery: unknown, currentUser: AuthUser) {
   const parsedQuery = listExamsQuerySchema.safeParse(rawQuery);
   if (!parsedQuery.success) throw zodErrorToApiError(parsedQuery.error);
 
+  // ADMIN sees every exam; EXAMINER only ever sees exams they created.
+  // Enforced here (backend), not left to frontend filtering.
+  const scopeToOwnerId = currentUser.role === Role.ADMIN ? undefined : currentUser.id;
+
   const { page, limit } = parsedQuery.data;
-  const { items, total } = await examRepository.findMany(parsedQuery.data);
+  const { items, total } = await examRepository.findMany(parsedQuery.data, scopeToOwnerId);
 
   return {
     items,
@@ -268,9 +272,18 @@ export async function listExams(rawQuery: unknown) {
   };
 }
 
-export async function getExamById(id: string) {
+export async function getExamById(id: string, currentUser: AuthUser) {
   const exam = await examRepository.findById(id);
   if (!exam) throw new ApiError(404, "Exam not found");
+
+  // An examiner may never view another examiner's exam, even
+  // read-only — same rule as modify.
+  const isOwner = exam.createdById === currentUser.id;
+  const isAdmin = currentUser.role === Role.ADMIN;
+  if (!isOwner && !isAdmin) {
+    throw new ApiError(404, "Exam not found");
+  }
+
   return exam;
 }
 

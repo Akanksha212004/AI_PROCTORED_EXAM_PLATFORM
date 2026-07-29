@@ -237,7 +237,7 @@ export function BulkImportDialog({ open, onClose, onImported }: Props) {
                 <div>
                   <p className="text-sm font-medium text-paper">Click to upload PDF or DOCX</p>
                   <p className="mt-1 text-xs text-muted">
-                    Questions are best-guess parsed — you'll review and edit every field before saving.
+                    Questions are best-guess parsed — you&apos;ll review and edit every field before saving.
                   </p>
                 </div>
               </>

@@ -79,29 +79,6 @@ function questionToForm(q: Question): FormState {
 const OPTION_BEARING = ["MCQ", "MULTI_SELECT"];
 const TEXT_ANSWER = ["SHORT_ANSWER", "LONG_ANSWER"];
 
-/**
- * Resolves the backend's *origin* (protocol + host + port) from
- * NEXT_PUBLIC_API_BASE_URL, regardless of whatever path suffix that
- * env var carries (e.g. "/api/v1"). Uploaded files are served as static
- * assets directly off the backend origin (e.g. "/uploads/..."), not
- * under the API path prefix, so we can't just concatenate the raw env
- * value with the file path — we need the origin on its own.
- *
- * Using the URL API here (instead of a regex string-strip) means this
- * keeps working correctly no matter what the API base path looks like
- * (/api/v1, /api/v2, no path at all, trailing slash or not, etc.).
- */
-function resolveBackendOrigin(): string {
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (!base) return "";
-    try {
-        return new URL(base).origin;
-    } catch {
-        // Malformed env value — fail safe rather than building a broken URL.
-        return "";
-    }
-}
-
 export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSaved }: Props) {
     const [form, setForm] = useState<FormState>(EMPTY_FORM);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -109,10 +86,6 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploadingFile, setIsUploadingFile] = useState(false);
     const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null | undefined>(null);
-
-    const fileUrl = uploadedFileUrl
-        ? `${resolveBackendOrigin()}${uploadedFileUrl}`
-        : null;
 
     useEffect(() => {
         if (open) {

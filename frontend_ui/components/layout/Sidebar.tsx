@@ -7,6 +7,7 @@ import {
   ClipboardList,
   FileBarChart,
   FileQuestion,
+  GraduationCap,
   LayoutDashboard,
   Lightbulb,
   Radio,
@@ -52,6 +53,15 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   ],
   ADMIN: [
     { href: "/dashboard/admin", label: "Dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
+    { href: "/dashboard/admin/users", label: "User Management", icon: <Users className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/examiner-requests", label: "Examiner Requests", icon: <GraduationCap className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/questions", label: "Question Bank", icon: <FileQuestion className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/exams", label: "Exam Configuration", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/submissions", label: "Submissions", icon: <ClipboardCheck className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/live-sessions", label: "Live Sessions", icon: <Radio className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/reports", label: "Reports", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/settings", label: "Settings", icon: <Settings className="h-[18px] w-[18px]" /> },
   ],
 };
 

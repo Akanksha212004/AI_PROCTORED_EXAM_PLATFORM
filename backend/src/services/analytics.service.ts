@@ -154,7 +154,7 @@ function buildExamComparison(derived: Derived[], limit: number) {
     .slice(0, limit);
 }
 
-export async function getAnalytics(examinerId: string, rawQuery: unknown) {
+export async function getAnalytics(examinerId: string | undefined, rawQuery: unknown) {
   const parsed = analyticsQuerySchema.safeParse(rawQuery);
   if (!parsed.success) throw zodErrorToApiError(parsed.error);
   const { weeks, examLimit } = parsed.data;
