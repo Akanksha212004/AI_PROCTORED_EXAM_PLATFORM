@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "@/hooks/useAuth";
+import { LanguageProvider } from "@/hooks/useLanguage";
 
 import "./globals.css";
 
@@ -19,24 +20,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-        <AuthProvider>
-          {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3500,
-              style: {
-                background: "#0B2135",
-                color: "#E6F3FC",
-                border: "1px solid #1E4A66",
-                fontFamily: "var(--font-inter)",
-                fontSize: "14px",
-              },
-              success: { iconTheme: { primary: "#14B8A6", secondary: "#0B2135" } },
-              error: { iconTheme: { primary: "#EF4444", secondary: "#0B2135" } },
-            }}
-          />
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3500,
+                style: {
+                  background: "#0B2135",
+                  color: "#E6F3FC",
+                  border: "1px solid #1E4A66",
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "14px",
+                },
+                success: { iconTheme: { primary: "#14B8A6", secondary: "#0B2135" } },
+                error: { iconTheme: { primary: "#EF4444", secondary: "#0B2135" } },
+              }}
+            />
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

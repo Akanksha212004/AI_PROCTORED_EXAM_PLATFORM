@@ -38,6 +38,7 @@ export default function RegisterPage() {
       eyebrow="Get started"
       title="Create your account"
       subtitle="Set up access for your exams, question banks, and dashboards."
+      i18nKey="register"
     >
       <RegisterForm />
     </AuthLayout>

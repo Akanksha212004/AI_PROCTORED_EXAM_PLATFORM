@@ -43,6 +43,7 @@ export default function LoginPage() {
       eyebrow="Welcome back"
       title="Sign in to your account"
       subtitle="Enter your credentials to access your dashboard."
+      i18nKey="login"
     >
       <Suspense fallback={null}>
         <LoginForm />

@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { extractErrorMessage } from "@/lib/utils";
 
 interface FormErrors {
@@ -24,6 +25,7 @@ interface FormErrors {
  */
 export function ExaminerLoginForm() {
   const { login, logout } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -33,10 +35,10 @@ export function ExaminerLoginForm() {
 
   function validate(): boolean {
     const nextErrors: FormErrors = {};
-    if (!email.trim()) nextErrors.email = "Email is required";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Enter a valid email address";
+    if (!email.trim()) nextErrors.email = t("validation.emailRequired");
+    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = t("validation.emailInvalid");
 
-    if (!password) nextErrors.password = "Password is required";
+    if (!password) nextErrors.password = t("validation.passwordRequired");
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -54,14 +56,12 @@ export function ExaminerLoginForm() {
         // Right credentials, wrong portal — this page is examiner-only.
         // logout() does an immediate hard navigation to /login, so delay
         // it slightly to give the toast a moment to actually render.
-        toast.error("This portal is for examiners only. Please use the student login page.", {
-          duration: 4000,
-        });
+        toast.error(t("examinerLogin.wrongPortal"), { duration: 4000 });
         setTimeout(() => logout(), 1200);
         return;
       }
 
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
+      toast.success(`${t("login.welcomeToast")}, ${user.name.split(" ")[0]}`);
       router.replace("/dashboard/examiner");
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -73,7 +73,7 @@ export function ExaminerLoginForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <Input
-        label="Email"
+        label={t("common.email")}
         type="email"
         autoComplete="email"
         placeholder="you@institution.edu"
@@ -82,7 +82,7 @@ export function ExaminerLoginForm() {
         error={errors.email}
       />
       <Input
-        label="Password"
+        label={t("common.password")}
         type="password"
         autoComplete="current-password"
         placeholder="••••••••"
@@ -92,22 +92,22 @@ export function ExaminerLoginForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? "Signing in" : "Sign In"}
+        {isSubmitting ? t("common.signingIn") : t("common.signIn")}
       </Button>
 
       <p className="text-center text-sm text-paper/60">
-        Don&apos;t have an examiner account?{" "}
+        {t("examinerLogin.noAccount")}{" "}
         <Link
           href="/examiner-portal/request-access"
           className="font-medium text-accent-sky underline underline-offset-4"
         >
-          Request Examiner Access
+          {t("examinerLogin.requestAccess")}
         </Link>
       </p>
 
       <p className="text-center text-xs text-paper/40">
         <Link href="/login" className="underline underline-offset-4 hover:text-paper/60">
-          Not an examiner? Go to student login
+          {t("examinerLogin.notExaminer")}
         </Link>
       </p>
     </form>

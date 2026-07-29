@@ -13,6 +13,7 @@ export default function ExaminerAccessRequestPage() {
       eyebrow="Examiner Portal"
       title="Request Examiner Access"
       subtitle="Tell us a bit about yourself — an administrator will review and approve your account."
+      i18nKey="examinerRequest"
     >
       <ExaminerAccessRequestForm />
     </AuthLayout>

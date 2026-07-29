@@ -14,6 +14,7 @@ export default function ExaminerPortalPage() {
       eyebrow="Examiner Portal"
       title="Sign in to your examiner account"
       subtitle="This portal is for faculty and examiners only."
+      i18nKey="examinerLogin"
     >
       <Suspense fallback={null}>
         <ExaminerLoginForm />

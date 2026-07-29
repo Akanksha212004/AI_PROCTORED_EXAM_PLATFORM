@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { extractErrorMessage, roleToDashboardPath } from "@/lib/utils";
 
 interface FormErrors {
@@ -17,6 +18,7 @@ interface FormErrors {
 
 export function LoginForm() {
   const { login } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -27,10 +29,10 @@ export function LoginForm() {
 
   function validate(): boolean {
     const nextErrors: FormErrors = {};
-    if (!email.trim()) nextErrors.email = "Email is required";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Enter a valid email address";
+    if (!email.trim()) nextErrors.email = t("validation.emailRequired");
+    else if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = t("validation.emailInvalid");
 
-    if (!password) nextErrors.password = "Password is required";
+    if (!password) nextErrors.password = t("validation.passwordRequired");
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -43,7 +45,7 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       const user = await login({ email: email.trim().toLowerCase(), password });
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
+      toast.success(`${t("login.welcomeToast")}, ${user.name.split(" ")[0]}`);
       const redirectTarget = searchParams.get("redirect");
       router.replace(redirectTarget || roleToDashboardPath(user.role));
     } catch (error) {
@@ -56,7 +58,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <Input
-        label="Email address"
+        label={t("common.emailAddress")}
         type="email"
         autoComplete="email"
         placeholder="you@institution.edu"
@@ -65,7 +67,7 @@ export function LoginForm() {
         error={errors.email}
       />
       <Input
-        label="Password"
+        label={t("common.password")}
         type="password"
         autoComplete="current-password"
         placeholder="••••••••"
@@ -75,27 +77,26 @@ export function LoginForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? "Signing in" : "Sign in"}
+        {isSubmitting ? t("common.signingIn") : t("common.signIn")}
       </Button>
 
       <p className="text-center text-sm text-paper/60">
-        Don&apos;t have an account?{" "}
+        {t("common.dontHaveAccount")}{" "}
         <Link href="/register" className="font-medium text-accent-sky underline underline-offset-4">
-          Create one
+          {t("common.createOne")}
         </Link>
       </p>
 
       <div className="mt-2 border-t border-border pt-5 text-center">
-        <p className="text-sm text-paper/60">Examiner?</p>
-        <p className="mt-0.5 text-xs text-paper/40">Access the Examiner Portal</p>
+        <p className="text-sm text-paper/60">{t("common.facultyExaminer")}</p>
+        <p className="mt-0.5 text-xs text-paper/40">{t("common.accessExaminerPortal")}</p>
         <Link
           href="/examiner-portal"
           className="mt-3 inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-paper transition-colors hover:bg-white/5"
         >
-          Examiner Portal
+          {t("common.examinerPortal")}
         </Link>
       </div>
     </form>
   );
 }
-
