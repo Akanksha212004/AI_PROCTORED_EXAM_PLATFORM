@@ -102,7 +102,7 @@ export const en = {
       title: "Check your request status",
       subtitle: "Enter your email to see where your application stands.",
       byEmail: "Official Email",
-    //   byRequestId: "Request ID",
+      byRequestId: "Request ID",
       checkStatus: "Check Status",
       checking: "Checking status",
       applicationStatus: "Application status",

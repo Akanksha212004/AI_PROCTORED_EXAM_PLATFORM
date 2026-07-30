@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>You're offline | ProctorEd</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        background: #0B2135;
+        color: #E6F3FC;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      }
+      .wrap {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+      .badge {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: #14B8A6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0 0 20px;
+        color: #9FC2D6;
+        max-width: 360px;
+        line-height: 1.5;
+        font-size: 14px;
+      }
+      button {
+        background: #14B8A6;
+        color: #0B2135;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="badge">⚠️</div>
+      <h1>You're offline</h1>
+      <p>
+        ProctorEd needs an internet connection, especially for exams and
+        AI-proctoring. Please reconnect and try again.
+      </p>
+      <button onclick="location.reload()">Retry</button>
+    </div>
+  </body>
+</html>
