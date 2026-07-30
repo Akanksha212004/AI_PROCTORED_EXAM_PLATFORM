@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, ChangeEvent } from "react";
 import toast from "react-hot-toast";
@@ -16,13 +15,17 @@ interface FormErrors {
 }
 
 /**
- * Examiner Portal's own login form. Posts to the same /auth/login
- * endpoint as the student LoginForm (one auth backend, role comes back
- * in the token) but is a completely separate page/flow — an examiner
- * never logs in through the student login page, and this form refuses
- * to proceed if the account it authenticates isn't actually EXAMINER.
+ * Admin-only login. Posts to the same /auth/login endpoint as every
+ * other role (one auth backend, role comes back in the token) but this
+ * page — /admin/login — is never linked from any public page, nav bar,
+ * or other login screen. Anyone who authenticates here without an
+ * ADMIN role is logged straight back out.
+ *
+ * Deliberately minimal: no "create account" link, no links out to the
+ * student or examiner flows. This is a back-door-style entry point —
+ * it should look and behave like one.
  */
-export function ExaminerLoginForm() {
+export function AdminLoginForm() {
   const { login, logout } = useAuth();
   const router = useRouter();
 
@@ -50,19 +53,18 @@ export function ExaminerLoginForm() {
     try {
       const user = await login({ email: email.trim().toLowerCase(), password });
 
-      if (user.role !== "EXAMINER") {
-        // Right credentials, wrong portal — this page is examiner-only.
+      if (user.role !== "ADMIN") {
+        // Right credentials, wrong portal. Deliberately vague — this
+        // page should not confirm or deny which roles exist.
         // logout() does an immediate hard navigation to /login, so delay
         // it slightly to give the toast a moment to actually render.
-        toast.error("This portal is for examiners only. Please use the student login page.", {
-          duration: 4000,
-        });
+        toast.error("Invalid credentials.", { duration: 4000 });
         setTimeout(() => logout(), 1200);
         return;
       }
 
       toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
-      router.replace("/dashboard/examiner");
+      router.replace("/dashboard/admin");
     } catch (error) {
       toast.error(extractErrorMessage(error));
     } finally {
@@ -76,7 +78,7 @@ export function ExaminerLoginForm() {
         label="Email"
         type="email"
         autoComplete="email"
-        placeholder="you@institution.edu"
+        placeholder="admin@institution.edu"
         value={email}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
         error={errors.email}
@@ -92,34 +94,8 @@ export function ExaminerLoginForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? "Signing in" : "Sign In"}
+        {isSubmitting ? "Signing in" : "Sign in"}
       </Button>
-
-      <p className="text-center text-sm text-paper/60">
-        Don&apos;t have an examiner account?{" "}
-        <Link
-          href="/examiner-portal/request-access"
-          className="font-medium text-accent-sky underline underline-offset-4"
-        >
-          Request Examiner Access
-        </Link>
-      </p>
-
-      <p className="text-center text-sm text-paper/60">
-        Already applied?{" "}
-        <Link
-          href="/examiner-portal/request-status"
-          className="font-medium text-accent-sky underline underline-offset-4"
-        >
-          View Request Status
-        </Link>
-      </p>
-
-      <p className="text-center text-xs text-paper/40">
-        <Link href="/login" className="underline underline-offset-4 hover:text-paper/60">
-          Not an examiner? Go to student login
-        </Link>
-      </p>
     </form>
   );
 }

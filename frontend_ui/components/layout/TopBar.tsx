@@ -3,15 +3,26 @@
 import { Bell, CheckCircle2, ClipboardList, FileQuestion, LogOut, Menu, Send, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+
 import { useNotifications, type NotificationItem, type NotificationType } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types/auth";
 
-const ROLE_LABEL: Record<User["role"], string> = {
-  STUDENT: "Student",
-  EXAMINER: "Examiner",
-  ADMIN: "Admin",
-};
+// const ROLE_LABEL: Record<User["role"], string> = {
+//   STUDENT: "Student",
+//   EXAMINER: "Examiner",
+//   ADMIN: "Admin",
+// };
+
+// const { t } = useLanguage();
+
+// const ROLE_LABEL = {
+//     STUDENT: t("role.student"),
+//     EXAMINER: t("role.examiner"),
+//     ADMIN: t("role.admin"),
+// };
 
 const ROLE_BADGE_CLASS: Record<User["role"], string> = {
   STUDENT: "bg-accent-teal/10 text-accent-teal",
@@ -33,6 +44,7 @@ const NOTIFICATION_ICON_BG: Record<NotificationType, string> = {
   graded: "bg-accent-violet/10 text-accent-violet",
 };
 
+
 function relativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diffMs / 60000);
@@ -52,6 +64,15 @@ interface Props {
 }
 
 export function TopBar({ user, onLogout, onMenuClick }: Props) {
+
+  const { t } = useLanguage();
+
+  const ROLE_LABEL = {
+    STUDENT: t("role.student"),
+    EXAMINER: t("role.examiner"),
+    ADMIN: t("role.admin"),
+  };
+
   const isExaminer = user?.role === "EXAMINER" || user?.role === "ADMIN";
 
   return (
@@ -61,7 +82,8 @@ export function TopBar({ user, onLogout, onMenuClick }: Props) {
           <button
             onClick={onMenuClick}
             className="flex h-9 w-9 items-center justify-center rounded-lg text-paper/70 transition-colors hover:bg-white/5 hover:text-paper lg:hidden"
-            aria-label="Open menu"
+            // aria-label="Open menu"
+            aria-label={t("common.openMenu")}
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -75,6 +97,8 @@ export function TopBar({ user, onLogout, onMenuClick }: Props) {
 
         {user && (
           <div className="flex items-center gap-2 sm:gap-4">
+
+            <LanguageSwitcher /> 
             {isExaminer ? <NotificationBell /> : null}
 
             <div className="hidden items-center gap-2.5 sm:flex">
@@ -91,7 +115,9 @@ export function TopBar({ user, onLogout, onMenuClick }: Props) {
               className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-paper/60 transition-colors hover:bg-white/5 hover:text-accent-rose"
             >
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign out</span>
+              {/* <span className="hidden sm:inline">Sign out</span> */}
+
+              <span className="hidden sm:inline">{t("logout")}</span>
             </button>
           </div>
         )}

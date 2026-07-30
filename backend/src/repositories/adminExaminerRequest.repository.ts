@@ -46,6 +46,39 @@ export async function findExaminerById(id: string): Promise<User | null> {
   return prisma.user.findFirst({ where: { id, role: "EXAMINER" } });
 }
 
+/** Used by the public "View Request Status" lookup (by email instead of id). */
+export async function findExaminerByEmail(email: string): Promise<User | null> {
+  return prisma.user.findFirst({ where: { email: email.toLowerCase(), role: "EXAMINER" } });
+}
+
+/**
+ * Applicant edits and resubmits a previously REJECTED request. Updates
+ * the request's profile fields, clears the rejection reason, and
+ * resets status back to PENDING for another admin review — no new
+ * record is created, and credentials are untouched.
+ */
+export async function resubmit(
+  id: string,
+  data: {
+    name: string;
+    institution: string;
+    department: string;
+    designation: string;
+    employeeId?: string;
+    yearsOfExperience?: number;
+    accessRequestReason: string;
+  }
+): Promise<User> {
+  return prisma.user.update({
+    where: { id },
+    data: {
+      ...data,
+      approvalStatus: "PENDING",
+      rejectionReason: null,
+    },
+  });
+}
+
 export async function approve(id: string): Promise<User> {
   return prisma.user.update({
     where: { id },

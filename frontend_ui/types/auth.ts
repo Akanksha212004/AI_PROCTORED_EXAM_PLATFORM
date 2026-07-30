@@ -39,6 +39,43 @@ export interface ExaminerAccessRequestPayload {
   accessRequestReason: string;
 }
 
+/**
+ * Lookup key for the Examiner Portal's "View Request Status" page —
+ * applicant supplies EITHER the request/user id OR the official email
+ * they applied with.
+ */
+export interface ExaminerRequestStatusQuery {
+  requestId?: string;
+  email?: string;
+}
+
+/** Response for a Request Status lookup. */
+export interface ExaminerRequestStatusResponse {
+  requestId: string;
+  name: string;
+  email: string;
+  institution: string;
+  department: string;
+  designation: string;
+  employeeId?: string;
+  yearsOfExperience?: number;
+  accessRequestReason: string;
+  status: ApprovalStatus;
+  /** Only present when status is REJECTED. */
+  rejectionReason?: string;
+}
+
+/** Editable fields when resubmitting a REJECTED examiner access request. */
+export interface ResubmitExaminerAccessRequestPayload {
+  name: string;
+  institution: string;
+  department: string;
+  designation: string;
+  employeeId?: string;
+  yearsOfExperience?: number;
+  accessRequestReason: string;
+}
+
 export interface AuthTokenResponse {
   access_token: string;
   token_type: string;

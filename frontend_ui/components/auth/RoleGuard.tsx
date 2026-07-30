@@ -13,6 +13,23 @@ interface RoleGuardProps {
 }
 
 /**
+ * Login page to send an unauthenticated visitor to, based on which
+ * dashboard's RoleGuard rejected them — an expired Admin session on
+ * /dashboard/admin/* should bounce to /admin/login, not the student
+ * /login page (and likewise for Examiners → /examiner-portal).
+ */
+function loginPathFor(role: UserRole): string {
+  switch (role.toUpperCase()) {
+    case "ADMIN":
+      return "/admin/login";
+    case "EXAMINER":
+      return "/examiner-portal";
+    default:
+      return "/login";
+  }
+}
+
+/**
  * Client-side guard that complements the server-side `middleware.ts` check.
  * `middleware.ts` only verifies a token exists; this verifies the token's
  * role actually matches the dashboard being viewed, and redirects to the
@@ -25,7 +42,7 @@ export function RoleGuard({ allowedRole, children }: RoleGuardProps) {
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
-      router.replace("/login");
+      router.replace(loginPathFor(allowedRole));
       return;
     }
     if (user.role.toUpperCase() !== allowedRole.toUpperCase()) {
