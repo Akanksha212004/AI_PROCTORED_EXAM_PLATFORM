@@ -3,6 +3,7 @@
 import { ListOrdered } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 import type { ExamComparisonRow } from "@/hooks/useAnalytics";
 import { cn } from "@/lib/utils";
 
@@ -19,12 +20,14 @@ function scoreColorClass(score: number | null): string {
 }
 
 export function ExamComparisonTable({ data, isLoading }: Props) {
+  const { t } = useI18n();
+
   return (
     <Card interactive className="overflow-hidden p-0">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <ListOrdered className="h-4 w-4 text-accent-amber" />
-          Exam Comparison
+          {t("analyticsCharts.examComparison.title")}
         </p>
         {/* <p className="text-xs text-muted">By attempts</p> */}
       </div>
@@ -36,16 +39,16 @@ export function ExamComparisonTable({ data, isLoading }: Props) {
           ))}
         </div>
       ) : data.length === 0 ? (
-        <p className="px-5 py-10 text-center text-sm text-muted">No graded submissions yet.</p>
+        <p className="px-5 py-10 text-center text-sm text-muted">{t("dashboard.student.subjectPerformance.empty")}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
-                <th className="px-5 py-3 font-medium">Exam</th>
-                <th className="px-5 py-3 font-medium">Attempts</th>
-                <th className="px-5 py-3 font-medium">Average Score</th>
-                <th className="px-5 py-3 font-medium">Pass Rate</th>
+                <th className="px-5 py-3 font-medium">{t("analyticsCharts.examComparison.columns.exam")}</th>
+                <th className="px-5 py-3 font-medium">{t("analyticsCharts.examComparison.columns.attempts")}</th>
+                <th className="px-5 py-3 font-medium">{t("analyticsCharts.examComparison.columns.averageScore")}</th>
+                <th className="px-5 py-3 font-medium">{t("analyticsCharts.examComparison.columns.passRate")}</th>
               </tr>
             </thead>
             <tbody>

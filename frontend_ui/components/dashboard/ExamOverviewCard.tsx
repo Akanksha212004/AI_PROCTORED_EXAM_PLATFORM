@@ -105,12 +105,20 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { useExamStats } from "@/hooks/useExamStats";
+import { useI18n } from "@/hooks/useI18n";
 import type { ExamStatus } from "@/types/exam";
 
 const STATUS_CLASS: Record<ExamStatus, string> = {
   DRAFT: "bg-surface-muted text-muted border border-border",
   PUBLISHED: "bg-accent-teal/10 text-accent-teal",
   CANCELLED: "bg-accent-rose/10 text-accent-rose",
+};
+
+/** Display-only translation of the status badge — the underlying enum value on the exam record is untouched. */
+const STATUS_KEY: Record<ExamStatus, string> = {
+  DRAFT: "examStatus.DRAFT",
+  PUBLISHED: "examStatus.PUBLISHED",
+  CANCELLED: "examStatus.CANCELLED",
 };
 
 const BAR_COLORS = ["#3FA7E8", "#14B8A6", "#8B7FE8", "#F5A623", "#5FB6EE"];
@@ -145,19 +153,20 @@ function SubjectBars({ data }: { data: { subject: string; count: number }[] }) {
 
 export function ExamOverviewCard() {
   const { stats, isLoading } = useExamStats();
+  const { t } = useI18n();
 
   return (
     <Card interactive className="p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <Layers className="h-4 w-4 text-accent-sky" />
-          Exam Overview
+          {t("dashboard.examiner.examOverview.title")}
         </p>
         <Link
           href="/dashboard/examiner/exams"
           className="text-xs font-medium text-accent-sky transition-colors hover:text-accent-skyHover hover:underline"
         >
-          Manage exams
+          {t("dashboard.examiner.examOverview.manageExams")}
         </Link>
       </div>
 
@@ -176,29 +185,29 @@ export function ExamOverviewCard() {
             <div className="group rounded-lg border border-border bg-surface-muted p-3 transition-colors hover:border-accent-rose/40">
               <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted">
                 <Radio className="h-3 w-3 text-accent-rose" />
-                Active now
+                {t("dashboard.examiner.examOverview.activeNow")}
               </p>
               <p className="mt-1 font-mono text-xl font-bold tabular-nums text-paper">{stats.activeNowCount}</p>
             </div>
             <div className="group rounded-lg border border-border bg-surface-muted p-3 transition-colors hover:border-accent-sky/40">
-              <p className="text-[11px] uppercase tracking-wide text-muted">Upcoming</p>
+              <p className="text-[11px] uppercase tracking-wide text-muted">{t("dashboard.examiner.examOverview.upcoming")}</p>
               <p className="mt-1 font-mono text-xl font-bold tabular-nums text-paper">{stats.upcomingCount}</p>
             </div>
             <div className="group rounded-lg border border-border bg-surface-muted p-3 transition-colors hover:border-accent-teal/40">
-              <p className="text-[11px] uppercase tracking-wide text-muted">Total</p>
+              <p className="text-[11px] uppercase tracking-wide text-muted">{t("dashboard.examiner.examOverview.total")}</p>
               <p className="mt-1 font-mono text-xl font-bold tabular-nums text-paper">{stats.totalExams}</p>
             </div>
           </div>
 
           {stats.subjectCounts.length > 0 && (
             <div className="mb-6">
-              <p className="mb-3 text-[11px] uppercase tracking-wide text-muted">Exams by subject</p>
+              <p className="mb-3 text-[11px] uppercase tracking-wide text-muted">{t("dashboard.examiner.examOverview.examsBySubject")}</p>
               <SubjectBars data={stats.subjectCounts} />
             </div>
           )}
 
           {stats.recentExams.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted">No exams created yet.</p>
+            <p className="py-6 text-center text-sm text-muted">{t("dashboard.examiner.examOverview.noExamsYet")}</p>
           ) : (
             <ul className="space-y-2">
               {stats.recentExams.map((exam) => (
@@ -217,7 +226,7 @@ export function ExamOverviewCard() {
                         STATUS_CLASS[exam.status]
                       )}
                     >
-                      {exam.status}
+                      {t(STATUS_KEY[exam.status])}
                     </span>
                   </Link>
                 </li>
@@ -227,7 +236,7 @@ export function ExamOverviewCard() {
 
           {stats.isSampled && (
             <p className="mt-3 text-[11px] text-muted">
-              Counts based on the first 100 exams — add a dedicated stats endpoint for exact totals at scale.
+              {t("dashboard.examiner.examOverview.sampledNote")}
             </p>
           )}
         </>

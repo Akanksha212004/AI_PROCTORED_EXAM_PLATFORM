@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { useI18n } from "@/hooks/useI18n";
 import { extractErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/authService";
 import type { ApprovalStatus, ExaminerRequestStatusResponse } from "@/types/auth";
@@ -55,6 +56,7 @@ function toResubmitForm(request: ExaminerRequestStatusResponse): ResubmitFormSta
 }
 
 export function ExaminerRequestStatusForm() {
+  const { t } = useI18n();
   const [lookupBy, setLookupBy] = useState<"requestId" | "email">("email");
   const [lookupValue, setLookupValue] = useState("");
   const [lookupErrors, setLookupErrors] = useState<LookupErrors>({});
@@ -75,7 +77,9 @@ export function ExaminerRequestStatusForm() {
 
     const trimmed = lookupValue.trim();
     if (!trimmed) {
-      setLookupErrors({ lookup: `Enter your ${lookupBy === "email" ? "official email" : "request ID"}` });
+      setLookupErrors({
+        lookup: `Enter your ${lookupBy === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}`,
+      });
       return;
     }
     setLookupErrors({});
@@ -90,7 +94,7 @@ export function ExaminerRequestStatusForm() {
     } catch (error) {
       setRequest(null);
       setResubmitForm(null);
-      toast.error(extractErrorMessage(error) || "No request found for those details.");
+      toast.error(extractErrorMessage(error) || t("auth.requestStatus.notFound"));
     } finally {
       setIsLookingUp(false);
     }
@@ -131,7 +135,7 @@ export function ExaminerRequestStatusForm() {
       setRequest(updated);
       setResubmitForm(toResubmitForm(updated));
       setIsEditing(false);
-      toast.success("Request resubmitted — it's back in the review queue.");
+      toast.success(t("auth.requestStatus.resubmitted"));
     } catch (error) {
       toast.error(extractErrorMessage(error));
     } finally {
@@ -156,13 +160,13 @@ export function ExaminerRequestStatusForm() {
                 lookupBy === option ? "bg-accent-sky/15 text-accent-sky" : "text-paper/60 hover:text-paper/80"
               }`}
             >
-              {option === "email" ? "Official Email" : "Request ID"}
+              {option === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}
             </button>
           ))}
         </div>
 
         <Input
-          label={lookupBy === "email" ? "Official email" : "Request ID"}
+          label={lookupBy === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}
           type={lookupBy === "email" ? "email" : "text"}
           placeholder={lookupBy === "email" ? "you@institution.edu" : "e.g. 6f1c2e9a-..."}
           value={lookupValue}
@@ -171,7 +175,7 @@ export function ExaminerRequestStatusForm() {
         />
 
         <Button type="submit" isLoading={isLookingUp}>
-          {isLookingUp ? "Checking status" : "Check Status"}
+          {isLookingUp ? t("auth.requestStatus.checking") : t("auth.requestStatus.checkStatus")}
         </Button>
       </form>
 
@@ -179,23 +183,21 @@ export function ExaminerRequestStatusForm() {
         <Card className="flex flex-col gap-4 p-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm text-muted">Application status</p>
+              <p className="text-sm text-muted">{t("auth.requestStatus.applicationStatus")}</p>
               <p className="font-display text-lg font-semibold text-paper">{request.name}</p>
             </div>
             <Badge tone={STATUS_TONE[request.status]}>{request.status}</Badge>
           </div>
 
           {request.status === "PENDING" && (
-            <p className="text-sm text-paper/70">Your application is currently under administrator review.</p>
+            <p className="text-sm text-paper/70">{t("auth.requestStatus.pending")}</p>
           )}
 
           {request.status === "APPROVED" && (
             <div className="flex flex-col gap-3">
-              <p className="text-sm text-paper/70">
-                Your request has been approved. You may now login through the Examiner Portal.
-              </p>
+              <p className="text-sm text-paper/70">{t("auth.requestStatus.approved")}</p>
               <Link href="/examiner-portal">
-                <Button type="button">Go to Examiner Login</Button>
+                <Button type="button">{t("auth.requestStatus.goToLogin")}</Button>
               </Link>
             </div>
           )}
@@ -203,13 +205,15 @@ export function ExaminerRequestStatusForm() {
           {request.status === "REJECTED" && !isEditing && (
             <div className="flex flex-col gap-4">
               <div className="rounded-lg border border-accent-rose/30 bg-accent-rose/10 p-3.5">
-                <p className="text-xs font-medium uppercase tracking-wide text-accent-rose/80">Rejection reason</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-accent-rose/80">
+                  {t("auth.requestStatus.rejectionReason")}
+                </p>
                 <p className="mt-1 text-sm text-paper/80">
-                  {request.rejectionReason || "No reason was provided."}
+                  {request.rejectionReason || t("auth.requestStatus.noReasonProvided")}
                 </p>
               </div>
               <Button type="button" variant="secondary" onClick={() => setIsEditing(true)}>
-                Edit &amp; Resubmit Request
+                {t("auth.requestStatus.editAndResubmit")}
               </Button>
             </div>
           )}
@@ -217,20 +221,20 @@ export function ExaminerRequestStatusForm() {
           {request.status === "REJECTED" && isEditing && resubmitForm && (
             <form onSubmit={handleResubmit} noValidate className="flex flex-col gap-5 border-t border-border pt-5">
               <Input
-                label="Full name"
+                label={t("auth.requestAccess.fullName")}
                 value={resubmitForm.name}
                 onChange={(e) => updateResubmit("name", e.target.value)}
                 error={resubmitErrors.name}
               />
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Input
-                  label="Institution"
+                  label={t("auth.requestAccess.institution")}
                   value={resubmitForm.institution}
                   onChange={(e) => updateResubmit("institution", e.target.value)}
                   error={resubmitErrors.institution}
                 />
                 <Input
-                  label="Department"
+                  label={t("auth.requestAccess.department")}
                   value={resubmitForm.department}
                   onChange={(e) => updateResubmit("department", e.target.value)}
                   error={resubmitErrors.department}
@@ -238,19 +242,19 @@ export function ExaminerRequestStatusForm() {
               </div>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Input
-                  label="Designation"
+                  label={t("auth.requestAccess.designation")}
                   value={resubmitForm.designation}
                   onChange={(e) => updateResubmit("designation", e.target.value)}
                   error={resubmitErrors.designation}
                 />
                 <Input
-                  label="Employee ID (optional)"
+                  label={t("auth.requestAccess.employeeId")}
                   value={resubmitForm.employeeId}
                   onChange={(e) => updateResubmit("employeeId", e.target.value)}
                 />
               </div>
               <Input
-                label="Years of experience (optional)"
+                label={t("auth.requestAccess.yearsOfExperience")}
                 type="number"
                 min={0}
                 value={resubmitForm.yearsOfExperience}
@@ -258,7 +262,7 @@ export function ExaminerRequestStatusForm() {
                 error={resubmitErrors.yearsOfExperience}
               />
               <Textarea
-                label="Reason for requesting access"
+                label={t("auth.requestAccess.reason")}
                 value={resubmitForm.accessRequestReason}
                 onChange={(e) => updateResubmit("accessRequestReason", e.target.value)}
                 error={resubmitErrors.accessRequestReason}
@@ -266,10 +270,10 @@ export function ExaminerRequestStatusForm() {
 
               <div className="flex gap-3">
                 <Button type="submit" isLoading={isResubmitting} className="flex-1">
-                  {isResubmitting ? "Resubmitting" : "Resubmit Request"}
+                  {isResubmitting ? t("auth.requestStatus.resubmitting") : t("auth.requestStatus.resubmit")}
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => setIsEditing(false)} className="flex-1">
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
               </div>
             </form>
@@ -279,7 +283,7 @@ export function ExaminerRequestStatusForm() {
 
       <p className="text-center text-sm text-paper/60">
         <Link href="/examiner-portal" className="font-medium text-accent-sky underline underline-offset-4">
-          Back to Examiner Login
+          {t("auth.requestStatus.backToLogin2")}
         </Link>
       </p>
     </div>

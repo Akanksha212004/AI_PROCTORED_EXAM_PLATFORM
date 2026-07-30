@@ -168,6 +168,7 @@ import { BookOpen, ClipboardList, Clock, TrendingUp } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/hooks/useI18n";
 import type { DashboardSummary } from "@/types/dashboard";
 
 interface Props {
@@ -242,6 +243,8 @@ function StatSkeleton() {
 }
 
 export function ExaminerStatsCards({ summary, isLoading }: Props) {
+  const { t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -258,29 +261,33 @@ export function ExaminerStatsCards({ summary, isLoading }: Props) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         icon={<BookOpen className="h-5 w-5" />}
-        label="Total Questions"
+        label={t("dashboard.examiner.stats.totalQuestions")}
         value={summary.totalQuestions}
         tone="sky"
       />
       <StatCard
         icon={<ClipboardList className="h-5 w-5" />}
-        label="Total Exams"
+        label={t("dashboard.examiner.stats.totalExams")}
         value={summary.totalExams}
         tone="teal"
       />
       <StatCard
         icon={<Clock className="h-5 w-5" />}
-        label="Pending Grading"
+        label={t("dashboard.examiner.stats.pendingGrading")}
         value={summary.pendingGradingCount}
-        hint={summary.pendingGradingCount > 0 ? "Needs your review" : "All caught up"}
+        hint={
+          summary.pendingGradingCount > 0
+            ? t("dashboard.examiner.stats.needsReview")
+            : t("dashboard.examiner.stats.allCaughtUp")
+        }
         tone="amber"
         attention={summary.pendingGradingCount > 0}
       />
       <StatCard
         icon={<TrendingUp className="h-5 w-5" />}
-        label="Average Score"
+        label={t("dashboard.examiner.stats.averageScore")}
         value={summary.averageScore !== null ? `${summary.averageScore}%` : "—"}
-        hint={summary.averageScore === null ? "No finalized results yet" : undefined}
+        hint={summary.averageScore === null ? t("dashboard.examiner.stats.noFinalizedResults") : undefined}
         tone="violet"
       />
     </div>

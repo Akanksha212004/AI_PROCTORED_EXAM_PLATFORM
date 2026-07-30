@@ -13,6 +13,7 @@ import { BarChart3 } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/hooks/useI18n";
 import type { StudentSubjectPerformance } from "@/hooks/useStudentDashboard";
 
 interface Props {
@@ -34,15 +35,17 @@ function barColorClass(index: number, score: number | null): string {
 }
 
 export function StudentSubjectPerformanceCard({ data, isLoading }: Props) {
+  const { t } = useI18n();
+
   return (
     <Card interactive className="p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <BarChart3 className="h-4 w-4 text-accent-violet" />
-          Subject Performance
+          {t("dashboard.student.subjectPerformance.title")}
         </p>
         <Link href="/dashboard/student/analytics" className="text-xs font-medium text-accent-sky hover:text-accent-sky/80">
-          View detailed analytics →
+          {t("dashboard.student.subjectPerformance.viewDetailedAnalytics")}
         </Link>
       </div>
 
@@ -53,7 +56,7 @@ export function StudentSubjectPerformanceCard({ data, isLoading }: Props) {
           ))}
         </div>
       ) : data.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">No graded submissions yet.</p>
+        <p className="py-8 text-center text-sm text-muted">{t("dashboard.student.subjectPerformance.empty")}</p>
       ) : (
         <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
           {data.map((subject, index) => (

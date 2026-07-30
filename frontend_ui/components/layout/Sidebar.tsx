@@ -20,12 +20,13 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
   /** Only match this exact path (used for dashboard "home" links so they don't stay lit on sub-routes). */
   exact?: boolean;
@@ -33,35 +34,35 @@ interface NavItem {
 
 const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   EXAMINER: [
-    { href: "/dashboard/examiner", label: "Dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
-    { href: "/dashboard/examiner/questions", label: "Question Bank", icon: <FileQuestion className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/exams", label: "Exam Configuration", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/submissions", label: "Submissions", icon: <ClipboardCheck className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/live-sessions", label: "Live Sessions", icon: <Radio className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/students", label: "Students", icon: <Users className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/reports", label: "Reports", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/analytics", label: "Analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/examiner/settings", label: "Settings", icon: <Settings className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner", labelKey: "nav.dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
+    { href: "/dashboard/examiner/questions", labelKey: "nav.questionBank", icon: <FileQuestion className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/exams", labelKey: "nav.examConfiguration", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/submissions", labelKey: "nav.submissions", icon: <ClipboardCheck className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/live-sessions", labelKey: "nav.liveSessions", icon: <Radio className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/students", labelKey: "nav.students", icon: <Users className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/reports", labelKey: "nav.reports", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/analytics", labelKey: "nav.analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/examiner/settings", labelKey: "nav.settings", icon: <Settings className="h-[18px] w-[18px]" /> },
   ],
   STUDENT: [
-    { href: "/dashboard/student", label: "Dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
-    { href: "/dashboard/student/exams", label: "My Exams", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/student/history", label: "Results", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/student/analytics", label: "Analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/student/profile", label: "Profile", icon: <UserIcon className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/student/settings", label: "Settings", icon: <Settings className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/student", labelKey: "nav.dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
+    { href: "/dashboard/student/exams", labelKey: "nav.myExams", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/student/history", labelKey: "nav.results", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/student/analytics", labelKey: "nav.analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/student/profile", labelKey: "nav.profile", icon: <UserIcon className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/student/settings", labelKey: "nav.settings", icon: <Settings className="h-[18px] w-[18px]" /> },
   ],
   ADMIN: [
-    { href: "/dashboard/admin", label: "Dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
-    { href: "/dashboard/admin/users", label: "User Management", icon: <Users className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/examiner-requests", label: "Examiner Requests", icon: <GraduationCap className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/questions", label: "Question Bank", icon: <FileQuestion className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/exams", label: "Exam Configuration", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/submissions", label: "Submissions", icon: <ClipboardCheck className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/live-sessions", label: "Live Sessions", icon: <Radio className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/reports", label: "Reports", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
-    { href: "/dashboard/admin/settings", label: "Settings", icon: <Settings className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin", labelKey: "nav.dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, exact: true },
+    { href: "/dashboard/admin/users", labelKey: "nav.userManagement", icon: <Users className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/examiner-requests", labelKey: "nav.examinerRequests", icon: <GraduationCap className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/questions", labelKey: "nav.questionBank", icon: <FileQuestion className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/exams", labelKey: "nav.examConfiguration", icon: <ClipboardList className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/submissions", labelKey: "nav.submissions", icon: <ClipboardCheck className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/live-sessions", labelKey: "nav.liveSessions", icon: <Radio className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/reports", labelKey: "nav.reports", icon: <FileBarChart className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/analytics", labelKey: "nav.analytics", icon: <BarChart3 className="h-[18px] w-[18px]" /> },
+    { href: "/dashboard/admin/settings", labelKey: "nav.settings", icon: <Settings className="h-[18px] w-[18px]" /> },
   ],
 };
 
@@ -73,6 +74,7 @@ interface Props {
 
 export function Sidebar({ role, isOpen, onClose }: Props) {
   const pathname = usePathname();
+  const { t } = useI18n();
   const items = NAV_BY_ROLE[role] ?? [];
 
   return (
@@ -95,7 +97,7 @@ export function Sidebar({ role, isOpen, onClose }: Props) {
         <div className="flex items-center justify-between px-5 py-5">
           <div className="flex items-center gap-2 text-paper">
             <ShieldCheck className="h-5 w-5 text-accent-sky" strokeWidth={2} />
-            <span className="font-display text-base font-semibold tracking-tight">ProctorEd</span>
+            <span className="font-display text-base font-semibold tracking-tight">{t("common.appName")}</span>
           </div>
           <button
             onClick={onClose}
@@ -126,7 +128,7 @@ export function Sidebar({ role, isOpen, onClose }: Props) {
                     )}
                   >
                     {item.icon}
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 </li>
               );
@@ -138,18 +140,11 @@ export function Sidebar({ role, isOpen, onClose }: Props) {
           <div className="mx-3 mb-4 rounded-xl border border-border bg-surface-muted/40 p-4">
             <p className="flex items-center gap-1.5 text-xs font-semibold text-accent-amber">
               <Lightbulb className="h-3.5 w-3.5" />
-              Quick Tip
+              {t("nav.quickTip")}
             </p>
             <p className="mt-2 text-xs leading-relaxed text-paper/60">
-              Make sure your camera, microphone and internet are working before starting an exam.
+              {t("nav.quickTipBody")}
             </p>
-            {/* <Link
-              href="/dashboard/student/exams"
-              onClick={onClose}
-              className="mt-2.5 inline-block text-xs font-medium text-accent-sky hover:text-accent-sky/80"
-            >
-              View exam guidelines →
-            </Link> */}
           </div>
         )}
       </aside>

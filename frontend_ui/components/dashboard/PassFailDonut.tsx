@@ -3,6 +3,7 @@
 import { Target } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 import type { PassFailRate } from "@/hooks/useAnalytics";
 
 interface Props {
@@ -16,6 +17,7 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function PassFailDonut({ data, isLoading }: Props) {
+  const { t } = useI18n();
   const passRatio = data.total > 0 ? data.passed / data.total : 0;
   const passDash = CIRCUMFERENCE * passRatio;
 
@@ -24,7 +26,7 @@ export function PassFailDonut({ data, isLoading }: Props) {
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <Target className="h-4 w-4 text-accent-teal" />
-          Pass / Fail Rate
+          {t("analyticsCharts.passFailDonut.title")}
         </p>
       </div>
 
@@ -33,7 +35,7 @@ export function PassFailDonut({ data, isLoading }: Props) {
           <div className="h-[140px] w-[140px] animate-pulse rounded-full bg-surface-muted" />
         </div>
       ) : data.total === 0 ? (
-        <p className="py-10 text-center text-sm text-muted">No graded submissions yet.</p>
+        <p className="py-10 text-center text-sm text-muted">{t("dashboard.student.subjectPerformance.empty")}</p>
       ) : (
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:justify-around">
           <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }}>
@@ -60,22 +62,26 @@ export function PassFailDonut({ data, isLoading }: Props) {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="font-display text-2xl font-semibold text-paper">{data.passRate}%</span>
-              <span className="text-[10px] uppercase tracking-wide text-muted">Pass rate</span>
+              <span className="text-[10px] uppercase tracking-wide text-muted">
+                {t("analyticsCharts.passFailDonut.passRate")}
+              </span>
             </div>
           </div>
 
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent-teal" />
-              <span className="text-paper/80">Passed</span>
+              <span className="text-paper/80">{t("analyticsCharts.passFailDonut.passed")}</span>
               <span className="font-mono text-xs text-muted">{data.passed}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent-rose/40" />
-              <span className="text-paper/80">Failed</span>
+              <span className="text-paper/80">{t("analyticsCharts.passFailDonut.failed")}</span>
               <span className="font-mono text-xs text-muted">{data.failed}</span>
             </div>
-            <div className="border-t border-border pt-2 text-xs text-muted">{data.total} total attempts</div>
+            <div className="border-t border-border pt-2 text-xs text-muted">
+              {t("analyticsCharts.passFailDonut.totalAttempts", { count: data.total })}
+            </div>
           </div>
         </div>
       )}

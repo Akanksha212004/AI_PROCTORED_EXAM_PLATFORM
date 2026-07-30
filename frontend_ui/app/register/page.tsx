@@ -35,10 +35,9 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
   return (
     <AuthLayout
-      eyebrow="Get started"
-      title="Create your account"
-      subtitle="Set up access for your exams, question banks, and dashboards."
-      i18nKey="register"
+      eyebrowKey="auth.register.eyebrow"
+      titleKey="auth.register.title"
+      subtitleKey="auth.register.subtitle"
     >
       <RegisterForm />
     </AuthLayout>

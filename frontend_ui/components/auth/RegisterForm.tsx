@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useI18n } from "@/hooks/useI18n";
 import { extractErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/authService";
 
@@ -25,17 +25,20 @@ interface FormErrors {
   confirmPassword?: string;
 }
 
-const STRONG_PASSWORD_RULES = [
-  { test: (v: string) => v.length >= 8, key: "passwordRule.length" },
-  { test: (v: string) => /[A-Z]/.test(v), key: "passwordRule.uppercase" },
-  { test: (v: string) => /[a-z]/.test(v), key: "passwordRule.lowercase" },
-  { test: (v: string) => /\d/.test(v), key: "passwordRule.number" },
-  { test: (v: string) => /[!@#$%^&*()\-_=+[\]{};:'",.<>\/?`~|\\]/.test(v), key: "passwordRule.special" },
-];
-
 export function RegisterForm() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t } = useI18n();
+
+  const STRONG_PASSWORD_RULES = [
+    { test: (v: string) => v.length >= 8, label: t("auth.requestAccess.passwordRuleMin8") },
+    { test: (v: string) => /[A-Z]/.test(v), label: t("auth.requestAccess.passwordRuleUpper") },
+    { test: (v: string) => /[a-z]/.test(v), label: t("auth.requestAccess.passwordRuleLower") },
+    { test: (v: string) => /\d/.test(v), label: t("auth.requestAccess.passwordRuleNumber") },
+    {
+      test: (v: string) => /[!@#$%^&*()\-_=+[\]{};:'",.<>\/?`~|\\]/.test(v),
+      label: t("auth.requestAccess.passwordRuleSpecial"),
+    },
+  ];
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -53,13 +56,13 @@ export function RegisterForm() {
   function validate(): boolean {
     const nextErrors: FormErrors = {};
 
-    if (form.name.trim().length < 2) nextErrors.name = t("validation.nameMin");
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) nextErrors.email = t("validation.emailInvalid");
+    if (form.name.trim().length < 2) nextErrors.name = "Name must be at least 2 characters";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) nextErrors.email = "Enter a valid email address";
 
     const failedRules = STRONG_PASSWORD_RULES.filter((rule) => !rule.test(form.password));
-    if (failedRules.length > 0) nextErrors.password = t("validation.passwordWeak");
+    if (failedRules.length > 0) nextErrors.password = "Password does not meet all requirements";
 
-    if (form.password !== form.confirmPassword) nextErrors.confirmPassword = t("validation.passwordMismatch");
+    if (form.password !== form.confirmPassword) nextErrors.confirmPassword = "Passwords do not match";
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -76,7 +79,7 @@ export function RegisterForm() {
         email: form.email.trim().toLowerCase(),
         password: form.password,
       });
-      toast.success(t("register.successToast"));
+      toast.success(t("auth.register.accountCreated"));
       router.replace("/login");
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -88,7 +91,7 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <Input
-        label={t("common.fullName")}
+        label={t("auth.requestAccess.fullName")}
         autoComplete="name"
         placeholder="Ada Lovelace"
         value={form.name}
@@ -96,7 +99,7 @@ export function RegisterForm() {
         error={errors.name}
       />
       <Input
-        label={t("common.emailAddress")}
+        label={t("auth.login.email")}
         type="email"
         autoComplete="email"
         placeholder="you@institution.edu"
@@ -106,7 +109,7 @@ export function RegisterForm() {
       />
       <div>
         <Input
-          label={t("common.password")}
+          label={t("auth.login.password")}
           type="password"
           autoComplete="new-password"
           placeholder="••••••••"
@@ -119,12 +122,12 @@ export function RegisterForm() {
             const passed = rule.test(form.password);
             return (
               <li
-                key={rule.key}
+                key={rule.label}
                 className={`text-xs transition-colors ${
                   passed ? "text-accent-teal" : "text-paper/40"
                 }`}
               >
-                {passed ? "✓" : "·"} {t(rule.key)}
+                {passed ? "✓" : "·"} {rule.label}
               </li>
             );
           })}
@@ -132,7 +135,7 @@ export function RegisterForm() {
       </div>
 
       <Input
-        label={t("common.confirmPassword")}
+        label={t("auth.requestAccess.confirmPassword")}
         type="password"
         autoComplete="new-password"
         placeholder="••••••••"
@@ -142,13 +145,13 @@ export function RegisterForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? t("common.creatingAccount") : t("common.createAccount")}
+        {isSubmitting ? t("auth.register.creatingAccount") : t("auth.register.createAccount")}
       </Button>
 
       <p className="text-center text-sm text-paper/60">
-        {t("common.alreadyHaveAccount")}{" "}
+        {t("auth.register.alreadyHaveAccount")}{" "}
         <Link href="/login" className="font-medium text-accent-sky underline underline-offset-4">
-          {t("common.signIn")}
+          {t("auth.register.signIn")}
         </Link>
       </p>
     </form>

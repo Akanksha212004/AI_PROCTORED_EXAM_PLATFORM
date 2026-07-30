@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { useI18n } from "@/hooks/useI18n";
 import { extractErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/authService";
 
@@ -36,14 +37,6 @@ interface FormErrors {
   accessRequestReason?: string;
 }
 
-const STRONG_PASSWORD_RULES = [
-  { test: (v: string) => v.length >= 8, label: "At least 8 characters" },
-  { test: (v: string) => /[A-Z]/.test(v), label: "One uppercase letter" },
-  { test: (v: string) => /[a-z]/.test(v), label: "One lowercase letter" },
-  { test: (v: string) => /\d/.test(v), label: "One number" },
-  { test: (v: string) => /[!@#$%^&*()\-_=+[\]{};:'",.<>\/?`~|\\]/.test(v), label: "One special character" },
-];
-
 const INITIAL_STATE: FormState = {
   name: "",
   email: "",
@@ -59,6 +52,18 @@ const INITIAL_STATE: FormState = {
 
 export function ExaminerAccessRequestForm() {
   const router = useRouter();
+  const { t } = useI18n();
+
+  const STRONG_PASSWORD_RULES = [
+    { test: (v: string) => v.length >= 8, label: t("auth.requestAccess.passwordRuleMin8") },
+    { test: (v: string) => /[A-Z]/.test(v), label: t("auth.requestAccess.passwordRuleUpper") },
+    { test: (v: string) => /[a-z]/.test(v), label: t("auth.requestAccess.passwordRuleLower") },
+    { test: (v: string) => /\d/.test(v), label: t("auth.requestAccess.passwordRuleNumber") },
+    {
+      test: (v: string) => /[!@#$%^&*()\-_=+[\]{};:'",.<>\/?`~|\\]/.test(v),
+      label: t("auth.requestAccess.passwordRuleSpecial"),
+    },
+  ];
 
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -111,7 +116,7 @@ export function ExaminerAccessRequestForm() {
         yearsOfExperience: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
         accessRequestReason: form.accessRequestReason.trim(),
       });
-      toast.success("Request submitted — you'll be able to sign in once an admin approves it.");
+      toast.success(t("auth.requestAccess.submitted"));
       router.replace("/examiner-portal");
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -123,7 +128,7 @@ export function ExaminerAccessRequestForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <Input
-        label="Full name"
+        label={t("auth.requestAccess.fullName")}
         autoComplete="name"
         placeholder="Dr. Ada Lovelace"
         value={form.name}
@@ -131,7 +136,7 @@ export function ExaminerAccessRequestForm() {
         error={errors.name}
       />
       <Input
-        label="Official email"
+        label={t("auth.requestAccess.officialEmail")}
         type="email"
         autoComplete="email"
         placeholder="you@institution.edu"
@@ -142,14 +147,14 @@ export function ExaminerAccessRequestForm() {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Input
-          label="Institution"
+          label={t("auth.requestAccess.institution")}
           placeholder="Indian Institute of Technology"
           value={form.institution}
           onChange={(e) => update("institution", e.target.value)}
           error={errors.institution}
         />
         <Input
-          label="Department"
+          label={t("auth.requestAccess.department")}
           placeholder="Computer Science"
           value={form.department}
           onChange={(e) => update("department", e.target.value)}
@@ -159,14 +164,14 @@ export function ExaminerAccessRequestForm() {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Input
-          label="Designation"
+          label={t("auth.requestAccess.designation")}
           placeholder="Associate Professor"
           value={form.designation}
           onChange={(e) => update("designation", e.target.value)}
           error={errors.designation}
         />
         <Input
-          label="Employee ID (optional)"
+          label={t("auth.requestAccess.employeeId")}
           placeholder="EMP-00123"
           value={form.employeeId}
           onChange={(e) => update("employeeId", e.target.value)}
@@ -174,7 +179,7 @@ export function ExaminerAccessRequestForm() {
       </div>
 
       <Input
-        label="Years of experience (optional)"
+        label={t("auth.requestAccess.yearsOfExperience")}
         type="number"
         min={0}
         placeholder="5"
@@ -184,7 +189,7 @@ export function ExaminerAccessRequestForm() {
       />
 
       <Textarea
-        label="Reason for requesting access"
+        label={t("auth.requestAccess.reason")}
         placeholder="Briefly describe the courses/exams you'll be creating on the platform."
         value={form.accessRequestReason}
         onChange={(e) => update("accessRequestReason", e.target.value)}
@@ -193,14 +198,14 @@ export function ExaminerAccessRequestForm() {
 
       <div>
         <Input
-          label="Password"
+          label={t("auth.requestAccess.password")}
           type="password"
           autoComplete="new-password"
           placeholder="••••••••"
           value={form.password}
           onChange={(e) => update("password", e.target.value)}
           error={errors.password}
-          hint="You'll use this to sign in once your request is approved."
+          hint={t("auth.requestAccess.passwordHint")}
         />
         <ul className="mt-2 grid grid-cols-1 gap-1 sm:grid-cols-2">
           {STRONG_PASSWORD_RULES.map((rule) => {
@@ -218,7 +223,7 @@ export function ExaminerAccessRequestForm() {
       </div>
 
       <Input
-        label="Confirm password"
+        label={t("auth.requestAccess.confirmPassword")}
         type="password"
         autoComplete="new-password"
         placeholder="••••••••"
@@ -228,22 +233,22 @@ export function ExaminerAccessRequestForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? "Submitting request" : "Submit Request"}
+        {isSubmitting ? t("auth.requestAccess.submitting") : t("auth.requestAccess.submit")}
       </Button>
 
       <p className="text-center text-sm text-paper/60">
-        Already requested access?{" "}
+        {t("auth.requestAccess.alreadyRequested")}{" "}
         <Link href="/examiner-portal" className="font-medium text-accent-sky underline underline-offset-4">
-          Back to Examiner Login
+          {t("auth.requestAccess.backToLogin")}
         </Link>
       </p>
       <p className="text-center text-sm text-paper/60">
-        Already submitted a request?{" "}
+        {t("auth.requestAccess.alreadySubmitted")}{" "}
         <Link
           href="/examiner-portal/request-status"
           className="font-medium text-accent-sky underline underline-offset-4"
         >
-          View Request Status
+          {t("auth.requestAccess.viewStatus")}
         </Link>
       </p>
     </form>

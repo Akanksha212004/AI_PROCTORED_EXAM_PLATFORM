@@ -3,6 +3,7 @@
 import { TrendingUp } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 import type { ScoreTrendPoint } from "@/hooks/useAnalytics";
 
 interface Props {
@@ -21,6 +22,7 @@ function formatWeekLabel(iso: string): string {
 }
 
 export function ScoreTrendChart({ data, isLoading }: Props) {
+  const { t } = useI18n();
   const plotWidth = WIDTH - PAD_X * 2;
   const plotHeight = HEIGHT - PAD_TOP - PAD_BOTTOM;
 
@@ -53,19 +55,24 @@ export function ScoreTrendChart({ data, isLoading }: Props) {
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <TrendingUp className="h-4 w-4 text-accent-sky" />
-          Score Trend
+          {t("analyticsCharts.scoreTrend.title")}
         </p>
-        <p className="text-xs text-muted">Weekly average</p>
+        <p className="text-xs text-muted">{t("analyticsCharts.scoreTrend.weeklyAverage")}</p>
       </div>
 
       {isLoading ? (
         <div className="h-[220px] animate-pulse rounded-lg bg-surface-muted" />
       ) : !hasAnyData ? (
         <p className="flex h-[220px] items-center justify-center text-sm text-muted">
-          No graded submissions in this period yet.
+          {t("analyticsCharts.scoreTrend.empty")}
         </p>
       ) : (
-        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full" role="img" aria-label="Weekly average score trend">
+        <svg
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          className="w-full"
+          role="img"
+          aria-label={t("analyticsCharts.scoreTrend.ariaLabel")}
+        >
           {gridLines.map((g) => {
             const y = PAD_TOP + plotHeight * (1 - g / 100);
             return (
@@ -94,7 +101,11 @@ export function ScoreTrendChart({ data, isLoading }: Props) {
               <g key={i}>
                 <circle cx={p.x} cy={p.y} r={4} strokeWidth={2.5} className="fill-ink stroke-accent-sky" />
                 <title>
-                  {formatWeekLabel(p.weekStart)}: {p.averageScore}% ({p.attempts} attempt{p.attempts === 1 ? "" : "s"})
+                  {t(p.attempts === 1 ? "analyticsCharts.scoreTrend.tooltipSingular" : "analyticsCharts.scoreTrend.tooltipPlural", {
+                    label: formatWeekLabel(p.weekStart),
+                    score: p.averageScore ?? 0,
+                    attempts: p.attempts,
+                  })}
                 </title>
               </g>
             ) : null

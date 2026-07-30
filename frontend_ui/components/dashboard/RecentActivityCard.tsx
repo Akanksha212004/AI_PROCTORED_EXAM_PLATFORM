@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/hooks/useI18n";
 import type { ActivityType, RecentActivityItem } from "@/types/dashboard";
 
 interface Props {
@@ -27,21 +28,23 @@ const DOT_COLOR: Record<ActivityType, string> = {
   graded: "border-accent-violet text-accent-violet",
 };
 
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
-
 export function RecentActivityCard({ activity, isLoading }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollMore, setCanScrollMore] = useState(false);
+  const { t } = useI18n();
+
+  /** Time-of-day-agnostic relative time — translated via the shared common.* keys. */
+  function relativeTime(iso: string): string {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return t("common.justNow");
+    if (minutes < 60) return t("common.minutesAgo", { count: minutes });
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return t("common.hoursAgo", { count: hours });
+    const days = Math.floor(hours / 24);
+    if (days < 7) return t("common.daysAgo", { count: days });
+    return new Date(iso).toLocaleDateString();
+  }
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -64,9 +67,9 @@ export function RecentActivityCard({ activity, isLoading }: Props) {
   return (
     <Card interactive className="p-5 sm:p-6">
       <div className="mb-6 flex items-center justify-between">
-        <p className="font-display text-base font-semibold text-paper">Recent Activity</p>
+        <p className="font-display text-base font-semibold text-paper">{t("dashboard.examiner.recentActivity.title")}</p>
         {canScrollMore && (
-          <p className="text-xs text-muted">Scroll for more →</p>
+          <p className="text-xs text-muted">{t("dashboard.examiner.recentActivity.scrollForMore")}</p>
         )}
       </div>
 
@@ -81,7 +84,7 @@ export function RecentActivityCard({ activity, isLoading }: Props) {
           ))}
         </div>
       ) : activity.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">No activity yet.</p>
+        <p className="py-8 text-center text-sm text-muted">{t("dashboard.examiner.recentActivity.noActivityYet")}</p>
       ) : (
         <div className="relative">
           <div ref={scrollRef} className="overflow-x-auto pb-1">

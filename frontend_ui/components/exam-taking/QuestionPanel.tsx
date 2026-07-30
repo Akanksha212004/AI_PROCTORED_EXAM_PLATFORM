@@ -5,6 +5,8 @@ import { ImageIcon, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Badge, difficultyTone, questionTypeLabel } from "@/components/ui/Badge";
+import { useI18n } from "@/hooks/useI18n";
+import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import { STATIC_FILE_ORIGIN } from "@/lib/axios";
 import { FilePreviewModal } from "@/components/exam-taking/FilePreviewModal";
 import type { SessionQuestionView } from "@/types/examSession";
@@ -30,9 +32,19 @@ export function QuestionPanel({
   onBeforeFilePick,
   onFilePicked,
 }: Props) {
+  const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedIds = new Set(question.answer?.selectedOptionIds ?? []);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Dynamic (examiner-authored) content — machine-translated at render
+  // time into whichever of the 5 languages the student picked. This is
+  // separate from the static UI strings above/below, which come from
+  // the fixed lib/i18n dictionaries via t().
+  const optionTexts = question.options?.map((opt) => opt.optionText) ?? [];
+  const { translated } = useTranslatedTexts([question.questionText, ...optionTexts]);
+  const translatedQuestionText = translated[0] ?? question.questionText;
+  const translatedOptionTexts = translated.slice(1);
 
   function toggleMcq(optionId: string) {
     onSelectOptions([optionId]);
@@ -58,18 +70,20 @@ export function QuestionPanel({
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone="neutral">
-          Question {index + 1} of {total}
+          {t("examTaking.questionOf", { current: index + 1, total })}
         </Badge>
         <Badge tone="sky">{questionTypeLabel(question.questionType)}</Badge>
         <Badge tone={difficultyTone(question.difficultyLevel)}>{question.difficultyLevel}</Badge>
-        <Badge tone="neutral">{question.marksAllocated} marks</Badge>
+        <Badge tone="neutral">
+          {question.marksAllocated} {t("examTaking.marks")}
+        </Badge>
       </div>
 
-      <p className="whitespace-pre-wrap text-lg text-paper">{question.questionText}</p>
+      <p className="whitespace-pre-wrap text-lg text-paper">{translatedQuestionText}</p>
 
       {question.questionType === "MCQ" && (
         <div className="space-y-2">
-          {question.options?.map((opt) => (
+          {question.options?.map((opt, optIndex) => (
             <label
               key={opt.id}
               className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors ${
@@ -85,7 +99,7 @@ export function QuestionPanel({
                 onChange={() => toggleMcq(opt.id)}
                 className="h-4 w-4 accent-accent-sky"
               />
-              {opt.optionText}
+              {translatedOptionTexts[optIndex] ?? opt.optionText}
             </label>
           ))}
         </div>
@@ -93,7 +107,7 @@ export function QuestionPanel({
 
       {question.questionType === "MULTI_SELECT" && (
         <div className="space-y-2">
-          {question.options?.map((opt) => (
+          {question.options?.map((opt, optIndex) => (
             <label
               key={opt.id}
               className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors ${
@@ -108,7 +122,7 @@ export function QuestionPanel({
                 onChange={() => toggleMultiSelect(opt.id)}
                 className="h-4 w-4 rounded accent-accent-sky"
               />
-              {opt.optionText}
+              {translatedOptionTexts[optIndex] ?? opt.optionText}
             </label>
           ))}
         </div>
@@ -119,7 +133,7 @@ export function QuestionPanel({
           value={question.answer?.submittedText ?? ""}
           onChange={(e) => onTextChange(e.target.value)}
           rows={question.questionType === "LONG_ANSWER" ? 10 : 4}
-          placeholder="Type your answer here..."
+          placeholder={t("examTaking.typeAnswer")}
           className="w-full rounded-lg border border-border bg-surface-muted p-4 text-sm text-paper placeholder:text-muted focus:border-accent-sky focus:outline-none"
         />
       )}
@@ -132,10 +146,10 @@ export function QuestionPanel({
                 onClick={() => setPreviewUrl(fullFileUrl)}
                 className="flex items-center gap-2 text-sm text-accent-sky underline"
               >
-                <ImageIcon className="h-4 w-4" /> View uploaded answer
+                <ImageIcon className="h-4 w-4" /> {t("examTaking.viewUploadedAnswer")}
               </button>
               <button onClick={openFilePicker} className="text-xs font-medium text-muted hover:text-paper">
-                Replace
+                {t("examTaking.replace")}
               </button>
             </div>
           ) : (
@@ -144,8 +158,8 @@ export function QuestionPanel({
               className="cursor-pointer rounded-xl border border-dashed border-border p-8 text-center transition-colors hover:border-accent-sky/50"
             >
               <Upload className="mx-auto h-8 w-8 text-muted" />
-              <p className="mt-2 text-sm text-paper">Click to upload your handwritten answer</p>
-              <p className="mt-1 text-xs text-muted">PNG, JPEG, WEBP, or PDF — up to 10MB</p>
+              <p className="mt-2 text-sm text-paper">{t("examTaking.uploadHandwritten")}</p>
+              <p className="mt-1 text-xs text-muted">{t("examTaking.uploadHint")}</p>
             </div>
           )}
           <input

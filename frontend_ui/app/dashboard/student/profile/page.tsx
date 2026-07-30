@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/useAuth";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
 export default function StudentProfilePage() {
@@ -51,12 +52,15 @@ function formatDate(dateString?: string): string {
 function ProfileContent() {
   const { user } = useAuth();
   const { performance, subjectPerformance, isLoadingSubmissions } = useStudentDashboard();
+  const { t } = useI18n();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Profile</h1>
-        <p className="mt-1.5 text-sm text-paper/60">A quick look at your account and exam performance.</p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
+          {t("studentProfile.title")}
+        </h1>
+        <p className="mt-1.5 text-sm text-paper/60">{t("studentProfile.subtitle")}</p>
       </div>
 
       {/* Header banner */}
@@ -72,7 +76,7 @@ function ProfileContent() {
             <div className="flex flex-wrap items-center gap-2.5">
               <p className="font-display text-xl font-semibold text-paper">{user?.name ?? "—"}</p>
               <span className="rounded-full bg-accent-teal/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-accent-teal">
-                Student
+                {t("studentProfile.studentBadge")}
               </span>
             </div>
 
@@ -83,7 +87,7 @@ function ProfileContent() {
               </span>
               <span className="flex items-center gap-1.5">
                 <CalendarDays className="h-3.5 w-3.5" />
-                Member since {formatDate(user?.createdAt)}
+                {t("studentProfile.memberSince", { date: formatDate(user?.createdAt) })}
               </span>
             </div>
           </div>
@@ -91,7 +95,7 @@ function ProfileContent() {
           <Link href="/dashboard/student/settings" className="sm:shrink-0">
             <Button variant="secondary" className="w-full sm:w-auto sm:px-5">
               <SettingsIcon className="h-4 w-4" />
-              Edit profile
+              {t("studentProfile.editProfile")}
             </Button>
           </Link>
         </div>
@@ -101,28 +105,28 @@ function ProfileContent() {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatTile
           icon={<CheckCircle2 className="h-5 w-5" strokeWidth={1.75} />}
-          label="Exams Taken"
+          label={t("studentProfile.stats.examsTaken")}
           value={performance.completedCount}
           accent="teal"
           isLoading={isLoadingSubmissions}
         />
         <StatTile
           icon={<BarChart3 className="h-5 w-5" strokeWidth={1.75} />}
-          label="Average Score"
+          label={t("dashboard.student.performanceOverview.averageScoreLabel")}
           value={performance.averageScore !== null ? `${performance.averageScore}%` : "—"}
           accent="sky"
           isLoading={isLoadingSubmissions}
         />
         <StatTile
           icon={<TrendingUp className="h-5 w-5" strokeWidth={1.75} />}
-          label="Best Score"
+          label={t("dashboard.student.performanceOverview.bestScore")}
           value={performance.bestScore !== null ? `${performance.bestScore}%` : "—"}
           accent="violet"
           isLoading={isLoadingSubmissions}
         />
         <StatTile
           icon={<TrendingDown className="h-5 w-5" strokeWidth={1.75} />}
-          label="Lowest Score"
+          label={t("dashboard.student.performanceOverview.lowestScore")}
           value={performance.lowestScore !== null ? `${performance.lowestScore}%` : "—"}
           accent="rose"
           isLoading={isLoadingSubmissions}
@@ -133,7 +137,7 @@ function ProfileContent() {
       <Card>
         <p className="mb-4 flex items-center gap-2 font-display text-base font-semibold text-paper">
           <Award className="h-4 w-4 text-accent-amber" />
-          Subject Performance
+          {t("dashboard.student.subjectPerformance.title")}
         </p>
 
         {isLoadingSubmissions ? (
@@ -143,7 +147,7 @@ function ProfileContent() {
             ))}
           </div>
         ) : subjectPerformance.length === 0 ? (
-          <p className="text-sm text-paper/50">No graded exams yet — your subject breakdown will appear here.</p>
+          <p className="text-sm text-paper/50">{t("studentProfile.subjectPerformanceEmpty")}</p>
         ) : (
           <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
             {subjectPerformance.map((s) => (

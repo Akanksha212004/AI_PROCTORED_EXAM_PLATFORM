@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/useAuth";
 import { useSettings } from "@/hooks/useSettings";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function StudentSettingsPage() {
   return (
@@ -27,6 +28,7 @@ const inputClass =
 function SettingsContent() {
   const { user } = useAuth();
   const { updateProfile, changePassword, isSavingProfile, isSavingPassword } = useSettings();
+  const { t } = useI18n();
 
   const [name, setName] = useState(user?.name ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -45,7 +47,7 @@ function SettingsContent() {
   async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation don't match");
+      toast.error(t("studentSettings.passwordMismatch"));
       return;
     }
     try {
@@ -61,8 +63,10 @@ function SettingsContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Settings</h1>
-        <p className="mt-1.5 text-sm text-paper/60">Manage your account profile and password.</p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
+          {t("studentSettings.title")}
+        </h1>
+        <p className="mt-1.5 text-sm text-paper/60">{t("studentSettings.subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
@@ -70,11 +74,13 @@ function SettingsContent() {
           <form onSubmit={handleProfileSubmit} className="space-y-4">
             <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
               <UserIcon className="h-4 w-4 text-accent-sky" />
-              Profile
+              {t("studentSettings.profileSection.heading")}
             </p>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Name</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
+                {t("studentSettings.profileSection.nameLabel")}
+              </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -85,13 +91,15 @@ function SettingsContent() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Email</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
+                {t("studentSettings.profileSection.emailLabel")}
+              </label>
               <input value={user?.email ?? ""} disabled className={inputClass} />
-              <p className="mt-1 text-xs text-muted">Email can&apos;t be changed here.</p>
+              <p className="mt-1 text-xs text-muted">{t("studentSettings.profileSection.emailHint")}</p>
             </div>
 
             <Button type="submit" className="w-auto px-4" disabled={isSavingProfile || name.trim().length < 2}>
-              {isSavingProfile ? "Saving…" : "Save Profile"}
+              {isSavingProfile ? t("studentSettings.profileSection.saving") : t("studentSettings.profileSection.save")}
             </Button>
           </form>
         </Card>
@@ -100,12 +108,12 @@ function SettingsContent() {
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
               <KeyRound className="h-4 w-4 text-accent-violet" />
-              Change Password
+              {t("studentSettings.passwordSection.heading")}
             </p>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
-                Current Password
+                {t("studentSettings.passwordSection.currentPasswordLabel")}
               </label>
               <input
                 type="password"
@@ -118,7 +126,7 @@ function SettingsContent() {
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
-                New Password
+                {t("studentSettings.passwordSection.newPasswordLabel")}
               </label>
               <input
                 type="password"
@@ -128,14 +136,12 @@ function SettingsContent() {
                 required
                 minLength={8}
               />
-              <p className="mt-1 text-xs text-muted">
-                At least 8 characters, with an uppercase letter, lowercase letter, digit, and special character.
-              </p>
+              <p className="mt-1 text-xs text-muted">{t("studentSettings.passwordSection.newPasswordHint")}</p>
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
-                Confirm New Password
+                {t("studentSettings.passwordSection.confirmPasswordLabel")}
               </label>
               <input
                 type="password"
@@ -153,7 +159,7 @@ function SettingsContent() {
               className="w-auto px-4"
               disabled={isSavingPassword || !currentPassword || !newPassword}
             >
-              {isSavingPassword ? "Updating…" : "Update Password"}
+              {isSavingPassword ? t("studentSettings.passwordSection.updating") : t("studentSettings.passwordSection.update")}
             </Button>
           </form>
         </Card>

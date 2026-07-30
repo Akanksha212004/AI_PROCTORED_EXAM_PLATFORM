@@ -15,13 +15,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/hooks/useI18n";
 
 type ReadinessState = "checking" | "ready" | "warning" | "unavailable";
 
 interface ReadinessRow {
-  label: string;
+  labelKey: string;
   state: ReadinessState;
-  detail: string;
+  detailKey: string;
 }
 
 const STATE_DOT: Record<ReadinessState, string> = {
@@ -76,54 +77,66 @@ async function requestPermission(kind: "camera" | "microphone"): Promise<Readine
 }
 
 function checkConnection(): ReadinessRow {
-  if (typeof navigator === "undefined") return { label: "Internet Connection", state: "checking", detail: "Checking…" };
-  if (!navigator.onLine) return { label: "Internet Connection", state: "unavailable", detail: "Offline" };
+  const labelKey = "dashboard.student.systemReadiness.rows.internetConnection";
+  if (typeof navigator === "undefined")
+    return { labelKey, state: "checking", detailKey: "dashboard.student.systemReadiness.detail.checking" };
+  if (!navigator.onLine)
+    return { labelKey, state: "unavailable", detailKey: "dashboard.student.systemReadiness.detail.offline" };
   const conn = (navigator as unknown as { connection?: { effectiveType?: string } }).connection;
   const effectiveType = conn?.effectiveType;
   if (effectiveType && ["slow-2g", "2g"].includes(effectiveType)) {
-    return { label: "Internet Connection", state: "warning", detail: "Slow connection" };
+    return { labelKey, state: "warning", detailKey: "dashboard.student.systemReadiness.detail.slowConnection" };
   }
-  return { label: "Internet Connection", state: "ready", detail: "Stable" };
+  return { labelKey, state: "ready", detailKey: "dashboard.student.systemReadiness.detail.stable" };
 }
 
 function checkBrowser(): ReadinessRow {
   const supported =
     typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia && typeof RTCPeerConnection !== "undefined";
   return {
-    label: "Browser",
+    labelKey: "dashboard.student.systemReadiness.rows.browser",
     state: supported ? "ready" : "unavailable",
-    detail: supported ? "Supported" : "Unsupported",
+    detailKey: supported
+      ? "dashboard.student.systemReadiness.detail.supported"
+      : "dashboard.student.systemReadiness.detail.unsupported",
   };
 }
 
 function checkFullscreen(): ReadinessRow {
   const supported = typeof document !== "undefined" && document.fullscreenEnabled;
   return {
-    label: "Fullscreen",
+    labelKey: "dashboard.student.systemReadiness.rows.fullscreen",
     state: supported ? "ready" : "warning",
-    detail: supported ? "Ready" : "Restricted",
+    detailKey: supported
+      ? "dashboard.student.systemReadiness.detail.ready"
+      : "dashboard.student.systemReadiness.detail.restricted",
   };
 }
 
 export function SystemReadinessCard() {
+  const { t } = useI18n();
   const [rows, setRows] = useState<ReadinessRow[]>([
-    { label: "Camera", state: "checking", detail: "Checking…" },
-    { label: "Microphone", state: "checking", detail: "Checking…" },
-    { label: "Internet Connection", state: "checking", detail: "Checking…" },
-    { label: "Browser", state: "checking", detail: "Checking…" },
-    { label: "Fullscreen", state: "checking", detail: "Checking…" },
+    { labelKey: "dashboard.student.systemReadiness.rows.camera", state: "checking", detailKey: "dashboard.student.systemReadiness.detail.checking" },
+    { labelKey: "dashboard.student.systemReadiness.rows.microphone", state: "checking", detailKey: "dashboard.student.systemReadiness.detail.checking" },
+    { labelKey: "dashboard.student.systemReadiness.rows.internetConnection", state: "checking", detailKey: "dashboard.student.systemReadiness.detail.checking" },
+    { labelKey: "dashboard.student.systemReadiness.rows.browser", state: "checking", detailKey: "dashboard.student.systemReadiness.detail.checking" },
+    { labelKey: "dashboard.student.systemReadiness.rows.fullscreen", state: "checking", detailKey: "dashboard.student.systemReadiness.detail.checking" },
   ]);
   const [isChecking, setIsChecking] = useState(false);
 
-  const detailFor = (state: ReadinessState) =>
-    state === "ready" ? "Ready" : state === "warning" ? "Needs permission" : "Blocked";
+  const detailKeyFor = (state: ReadinessState) =>
+    state === "ready"
+      ? "dashboard.student.systemReadiness.detail.ready"
+      : state === "warning"
+      ? "dashboard.student.systemReadiness.detail.needsPermission"
+      : "dashboard.student.systemReadiness.detail.blocked";
 
   /** Runs on mount — reads current permission state only, never prompts. */
   const runPassiveCheck = useCallback(async () => {
     const [camera, microphone] = await Promise.all([checkPermission("camera"), checkPermission("microphone")]);
     setRows([
-      { label: "Camera", state: camera, detail: detailFor(camera) },
-      { label: "Microphone", state: microphone, detail: detailFor(microphone) },
+      { labelKey: "dashboard.student.systemReadiness.rows.camera", state: camera, detailKey: detailKeyFor(camera) },
+      { labelKey: "dashboard.student.systemReadiness.rows.microphone", state: microphone, detailKey: detailKeyFor(microphone) },
       checkConnection(),
       checkBrowser(),
       checkFullscreen(),
@@ -139,8 +152,8 @@ export function SystemReadinessCard() {
         requestPermission("microphone"),
       ]);
       setRows([
-        { label: "Camera", state: camera, detail: detailFor(camera) },
-        { label: "Microphone", state: microphone, detail: detailFor(microphone) },
+        { labelKey: "dashboard.student.systemReadiness.rows.camera", state: camera, detailKey: detailKeyFor(camera) },
+        { labelKey: "dashboard.student.systemReadiness.rows.microphone", state: microphone, detailKey: detailKeyFor(microphone) },
         checkConnection(),
         checkBrowser(),
         checkFullscreen(),
@@ -159,26 +172,23 @@ export function SystemReadinessCard() {
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <ShieldCheck className="h-4 w-4 text-accent-teal" />
-          System Readiness
+          {t("dashboard.student.systemReadiness.title")}
         </p>
       </div>
 
       <ul className="flex-1 space-y-3.5">
         {rows.map((row) => (
-          <li key={row.label} className="flex items-center justify-between text-sm">
-            <span className="text-paper/80">{row.label}</span>
+          <li key={row.labelKey} className="flex items-center justify-between text-sm">
+            <span className="text-paper/80">{t(row.labelKey)}</span>
             <span className={cn("flex items-center gap-1.5 font-medium", STATE_TEXT[row.state])}>
               <span className={cn("h-1.5 w-1.5 rounded-full", STATE_DOT[row.state])} />
-              {row.detail}
+              {t(row.detailKey)}
             </span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-4 text-xs text-paper/40">
-        Camera or microphone showing &ldquo;Needs permission&rdquo;? Click below — your browser will ask you to
-        allow access.
-      </p>
+      <p className="mt-4 text-xs text-paper/40">{t("dashboard.student.systemReadiness.permissionHint")}</p>
 
       <button
         onClick={runActiveCheck}
@@ -189,7 +199,7 @@ export function SystemReadinessCard() {
         )}
       >
         {isChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-        Run system check again
+        {t("dashboard.student.systemReadiness.runCheckAgain")}
       </button>
     </Card>
   );

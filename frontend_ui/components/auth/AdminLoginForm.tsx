@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { extractErrorMessage } from "@/lib/utils";
 
 interface FormErrors {
@@ -27,6 +28,7 @@ interface FormErrors {
  */
 export function AdminLoginForm() {
   const { login, logout } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -63,7 +65,7 @@ export function AdminLoginForm() {
         return;
       }
 
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
+      toast.success(`${t("auth.login.welcomeBack")}, ${user.name.split(" ")[0]}`);
       router.replace("/dashboard/admin");
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -75,7 +77,7 @@ export function AdminLoginForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <Input
-        label="Email"
+        label={t("auth.login.email")}
         type="email"
         autoComplete="email"
         placeholder="admin@institution.edu"
@@ -84,7 +86,7 @@ export function AdminLoginForm() {
         error={errors.email}
       />
       <Input
-        label="Password"
+        label={t("auth.login.password")}
         type="password"
         autoComplete="current-password"
         placeholder="••••••••"
@@ -94,7 +96,7 @@ export function AdminLoginForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? "Signing in" : "Sign in"}
+        {isSubmitting ? t("auth.adminLogin.signingIn") : t("auth.adminLogin.signIn")}
       </Button>
     </form>
   );

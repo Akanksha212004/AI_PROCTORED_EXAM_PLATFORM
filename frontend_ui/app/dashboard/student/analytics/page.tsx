@@ -17,6 +17,7 @@ import { PassFailDonut } from "@/components/dashboard/PassFailDonut";
 import { ExamComparisonTable } from "@/components/dashboard/ExamComparisonTable";
 import { StudentSubjectPerformanceCard } from "@/components/dashboard/StudentSubjectPerformanceCard";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import { useI18n } from "@/hooks/useI18n";
 import type { ScoreTrendPoint, PassFailRate, ExamComparisonRow } from "@/hooks/useAnalytics";
 import type { MySubmissionListItem } from "@/types/examSession";
 
@@ -127,6 +128,7 @@ export default function StudentAnalyticsPage() {
 function AnalyticsContent() {
   const { examHistory, subjectPerformance, isLoadingSubmissions } = useStudentDashboard();
   const router = useRouter();
+  const { t } = useI18n();
 
   const scoreTrend = buildScoreTrend(examHistory);
   const passFailRate = buildPassFailRate(examHistory);
@@ -138,13 +140,15 @@ function AnalyticsContent() {
         onClick={() => router.push("/dashboard/student")}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-paper/60 transition-colors hover:text-paper"
       >
-        <ChevronLeft className="h-4 w-4" /> Back to Dashboard
+        <ChevronLeft className="h-4 w-4" /> {t("common.backToDashboard")}
       </button>
 
       <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Analytics</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
+          {t("studentAnalytics.title")}
+        </h1>
         <p className="mt-1.5 text-sm text-paper/60">
-          Based on your graded submissions, last {WEEKS} weeks.
+          {t("studentAnalytics.subtitle", { weeks: WEEKS })}
         </p>
       </div>
 

@@ -10,6 +10,7 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { useExamHistory } from "@/hooks/useExamHistory";
+import { useI18n } from "@/hooks/useI18n";
 import type { GradingStatus, SessionStatus } from "@/types/examSession";
 import { cn } from "@/lib/utils";
 
@@ -23,18 +24,18 @@ export default function ExamHistoryPage() {
   );
 }
 
-function statusLabel(status: SessionStatus): string {
+function statusLabelKey(status: SessionStatus): string | null {
   switch (status) {
     case "IN_PROGRESS":
-      return "In Progress";
+      return "studentHistory.status.inProgress";
     case "SUBMITTED":
-      return "Submitted";
+      return "studentHistory.status.submitted";
     case "AUTO_SUBMITTED":
-      return "Auto-submitted";
+      return "studentHistory.status.autoSubmitted";
     case "EXPIRED":
-      return "Expired";
+      return "studentHistory.status.expired";
     default:
-      return status;
+      return null;
   }
 }
 
@@ -42,20 +43,21 @@ function gradingBadgeTone(status: GradingStatus): "neutral" | "sky" {
   return status === "PENDING_REVIEW" ? "neutral" : "sky";
 }
 
-function gradingLabel(status: GradingStatus): string {
+function gradingLabelKey(status: GradingStatus): string | null {
   switch (status) {
     case "FULLY_AUTO_GRADED":
     case "FULLY_GRADED":
-      return "Graded";
+      return "dashboard.student.examHistory.status.graded";
     case "PENDING_REVIEW":
-      return "Pending Review";
+      return "dashboard.student.examHistory.status.pendingReview";
     default:
-      return status;
+      return null;
   }
 }
 
 function ExamHistoryContent() {
   const router = useRouter();
+  const { t } = useI18n();
   const { items, page, totalPages, total, isLoading, nextPage, prevPage } = useExamHistory();
 
   return (
@@ -64,25 +66,27 @@ function ExamHistoryContent() {
         onClick={() => router.push("/dashboard/student")}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-paper/60 transition-colors hover:text-paper"
       >
-        <ArrowBack className="h-4 w-4" /> Back to Dashboard
+        <ArrowBack className="h-4 w-4" /> {t("common.backToDashboard")}
       </button>
 
       <div>
         <p className="mb-1.5 font-mono text-xs uppercase tracking-[0.2em] text-accent-teal">
-          Exam History
+          {t("studentHistory.eyebrow")}
         </p>
-        <h1 className="font-display text-3xl font-semibold text-paper">All Submissions</h1>
+        <h1 className="font-display text-3xl font-semibold text-paper">{t("studentHistory.title")}</h1>
         <p className="mt-2 text-sm text-paper/60">
-          {total > 0 ? `${total} exam${total === 1 ? "" : "s"} submitted` : "Your past exam submissions"}
+          {total > 0
+            ? t(total === 1 ? "studentHistory.subtitleSingular" : "studentHistory.subtitlePlural", { count: total })
+            : t("studentHistory.subtitleEmpty")}
         </p>
       </div>
 
       {isLoading ? (
         <div className="flex min-h-[30vh] items-center justify-center text-paper/60">
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading history...
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t("studentHistory.loading")}
         </div>
       ) : items.length === 0 ? (
-        <Card className="p-6 text-sm text-paper/70">You haven&apos;t submitted any exams yet.</Card>
+        <Card className="p-6 text-sm text-paper/70">{t("dashboard.student.examHistory.empty")}</Card>
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
@@ -104,8 +108,10 @@ function ExamHistoryContent() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Badge tone="neutral">{statusLabel(item.status)}</Badge>
-                <Badge tone={gradingBadgeTone(item.gradingStatus)}>{gradingLabel(item.gradingStatus)}</Badge>
+                <Badge tone="neutral">{statusLabelKey(item.status) ? t(statusLabelKey(item.status)!) : item.status}</Badge>
+                <Badge tone={gradingBadgeTone(item.gradingStatus)}>
+                  {gradingLabelKey(item.gradingStatus) ? t(gradingLabelKey(item.gradingStatus)!) : item.gradingStatus}
+                </Badge>
               </div>
 
               <button
@@ -115,7 +121,7 @@ function ExamHistoryContent() {
                   "transition-opacity hover:opacity-80"
                 )}
               >
-                <FileText className="h-4 w-4" /> View Report
+                <FileText className="h-4 w-4" /> {t("studentHistory.viewReport")}
               </button>
             </Card>
           ))}
@@ -129,17 +135,15 @@ function ExamHistoryContent() {
             disabled={page <= 1 || isLoading}
             className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 disabled:opacity-30"
           >
-            <ChevronLeft className="h-4 w-4" /> Previous
+            <ChevronLeft className="h-4 w-4" /> {t("studentHistory.pagination.previous")}
           </button>
-          <span>
-            Page {page} of {totalPages}
-          </span>
+          <span>{t("studentHistory.pagination.pageOf", { page, totalPages })}</span>
           <button
             onClick={nextPage}
             disabled={page >= totalPages || isLoading}
             className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 disabled:opacity-30"
           >
-            Next <ChevronRight className="h-4 w-4" />
+            {t("studentHistory.pagination.next")} <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       )}

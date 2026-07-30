@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Gauge } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 import type { StudentPerformanceStats } from "@/hooks/useStudentDashboard";
 
 interface Props {
@@ -25,6 +26,7 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function PerformanceOverviewCard({ performance, isLoading }: Props) {
+  const { t } = useI18n();
   const hasData = performance.averageScore !== null;
   const scoreDash = hasData ? (CIRCUMFERENCE * (performance.averageScore as number)) / 100 : 0;
 
@@ -33,10 +35,10 @@ export function PerformanceOverviewCard({ performance, isLoading }: Props) {
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <Gauge className="h-4 w-4 text-accent-sky" />
-          Performance Overview
+          {t("dashboard.student.performanceOverview.title")}
         </p>
         <Link href="/dashboard/student/history" className="text-xs font-medium text-accent-sky hover:text-accent-sky/80">
-          View all →
+          {t("dashboard.student.performanceOverview.viewAll")}
         </Link>
       </div>
 
@@ -46,7 +48,7 @@ export function PerformanceOverviewCard({ performance, isLoading }: Props) {
             <div className="h-[168px] w-[168px] animate-pulse rounded-full bg-surface-muted" />
           </div>
         ) : !hasData ? (
-          <p className="py-10 text-center text-sm text-muted">No graded exams yet — your results will show up here.</p>
+          <p className="py-10 text-center text-sm text-muted">{t("dashboard.student.performanceOverview.empty")}</p>
         ) : (
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:justify-around">
             <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }}>
@@ -82,29 +84,29 @@ export function PerformanceOverviewCard({ performance, isLoading }: Props) {
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="font-display text-2xl font-semibold text-paper">{performance.averageScore}%</span>
-                <span className="text-[10px] uppercase tracking-wide text-muted">Average Score</span>
+                <span className="text-[10px] uppercase tracking-wide text-muted">{t("dashboard.student.performanceOverview.averageScoreLabel")}</span>
               </div>
             </div>
 
             <div className="space-y-4 text-base">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent-teal" />
-                <span className="text-paper/80">Best Score</span>
+                <span className="text-paper/80">{t("dashboard.student.performanceOverview.bestScore")}</span>
                 <span className="font-mono text-xs text-muted">{performance.bestScore}%</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent-rose" />
-                <span className="text-paper/80">Lowest Score</span>
+                <span className="text-paper/80">{t("dashboard.student.performanceOverview.lowestScore")}</span>
                 <span className="font-mono text-xs text-muted">{performance.lowestScore}%</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent-sky" />
-                <span className="text-paper/80">Total Exams</span>
+                <span className="text-paper/80">{t("dashboard.student.performanceOverview.totalExams")}</span>
                 <span className="font-mono text-xs text-muted">{performance.completedCount}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent-amber" />
-                <span className="text-paper/80">Pending Results</span>
+                <span className="text-paper/80">{t("dashboard.student.performanceOverview.pendingResults")}</span>
                 <span className="font-mono text-xs text-muted">{performance.pendingReviewCount}</span>
               </div>
             </div>

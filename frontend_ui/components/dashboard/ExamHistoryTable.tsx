@@ -11,6 +11,7 @@ import { History } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { useI18n } from "@/hooks/useI18n";
 import type { GradingStatus, MySubmissionListItem } from "@/types/examSession";
 
 interface Props {
@@ -23,22 +24,25 @@ function gradingBadgeTone(status: GradingStatus): "neutral" | "sky" | "amber" {
   return status === "PENDING_REVIEW" ? "amber" : "sky";
 }
 
-function gradingLabel(status: GradingStatus): string {
-  return status === "PENDING_REVIEW" ? "Pending Review" : "Graded";
-}
-
 export function ExamHistoryTable({ history, isLoading, limit = 5 }: Props) {
+  const { t } = useI18n();
   const rows = history.slice(0, limit);
+
+  function gradingLabel(status: GradingStatus): string {
+    return status === "PENDING_REVIEW"
+      ? t("dashboard.student.examHistory.status.pendingReview")
+      : t("dashboard.student.examHistory.status.graded");
+  }
 
   return (
     <Card interactive className="flex h-full flex-col p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <History className="h-4 w-4 text-accent-violet" />
-          Exam History
+          {t("dashboard.student.examHistory.title")}
         </p>
         <Link href="/dashboard/student/history" className="text-xs font-medium text-accent-sky hover:text-accent-sky/80">
-          View all →
+          {t("dashboard.student.examHistory.viewAll")}
         </Link>
       </div>
 
@@ -49,17 +53,17 @@ export function ExamHistoryTable({ history, isLoading, limit = 5 }: Props) {
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">You haven&apos;t submitted any exams yet.</p>
+        <p className="py-8 text-center text-sm text-muted">{t("dashboard.student.examHistory.empty")}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
-                <th className="pb-3 pr-3 font-medium">Exam</th>
-                <th className="pb-3 pr-3 font-medium">Subject</th>
-                <th className="pb-3 pr-3 font-medium">Date</th>
-                <th className="pb-3 pr-3 font-medium">Score</th>
-                <th className="pb-3 font-medium">Status</th>
+                <th className="pb-3 pr-3 font-medium">{t("dashboard.student.examHistory.columns.exam")}</th>
+                <th className="pb-3 pr-3 font-medium">{t("dashboard.student.examHistory.columns.subject")}</th>
+                <th className="pb-3 pr-3 font-medium">{t("dashboard.student.examHistory.columns.date")}</th>
+                <th className="pb-3 pr-3 font-medium">{t("dashboard.student.examHistory.columns.score")}</th>
+                <th className="pb-3 font-medium">{t("dashboard.student.examHistory.columns.status")}</th>
               </tr>
             </thead>
             <tbody>

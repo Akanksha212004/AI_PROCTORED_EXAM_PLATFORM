@@ -9,8 +9,10 @@ import { Loader2, ChevronLeft, ChevronRight, CheckCircle2, Flag, Eraser } from "
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { Button } from "@/components/ui/Button";
 import { useExamSession } from "@/hooks/useExamSession";
+import { useI18n } from "@/hooks/useI18n";
 import { useProctoringSignals } from "@/hooks/useProctoringSignals";
 import { useFaceMonitoring } from "@/hooks/useFaceMonitoring";
+import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import { ExamTimerBar } from "@/components/exam-taking/ExamTimerBar";
 import { QuestionNavigatorSidebar } from "@/components/exam-taking/QuestionNavigatorSidebar";
 import { QuestionPanel } from "@/components/exam-taking/QuestionPanel";
@@ -32,6 +34,7 @@ export default function ExamSessionPage() {
 function ExamSessionContent() {
   const params = useParams<{ sessionId: string }>();
   const router = useRouter();
+  const { t } = useI18n();
   const {
     session,
     timeRemaining,
@@ -103,6 +106,17 @@ function ExamSessionContent() {
 
   const activeQuestion = session?.questions[activeIndex];
 
+  // Dynamic (examiner-authored) exam title/subject — translated the same
+  // way as question content. Called unconditionally (before any early
+  // return below) per the Rules of Hooks; falls back to "" when the
+  // session hasn't loaded yet.
+  const { translated: translatedExamMeta } = useTranslatedTexts([
+    session?.exam.title ?? "",
+    session?.exam.subject ?? "",
+  ]);
+  const translatedExamTitle = translatedExamMeta[0] || session?.exam.title || "";
+  const translatedExamSubject = translatedExamMeta[1] || session?.exam.subject || "";
+
   // Mark the current question as visited the moment it becomes active
   // (covers both direct palette clicks and Next/Previous navigation).
   useEffect(() => {
@@ -123,7 +137,7 @@ function ExamSessionContent() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-ink text-muted">
-        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading your exam...
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t("examTaking.loadingExam")}
       </div>
     );
   }
@@ -137,14 +151,17 @@ function ExamSessionContent() {
             <CheckCircle2 className="h-8 w-8 text-accent-teal" />
           </div>
           <h1 className="mt-4 font-display text-xl font-semibold text-paper">
-            {finalResult.status === "AUTO_SUBMITTED" ? "Exam Auto-Submitted" : "Exam Submitted Successfully"}
+            {finalResult.status === "AUTO_SUBMITTED"
+              ? t("examTaking.examAutoSubmitted")
+              : t("examTaking.examSubmittedSuccessfully")}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Your responses have been recorded successfully.
-            {Boolean(finalResult.pendingSubjectiveCount) &&
-              " If your exam contains subjective questions, final results will be available after examiner evaluation."}
+            {t("examTaking.responsesRecorded")}
+            {Boolean(finalResult.pendingSubjectiveCount) && ` ${t("examTaking.pendingSubjectiveNote")}`}
           </p>
-          <p className="mt-6 text-xs text-muted">Redirecting to Dashboard in {countdown}...</p>
+          <p className="mt-6 text-xs text-muted">
+            {t("examTaking.redirectingIn")} {countdown}...
+          </p>
         </div>
       </div>
     );
@@ -157,8 +174,8 @@ function ExamSessionContent() {
   if (session.status === "IN_PROGRESS" && !hasStartedExam) {
     return (
       <PreExamChecklist
-        examTitle={session.exam.title}
-        examSubject={session.exam.subject}
+        examTitle={translatedExamTitle}
+        examSubject={translatedExamSubject}
         durationMinutes={session.exam.durationMinutes}
         fullScreenModeEnabled={session.exam.fullScreenModeEnabled}
         webcamMonitoringEnabled={session.exam.webcamMonitoringEnabled}
@@ -202,8 +219,8 @@ function ExamSessionContent() {
 
       <header className="flex items-center justify-between border-b border-border bg-surface px-6 py-3">
         <div>
-          <p className="font-medium text-paper">{session.exam.title}</p>
-          <p className="text-xs text-muted">{session.exam.subject}</p>
+          <p className="font-medium text-paper">{translatedExamTitle}</p>
+          <p className="text-xs text-muted">{translatedExamSubject}</p>
         </div>
         <ExamTimerBar secondsRemaining={timeRemaining} />
       </header>
@@ -238,7 +255,7 @@ function ExamSessionContent() {
                 disabled={activeIndex === 0}
                 className="w-auto px-4"
               >
-                <ChevronLeft className="h-4 w-4" /> Previous
+                <ChevronLeft className="h-4 w-4" /> {t("examTaking.previous")}
               </Button>
 
               <Button
@@ -247,7 +264,7 @@ function ExamSessionContent() {
                 disabled={!hasContent}
                 className="w-auto px-4"
               >
-                <Eraser className="h-4 w-4" /> Clear Response
+                <Eraser className="h-4 w-4" /> {t("examTaking.clearResponse")}
               </Button>
 
               <Button
@@ -258,7 +275,8 @@ function ExamSessionContent() {
                 }}
                 className={`w-auto px-4 ${isMarked ? "border-violet-400 text-violet-300" : ""}`}
               >
-                <Flag className="h-4 w-4" /> {isMarked ? "Unmark" : "Mark for Review"} & Next
+                <Flag className="h-4 w-4" /> {isMarked ? t("examTaking.unmark") : t("examTaking.markForReview")}{" "}
+                {t("examTaking.andNext")}
               </Button>
             </div>
 
@@ -266,10 +284,10 @@ function ExamSessionContent() {
               {!isLastQuestion ? (
                 <>
                   <Button variant="secondary" onClick={goNext} className="w-auto px-4">
-                    Next <ChevronRight className="h-4 w-4" />
+                    {t("examTaking.next")} <ChevronRight className="h-4 w-4" />
                   </Button>
                   <Button onClick={goNext} className="w-auto px-5">
-                    Save & Next
+                    {t("examTaking.saveAndNext")}
                   </Button>
                 </>
               ) : (
@@ -277,7 +295,7 @@ function ExamSessionContent() {
                   onClick={() => setShowSubmitConfirm(true)}
                   className="w-auto bg-accent-teal px-5 hover:bg-accent-teal/90"
                 >
-                  Submit Exam
+                  {t("examTaking.submitExam")}
                 </Button>
               )}
             </div>

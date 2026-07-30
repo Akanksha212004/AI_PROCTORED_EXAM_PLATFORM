@@ -41,7 +41,7 @@ export const examinerRequestStatusQuerySchema = z
     email: z.string().trim().email("Enter a valid email address").toLowerCase().optional(),
   })
   .refine((data) => Boolean(data.requestId || data.email), {
-    message: "Provide either a Request ID or an email address",
+    message: "Provide an email address",
     path: ["requestId"],
   });
 export type ExaminerRequestStatusQuery = z.infer<typeof examinerRequestStatusQuerySchema>;

@@ -40,10 +40,9 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthLayout
-      eyebrow="Welcome back"
-      title="Sign in to your account"
-      subtitle="Enter your credentials to access your dashboard."
-      i18nKey="login"
+      eyebrowKey="auth.login.eyebrow"
+      titleKey="auth.login.title"
+      subtitleKey="auth.login.subtitle"
     >
       <Suspense fallback={null}>
         <LoginForm />

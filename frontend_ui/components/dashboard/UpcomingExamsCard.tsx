@@ -215,6 +215,7 @@ import { CalendarClock } from "lucide-react";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 
 export interface UpcomingExamCardItem {
   id: string;
@@ -230,18 +231,20 @@ interface Props {
   href?: string;
 }
 
-function daysAwayLabel(iso: string): string {
-  const diffMs = new Date(iso).getTime() - Date.now();
-  const days = Math.round(diffMs / (1000 * 60 * 60 * 24));
-  if (days <= 0) return "Today";
-  if (days === 1) return "Tomorrow";
-  return `In ${days}d`;
-}
-
 export function UpcomingExamsCard({ exams, isLoading, href = "/dashboard/examiner/exams" }: Props) {
+  const { t } = useI18n();
+
+  function daysAwayLabel(iso: string): string {
+    const diffMs = new Date(iso).getTime() - Date.now();
+    const days = Math.round(diffMs / (1000 * 60 * 60 * 24));
+    if (days <= 0) return t("dashboard.student.upcomingExams.today");
+    if (days === 1) return t("dashboard.student.upcomingExams.tomorrow");
+    return t("dashboard.student.upcomingExams.inDays", { count: days });
+  }
+
   return (
     <Card interactive className="p-5 sm:p-6">
-      <p className="mb-4 font-display text-base font-semibold text-paper">Upcoming Exams</p>
+      <p className="mb-4 font-display text-base font-semibold text-paper">{t("dashboard.student.upcomingExams.title")}</p>
       {isLoading ? (
         <div className="space-y-2.5">
           {[...Array(3)].map((_, i) => (
@@ -255,7 +258,7 @@ export function UpcomingExamsCard({ exams, isLoading, href = "/dashboard/examine
           ))}
         </div>
       ) : exams.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">No upcoming exams scheduled.</p>
+        <p className="py-8 text-center text-sm text-muted">{t("dashboard.student.upcomingExams.empty")}</p>
       ) : (
         <ul className="space-y-2.5">
           {exams.map((exam) => {
@@ -283,7 +286,7 @@ export function UpcomingExamsCard({ exams, isLoading, href = "/dashboard/examine
                       <span>·</span>
                       <span>{start.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}</span>
                       <span>·</span>
-                      <span>{exam.durationMinutes} min</span>
+                      <span>{t("dashboard.student.examCard.minutes", { count: exam.durationMinutes })}</span>
                     </p>
                   </div>
                   <span className="flex shrink-0 items-center gap-1 rounded-full bg-accent-sky/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wide text-accent-sky">

@@ -29,6 +29,7 @@ import { ExamHistoryTable } from "@/components/dashboard/ExamHistoryTable";
 import { SystemReadinessCard } from "@/components/dashboard/SystemReadinessCard";
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import {
   useStudentDashboard,
   type StudentExamCardData,
@@ -49,15 +50,17 @@ export default function StudentDashboardPage() {
   );
 }
 
-function getGreeting(date: Date): string {
+function useGreeting(date: Date): string {
+  const { t } = useI18n();
   const hour = date.getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return t("dashboard.student.greetingMorning");
+  if (hour < 17) return t("dashboard.student.greetingAfternoon");
+  return t("dashboard.student.greetingEvening");
 }
 
 function StudentDashboardContent() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const {
     isLoading,
     isLoadingSubmissions,
@@ -72,7 +75,24 @@ function StudentDashboardContent() {
   } = useStudentDashboard();
 
   const firstName = user?.name?.split(" ")[0] ?? "there";
-  const greeting = getGreeting(new Date());
+  const greeting = useGreeting(new Date());
+
+  const subtitle =
+    stats.liveCount > 0
+      ? t(
+          stats.liveCount === 1
+            ? "dashboard.student.subtitle.liveSingular"
+            : "dashboard.student.subtitle.livePlural",
+          { count: stats.liveCount }
+        )
+      : stats.todayCount > 0
+        ? t(
+            stats.todayCount === 1
+              ? "dashboard.student.subtitle.todaySingular"
+              : "dashboard.student.subtitle.todayPlural",
+            { count: stats.todayCount }
+          )
+        : t("dashboard.student.subtitle.allCaughtUp");
 
   return (
     <div className="space-y-8 pb-4">
@@ -81,24 +101,18 @@ function StudentDashboardContent() {
         <div>
           <p className="mb-1.5 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-accent-teal">
             <Sparkles className="h-3.5 w-3.5" />
-            Student Dashboard
+            {t("dashboard.student.eyebrow")}
           </p>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
             {greeting}, {firstName} <span aria-hidden="true">👋</span>
           </h1>
-          <p className="mt-1.5 text-sm text-paper/60">
-            {stats.liveCount > 0
-              ? `${stats.liveCount} exam${stats.liveCount === 1 ? "" : "s"} live right now.`
-              : stats.todayCount > 0
-                ? `${stats.todayCount} exam${stats.todayCount === 1 ? "" : "s"} scheduled today.`
-                : "Nothing on your plate right now — you're all caught up."}
-          </p>
+          <p className="mt-1.5 text-sm text-paper/60">{subtitle}</p>
         </div>
 
         <Link href="/dashboard/student/exams">
           <Button className="w-auto px-4 transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0">
             <BookOpen className="h-4 w-4" />
-            Browse all exams
+            {t("dashboard.student.browseAllExams")}
           </Button>
         </Link>
       </div>
@@ -110,12 +124,12 @@ function StudentDashboardContent() {
       <section className="grid grid-cols-1 gap-5 xl:grid-cols-[1.4fr_1fr]">
         <Card interactive className="flex flex-col p-5 sm:p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-base font-semibold text-paper">Today&apos;s Exams</h2>
+            <h2 className="font-display text-base font-semibold text-paper">{t("dashboard.student.todaysExams.title")}</h2>
             <Link
               href="/dashboard/student/exams"
               className="text-xs font-medium text-accent-sky transition-colors hover:text-accent-sky/80"
             >
-              View all →
+              {t("dashboard.student.todaysExams.viewAll")}
             </Link>
           </div>
 
@@ -128,9 +142,9 @@ function StudentDashboardContent() {
           ) : todaysExams.length === 0 ? (
             <EmptyStateCard
               icon={CalendarClock}
-              title="No exams today"
-              description="You're all clear for today. Anything your examiner schedules will show up here automatically — no need to refresh."
-              footnote="All clear"
+              title={t("dashboard.student.emptyStates.noExamsToday.title")}
+              description={t("dashboard.student.emptyStates.noExamsToday.description")}
+              footnote={t("dashboard.student.emptyStates.noExamsToday.footnote")}
               accent="teal"
             />
           ) : (
@@ -195,6 +209,8 @@ function StudentStatsCards({
   performance: { completedCount: number; averageScore: number | null };
   isLoading: boolean;
 }) {
+  const { t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -215,30 +231,34 @@ function StudentStatsCards({
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         icon={<PlayCircle className="h-5 w-5" strokeWidth={1.75} />}
-        label="Live Exams"
+        label={t("dashboard.student.stats.liveExams")}
         value={stats.liveCount}
-        hint="Exams open for entry"
+        hint={t("dashboard.student.stats.liveExamsHint")}
         accent="rose"
       />
       <StatCard
         icon={<CalendarClock className="h-5 w-5" strokeWidth={1.75} />}
-        label="Upcoming Exams"
+        label={t("dashboard.student.stats.upcomingExams")}
         value={stats.upcomingCount}
-        hint="Scheduled soon"
+        hint={t("dashboard.student.stats.upcomingExamsHint")}
         accent="sky"
       />
       <StatCard
         icon={<CheckCircle2 className="h-5 w-5" strokeWidth={1.75} />}
-        label="Completed Exams"
+        label={t("dashboard.student.stats.completedExams")}
         value={performance.completedCount}
-        hint="Exams completed"
+        hint={t("dashboard.student.stats.completedExamsHint")}
         accent="teal"
       />
       <StatCard
         icon={<BarChart3 className="h-5 w-5" strokeWidth={1.75} />}
-        label="Average Score"
+        label={t("dashboard.student.stats.averageScore")}
         value={performance.averageScore !== null ? `${performance.averageScore}%` : "—"}
-        hint={performance.averageScore === null ? "No graded exams yet" : "Across all exams"}
+        hint={
+          performance.averageScore === null
+            ? t("dashboard.student.stats.averageScoreHintEmpty")
+            : t("dashboard.student.stats.averageScoreHint")
+        }
         accent="violet"
       />
     </div>
@@ -284,6 +304,7 @@ function StatCard({
 
 function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [isStarting, setIsStarting] = useState(false);
 
   const isLive = exam.availability === "live";
@@ -315,12 +336,14 @@ function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
       {isLive ? (
         <span className="relative flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-accent-teal/30 bg-accent-teal/10 px-2 py-0.5 text-[10px] font-semibold text-accent-teal">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-teal" />
-          Live now
+          {t("dashboard.student.examCard.liveNow")}
         </span>
       ) : (
         <span className="relative flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-accent-sky/30 bg-accent-sky/10 px-2 py-0.5 text-[10px] font-semibold text-accent-sky">
           <CalendarClock className="h-3 w-3" />
-          Starts {new Date(exam.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          {t("dashboard.student.examCard.startsAt", {
+            time: new Date(exam.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          })}
         </span>
       )}
 
@@ -341,20 +364,20 @@ function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5 shrink-0" />
-          {exam.durationMinutes} min
+          {t("dashboard.student.examCard.minutes", { count: exam.durationMinutes })}
         </span>
       </div>
 
       {isLive ? (
         <Button onClick={handleStart} isLoading={isStarting} className="relative mt-1 h-9 w-full text-xs">
           <PlayCircle className="h-4 w-4" />
-          Start exam
+          {t("dashboard.student.examCard.startExam")}
         </Button>
       ) : (
         <Link href="/dashboard/student/exams" className="relative mt-1">
           <Button variant="secondary" className="h-9 w-full text-xs">
             <Info className="h-4 w-4" />
-            View details
+            {t("dashboard.student.examCard.viewDetails")}
           </Button>
         </Link>
       )}
@@ -370,6 +393,8 @@ function RecentResultsCard({
   results: MySubmissionListItem[];
   isLoading: boolean;
 }) {
+  const { t } = useI18n();
+
   if (isLoading) {
     return <div className="h-full min-h-[220px] animate-pulse rounded-2xl border border-border bg-surface-muted" />;
   }
@@ -378,9 +403,9 @@ function RecentResultsCard({
     return (
       <EmptyStateCard
         icon={BarChart3}
-        title="Recent results"
-        description="Once your exams are graded, your latest scores will show up right here."
-        footnote="Awaiting graded exams"
+        title={t("dashboard.student.emptyStates.recentResults.title")}
+        description={t("dashboard.student.emptyStates.recentResults.description")}
+        footnote={t("dashboard.student.emptyStates.recentResults.footnote")}
         accent="sky"
       />
     );
@@ -389,9 +414,9 @@ function RecentResultsCard({
   return (
     <Card interactive className="flex h-full flex-col gap-4 p-5 sm:p-6">
       <div className="flex items-center justify-between">
-        <p className="font-display text-base font-semibold text-paper">Recent Results</p>
+        <p className="font-display text-base font-semibold text-paper">{t("dashboard.student.recentResults.title")}</p>
         <Link href="/dashboard/student/history" className="text-xs font-medium text-accent-sky hover:text-accent-sky/80">
-          View all →
+          {t("dashboard.student.recentResults.viewAll")}
         </Link>
       </div>
       <div className="space-y-3">

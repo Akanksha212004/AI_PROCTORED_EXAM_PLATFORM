@@ -336,12 +336,14 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { useSubmissions } from "@/hooks/useSubmissions";
+import { useI18n } from "@/hooks/useI18n";
 import type { GradingStatus } from "@/types/submission";
 
-const STATUS_LABEL: Record<GradingStatus, string> = {
-  FULLY_AUTO_GRADED: "Auto-Graded",
-  PENDING_REVIEW: "Pending Review",
-  FULLY_GRADED: "Graded",
+/** Translation key per status — the underlying GradingStatus enum value is untouched. */
+const STATUS_KEY: Record<GradingStatus, string> = {
+  FULLY_AUTO_GRADED: "dashboard.examiner.recentSubmissions.autoGraded",
+  PENDING_REVIEW: "dashboard.examiner.recentSubmissions.pendingReview",
+  FULLY_GRADED: "dashboard.examiner.recentSubmissions.graded",
 };
 
 const STATUS_CLASS: Record<GradingStatus, string> = {
@@ -421,19 +423,20 @@ function GradingRing({ autoGraded, pending, graded }: { autoGraded: number; pend
 export function RecentSubmissionsCard() {
   const { items, isLoading, stats } = useSubmissions({ page: 1, limit: SAMPLE_LIMIT });
   const visibleItems = items.slice(0, TABLE_LIMIT);
+  const { t } = useI18n();
 
   return (
     <Card interactive className="p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <ClipboardCheck className="h-4 w-4 text-accent-sky" />
-          Recent Submissions
+          {t("dashboard.examiner.recentSubmissions.title")}
         </p>
         <Link
           href="/dashboard/examiner/submissions"
           className="text-xs font-medium text-accent-sky transition-colors hover:text-accent-skyHover hover:underline"
         >
-          View all
+          {t("dashboard.examiner.recentSubmissions.viewAll")}
         </Link>
       </div>
 
@@ -445,7 +448,7 @@ export function RecentSubmissionsCard() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">No submissions yet.</p>
+        <p className="py-8 text-center text-sm text-muted">{t("dashboard.examiner.recentSubmissions.noSubmissionsYet")}</p>
       ) : (
         <>
           {/* Grading status breakdown — real counts from the fetched sample */}
@@ -455,26 +458,29 @@ export function RecentSubmissionsCard() {
               <div>
                 <p className="flex items-center gap-1.5 text-xs text-muted">
                   <span className="h-2 w-2 rounded-full" style={{ background: RING_HEX.FULLY_AUTO_GRADED }} />
-                  Auto-Graded
+                  {t("dashboard.examiner.recentSubmissions.autoGraded")}
                 </p>
                 <p className="font-mono text-lg font-bold tabular-nums text-paper">{stats.autoGradedCount}</p>
               </div>
               <div>
                 <p className="flex items-center gap-1.5 text-xs text-muted">
                   <span className="h-2 w-2 rounded-full" style={{ background: RING_HEX.PENDING_REVIEW }} />
-                  Pending Review
+                  {t("dashboard.examiner.recentSubmissions.pendingReview")}
                 </p>
                 <p className="font-mono text-lg font-bold tabular-nums text-paper">{stats.pendingCount}</p>
               </div>
               <div>
                 <p className="flex items-center gap-1.5 text-xs text-muted">
                   <span className="h-2 w-2 rounded-full" style={{ background: RING_HEX.FULLY_GRADED }} />
-                  Graded
+                  {t("dashboard.examiner.recentSubmissions.graded")}
                 </p>
                 <p className="font-mono text-lg font-bold tabular-nums text-paper">{stats.gradedCount}</p>
               </div>
               <p className="w-full text-[11px] text-muted">
-                Based on the last {stats.sampleSize} submission{stats.sampleSize === 1 ? "" : "s"} · {stats.totalSubmissions} total
+                {t("dashboard.examiner.recentSubmissions.basedOnSample", {
+                  count: stats.sampleSize,
+                  total: stats.totalSubmissions,
+                })}
               </p>
             </div>
           </div>
@@ -483,10 +489,10 @@ export function RecentSubmissionsCard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted">
-                  <th className="pb-2.5 font-medium">Student</th>
-                  <th className="pb-2.5 font-medium">Exam</th>
-                  <th className="pb-2.5 font-medium">Submitted</th>
-                  <th className="pb-2.5 font-medium">Status</th>
+                  <th className="pb-2.5 font-medium">{t("dashboard.examiner.recentSubmissions.student")}</th>
+                  <th className="pb-2.5 font-medium">{t("dashboard.examiner.recentSubmissions.exam")}</th>
+                  <th className="pb-2.5 font-medium">{t("dashboard.examiner.recentSubmissions.submitted")}</th>
+                  <th className="pb-2.5 font-medium">{t("dashboard.examiner.recentSubmissions.status")}</th>
                   <th className="pb-2.5" />
                 </tr>
               </thead>
@@ -511,10 +517,12 @@ export function RecentSubmissionsCard() {
                           STATUS_CLASS[item.gradingStatus]
                         )}
                       >
-                        {STATUS_LABEL[item.gradingStatus]}
+                        {t(STATUS_KEY[item.gradingStatus])}
                       </span>
                       {item.pendingCount > 0 && (
-                        <span className="ml-1.5 font-mono text-[11px] text-accent-amber">{item.pendingCount} left</span>
+                        <span className="ml-1.5 font-mono text-[11px] text-accent-amber">
+                          {item.pendingCount} {t("dashboard.examiner.recentSubmissions.left")}
+                        </span>
                       )}
                     </td>
                     <td className="py-3 text-right">
@@ -522,7 +530,7 @@ export function RecentSubmissionsCard() {
                         href="/dashboard/examiner/submissions"
                         className="text-xs font-medium text-accent-sky opacity-70 transition-opacity hover:underline group-hover:opacity-100"
                       >
-                        Review
+                        {t("dashboard.examiner.recentSubmissions.review")}
                       </Link>
                     </td>
                   </tr>

@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { extractErrorMessage, roleToDashboardPath } from "@/lib/utils";
 
 interface FormErrors {
@@ -25,6 +26,7 @@ interface FormErrors {
  */
 export function LoginForm() {
   const { login, logout } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -56,14 +58,12 @@ export function LoginForm() {
         // Right credentials, wrong portal — this page is student-only.
         // logout() does an immediate hard navigation to /login, so delay
         // it slightly to give the toast a moment to actually render.
-        toast.error("This page is for students only. Please use your portal's login page.", {
-          duration: 4000,
-        });
+        toast.error(t("auth.login.wrongPortal"), { duration: 4000 });
         setTimeout(() => logout(), 1200);
         return;
       }
 
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
+      toast.success(`${t("auth.login.welcomeBack")}, ${user.name.split(" ")[0]}`);
       const redirectTarget = searchParams.get("redirect");
       router.replace(redirectTarget || roleToDashboardPath(user.role));
     } catch (error) {
@@ -76,7 +76,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <Input
-        label="Email address"
+        label={t("auth.login.email")}
         type="email"
         autoComplete="email"
         placeholder="you@institution.edu"
@@ -85,7 +85,7 @@ export function LoginForm() {
         error={errors.email}
       />
       <Input
-        label="Password"
+        label={t("auth.login.password")}
         type="password"
         autoComplete="current-password"
         placeholder="••••••••"
@@ -95,13 +95,13 @@ export function LoginForm() {
       />
 
       <Button type="submit" isLoading={isSubmitting}>
-        {isSubmitting ? "Signing in" : "Sign in"}
+        {isSubmitting ? t("auth.login.signingIn") : t("auth.login.signIn")}
       </Button>
 
       <p className="text-center text-sm text-paper/60">
-        Don&apos;t have an account?{" "}
+        {t("auth.login.noAccount")}{" "}
         <Link href="/register" className="font-medium text-accent-sky underline underline-offset-4">
-          Create one
+          {t("auth.login.createOne")}
         </Link>
       </p>
 

@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "@/hooks/useAuth";
-import { LanguageProvider } from "@/hooks/useLanguage";
+import { I18nProvider } from "@/hooks/useI18n";
 
 import "./globals.css";
 
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-        <LanguageProvider>
+        <I18nProvider>
           <AuthProvider>
             {children}
             <Toaster
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
           </AuthProvider>
-        </LanguageProvider>
+        </I18nProvider>
       </body>
     </html>
   );

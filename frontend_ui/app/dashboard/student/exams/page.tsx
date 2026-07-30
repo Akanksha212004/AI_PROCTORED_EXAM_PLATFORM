@@ -124,6 +124,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { examSessionService } from "@/services/examSessionService";
 import { extractExamErrorMessage } from "@/components/exams/examErrors";
+import { useI18n } from "@/hooks/useI18n";
 import type { AvailableExam } from "@/types/examSession";
 
 export default function StudentExamsPage() {
@@ -136,17 +137,18 @@ export default function StudentExamsPage() {
   );
 }
 
-function examStatus(exam: AvailableExam): { label: string; canStart: boolean } {
+function examStatus(exam: AvailableExam): { statusKey: "upcoming" | "ended" | "liveNow"; canStart: boolean } {
   const now = Date.now();
   const start = new Date(exam.startTime).getTime();
   const end = new Date(exam.endTime).getTime();
-  if (now < start) return { label: "Upcoming", canStart: false };
-  if (now > end) return { label: "Ended", canStart: false };
-  return { label: "Live now", canStart: true };
+  if (now < start) return { statusKey: "upcoming", canStart: false };
+  if (now > end) return { statusKey: "ended", canStart: false };
+  return { statusKey: "liveNow", canStart: true };
 }
 
 function StudentExamsContent() {
   const router = useRouter();
+  const { t } = useI18n();
   const [exams, setExams] = useState<AvailableExam[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [startingId, setStartingId] = useState<string | null>(null);
@@ -173,16 +175,16 @@ function StudentExamsContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold text-paper">My Exams</h1>
-        <p className="text-sm text-muted">Exams you can take now or that are coming up.</p>
+        <h1 className="font-display text-2xl font-semibold text-paper">{t("studentExams.title")}</h1>
+        <p className="text-sm text-muted">{t("studentExams.subtitle")}</p>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20 text-muted">
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading...
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t("common.loading")}
         </div>
       ) : exams.length === 0 ? (
-        <Card className="py-16 text-center text-sm text-muted">No exams are available right now.</Card>
+        <Card className="py-16 text-center text-sm text-muted">{t("studentExams.empty")}</Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {exams.map((exam) => {
@@ -195,7 +197,8 @@ function StudentExamsContent() {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted">
                   <CalendarClock className="h-4 w-4" />
-                  {new Date(exam.startTime).toLocaleString()} · {exam.durationMinutes} min
+                  {new Date(exam.startTime).toLocaleString()} ·{" "}
+                  {t("dashboard.student.examCard.minutes", { count: exam.durationMinutes })}
                 </div>
                 <Button
                   onClick={() => handleStart(exam.id)}
@@ -204,7 +207,7 @@ function StudentExamsContent() {
                   className="mt-1 w-auto px-4"
                 >
                   <PlayCircle className="h-4 w-4" />
-                  {status.canStart ? "Start Exam" : status.label}
+                  {status.canStart ? t("studentExams.startExam") : t(`studentExams.status.${status.statusKey}`)}
                 </Button>
               </Card>
             );
