@@ -35,18 +35,18 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// export const config = {
-//   matcher: [
-//     "/dashboard/:path*",
-//     "/login",
-//     "/register",
-//     "/examiner-portal",
-//     "/examiner-portal/:path*",
-//     "/admin/login",
-//   ],
-// };
-
-
 export const config = {
-  matcher: [],
+  matcher: [
+    "/dashboard/:path*",
+    "/login",
+    "/register",
+    "/examiner-portal",
+    "/examiner-portal/:path*",
+    "/admin/login",
+  ],
 };
+
+
+// export const config = {
+//   matcher: [],
+// };
