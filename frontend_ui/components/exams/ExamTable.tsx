@@ -1,9 +1,9 @@
-
 "use client";
 
 import { Eye, Loader2, Pencil, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
+import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import type { Exam, ExamPagination, ExamStatus } from "@/types/exam";
 
 interface Props {
@@ -40,6 +40,12 @@ function formatDateTime(iso: string) {
 }
 
 export function ExamTable({ exams, isLoading, pagination, showCreator = false, onView, onEdit, onDelete }: Props) {
+  // Dynamic (examiner-authored) content — exam title + subject — same
+  // machine-translation mechanism used for question text. Table chrome
+  // (headers, status badges, buttons) is static UI and untouched.
+  const flatTexts = exams.flatMap((e) => [e.title, e.subject]);
+  const { translated } = useTranslatedTexts(flatTexts);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-muted">
@@ -91,11 +97,14 @@ export function ExamTable({ exams, isLoading, pagination, showCreator = false, o
                 ? `${exam.selectionRules.reduce((sum, r) => sum + r.count, 0)} via rules`
                 : "Not configured";
 
+            const translatedTitle = translated[i * 2] ?? exam.title;
+            const translatedSubject = translated[i * 2 + 1] ?? exam.subject;
+
             return (
               <tr key={exam.id} className="border-b border-border/60 hover:bg-white/[0.03]">
                 <td className="py-3.5 pr-4 text-muted">{rowOffset + i + 1}</td>
-                <td className="py-3.5 pr-4 text-paper">{exam.title}</td>
-                <td className="py-3.5 pr-4 text-muted">{exam.subject}</td>
+                <td className="py-3.5 pr-4 text-paper">{translatedTitle}</td>
+                <td className="py-3.5 pr-4 text-muted">{translatedSubject}</td>
                 {showCreator && (
                   <td className="py-3.5 pr-4 text-muted">{exam.createdBy?.name ?? "—"}</td>
                 )}

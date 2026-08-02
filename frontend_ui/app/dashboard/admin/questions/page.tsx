@@ -15,6 +15,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { useQuestions } from "@/hooks/useQuestions";
 import { useQuestionStats } from "@/hooks/useQuestionStats";
@@ -35,6 +36,7 @@ const PAGE_SIZE = 10;
 export default function QuestionBankPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+  const { t } = useI18n();
 
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -88,7 +90,7 @@ export default function QuestionBankPage() {
     return (
       <div className="flex h-[60vh] items-center justify-center text-muted">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-        Checking access...
+        {t("admin.questions.checkingAccess")}
       </div>
     );
   }
@@ -104,8 +106,8 @@ export default function QuestionBankPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-paper">Question Bank</h1>
-          <p className="text-sm text-muted">Create, organize, and manage exam questions.</p>
+          <h1 className="font-display text-2xl font-semibold text-paper">{t("admin.questions.title")}</h1>
+          <p className="text-sm text-muted">{t("admin.questions.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -114,14 +116,14 @@ export default function QuestionBankPage() {
             className="w-auto px-4"
           >
             <FileUp className="h-4 w-4" />
-            Bulk Import
+            {t("admin.questions.bulkImport")}
           </Button>
           <Button
             onClick={() => setFormState({ open: true, mode: "create", question: null })}
             className="w-auto px-4"
           >
             <Plus className="h-4 w-4" />
-            New Question
+            {t("admin.questions.newQuestion")}
           </Button>
         </div>
       </div>

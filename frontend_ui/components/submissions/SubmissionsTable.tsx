@@ -3,6 +3,7 @@
 import { Eye, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
+import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import type { SubmissionListItem } from "@/types/submission";
 
 interface Props {
@@ -27,6 +28,14 @@ function statusLabel(status: string): string {
 }
 
 export function SubmissionsTable({ submissions, isLoading, showExaminer = false, onReview }: Props) {
+  // Dynamic (examiner-authored) content — exam title + subject, shown
+  // per submission row. Student name/email and status labels are not
+  // translated: names aren't examiner prose, and status labels are
+  // fixed UI strings (would go through the static t() system, not this
+  // one, if/when this page is converted).
+  const flatTexts = submissions.flatMap((s) => [s.examTitle, s.examSubject]);
+  const { translated } = useTranslatedTexts(flatTexts);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-muted">
@@ -61,40 +70,45 @@ export function SubmissionsTable({ submissions, isLoading, showExaminer = false,
           </tr>
         </thead>
         <tbody>
-          {submissions.map((s) => (
-            <tr key={s.id} className="border-b border-border/60 hover:bg-white/[0.03]">
-              <td className="py-3.5 pr-4">
-                <p className="text-paper">{s.studentName}</p>
-                <p className="text-xs text-muted">{s.studentEmail}</p>
-              </td>
-              <td className="py-3.5 pr-4">
-                <p className="text-paper">{s.examTitle}</p>
-                <p className="text-xs text-muted">{s.examSubject}</p>
-              </td>
-              {showExaminer && (
-                <td className="py-3.5 pr-4 text-muted">{s.examinerName ?? "—"}</td>
-              )}
-              <td className="py-3.5 pr-4 text-muted">
-                {s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "—"}
-              </td>
-              <td className="py-3.5 pr-4 text-paper">{s.autoGradedMarks}</td>
-              <td className="py-3.5 pr-4">
-                <Badge tone={statusTone(s.gradingStatus)}>
-                  {statusLabel(s.gradingStatus)}
-                  {s.gradingStatus === "PENDING_REVIEW" ? ` (${s.pendingCount})` : ""}
-                </Badge>
-              </td>
-              <td className="py-3.5 pr-2 text-right">
-                <button
-                  onClick={() => onReview(s)}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-accent-sky hover:bg-white/5"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                  {s.gradingStatus === "PENDING_REVIEW" ? "Grade" : "View"}
-                </button>
-              </td>
-            </tr>
-          ))}
+          {submissions.map((s, i) => {
+            const translatedExamTitle = translated[i * 2] ?? s.examTitle;
+            const translatedExamSubject = translated[i * 2 + 1] ?? s.examSubject;
+
+            return (
+              <tr key={s.id} className="border-b border-border/60 hover:bg-white/[0.03]">
+                <td className="py-3.5 pr-4">
+                  <p className="text-paper">{s.studentName}</p>
+                  <p className="text-xs text-muted">{s.studentEmail}</p>
+                </td>
+                <td className="py-3.5 pr-4">
+                  <p className="text-paper">{translatedExamTitle}</p>
+                  <p className="text-xs text-muted">{translatedExamSubject}</p>
+                </td>
+                {showExaminer && (
+                  <td className="py-3.5 pr-4 text-muted">{s.examinerName ?? "—"}</td>
+                )}
+                <td className="py-3.5 pr-4 text-muted">
+                  {s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "—"}
+                </td>
+                <td className="py-3.5 pr-4 text-paper">{s.autoGradedMarks}</td>
+                <td className="py-3.5 pr-4">
+                  <Badge tone={statusTone(s.gradingStatus)}>
+                    {statusLabel(s.gradingStatus)}
+                    {s.gradingStatus === "PENDING_REVIEW" ? ` (${s.pendingCount})` : ""}
+                  </Badge>
+                </td>
+                <td className="py-3.5 pr-2 text-right">
+                  <button
+                    onClick={() => onReview(s)}
+                    className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-accent-sky hover:bg-white/5"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    {s.gradingStatus === "PENDING_REVIEW" ? "Grade" : "View"}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

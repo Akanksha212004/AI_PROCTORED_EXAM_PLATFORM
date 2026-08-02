@@ -1,9 +1,9 @@
-
 "use client";
 
 import { Eye, Loader2, Pencil, Trash2 } from "lucide-react";
 
 import { Badge, difficultyTone, questionTypeLabel } from "@/components/ui/Badge";
+import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import type { Question } from "@/types/question";
 
 interface Props {
@@ -24,6 +24,16 @@ function truncate(text: string, max = 70) {
 }
 
 export function QuestionTable({ questions, isLoading, page, limit, onView, onEdit, onDelete }: Props) {
+  // Dynamic (examiner-authored) content — question text + subject —
+  // machine-translated the same way as during exam-taking (see
+  // QuestionPanel.tsx). Everything else on this table (headers, badges,
+  // buttons) is static UI chrome and stays in English/whatever `t()`
+  // renders elsewhere; this hook only ever touches DB-sourced text.
+  // Flattened to one array so a single batch request covers the whole
+  // page instead of one request per row.
+  const flatTexts = questions.flatMap((q) => [q.questionText, q.subject]);
+  const { translated } = useTranslatedTexts(flatTexts);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-muted">
@@ -62,66 +72,71 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
           </tr>
         </thead>
         <tbody>
-          {questions.map((q, index) => (
-            <tr key={q.id} className="border-b border-border/60 hover:bg-white/[0.03]">
-              <td className="py-3.5 pr-4 text-muted">
-                {(page - 1) * limit + index + 1}
-              </td>
-              <td className="py-3.5 pr-4 text-paper">{truncate(q.questionText)}</td>
-              <td className="py-3.5 pr-4 text-muted">{q.subject}</td>
-              <td className="py-3.5 pr-4">
-                <Badge tone="sky">{questionTypeLabel(q.questionType)}</Badge>
-              </td>
-              <td className="py-3.5 pr-4">
-                <Badge tone={difficultyTone(q.difficultyLevel)}>
-                  {q.difficultyLevel.charAt(0) + q.difficultyLevel.slice(1).toLowerCase()}
-                </Badge>
-              </td>
-              <td className="py-3.5 pr-4 text-paper">{q.marks}</td>
-              <td className="py-3.5 pr-4 text-muted">{q.negativeMarks}</td>
-              <td className="py-3.5 pr-4 text-muted">
-                <div className="flex flex-col">
-                  <span>{new Date(q.createdAt).toLocaleDateString()}</span>
-                  <span className="text-xs text-muted/70">
-                    {new Date(q.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-              </td>
-              <td className="py-3.5 pr-4 text-muted">
-                <div className="flex flex-col">
-                  <span>{new Date(q.updatedAt).toLocaleDateString()}</span>
-                  <span className="text-xs text-muted/70">
-                    {new Date(q.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-              </td>
-              <td className="py-3.5 pr-2">
-                <div className="flex justify-end gap-1">
-                  <button
-                    onClick={() => onView(q)}
-                    aria-label="View question"
-                    className="rounded-md p-2 text-muted transition-colors hover:bg-white/5 hover:text-accent-sky"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onEdit(q)}
-                    aria-label="Edit question"
-                    className="rounded-md p-2 text-muted transition-colors hover:bg-white/5 hover:text-accent-sky"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(q)}
-                    aria-label="Delete question"
-                    className="rounded-md p-2 text-muted transition-colors hover:bg-white/5 hover:text-accent-rose"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {questions.map((q, index) => {
+            const translatedQuestionText = translated[index * 2] ?? q.questionText;
+            const translatedSubject = translated[index * 2 + 1] ?? q.subject;
+
+            return (
+              <tr key={q.id} className="border-b border-border/60 hover:bg-white/[0.03]">
+                <td className="py-3.5 pr-4 text-muted">
+                  {(page - 1) * limit + index + 1}
+                </td>
+                <td className="py-3.5 pr-4 text-paper">{truncate(translatedQuestionText)}</td>
+                <td className="py-3.5 pr-4 text-muted">{translatedSubject}</td>
+                <td className="py-3.5 pr-4">
+                  <Badge tone="sky">{questionTypeLabel(q.questionType)}</Badge>
+                </td>
+                <td className="py-3.5 pr-4">
+                  <Badge tone={difficultyTone(q.difficultyLevel)}>
+                    {q.difficultyLevel.charAt(0) + q.difficultyLevel.slice(1).toLowerCase()}
+                  </Badge>
+                </td>
+                <td className="py-3.5 pr-4 text-paper">{q.marks}</td>
+                <td className="py-3.5 pr-4 text-muted">{q.negativeMarks}</td>
+                <td className="py-3.5 pr-4 text-muted">
+                  <div className="flex flex-col">
+                    <span>{new Date(q.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs text-muted/70">
+                      {new Date(q.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                </td>
+                <td className="py-3.5 pr-4 text-muted">
+                  <div className="flex flex-col">
+                    <span>{new Date(q.updatedAt).toLocaleDateString()}</span>
+                    <span className="text-xs text-muted/70">
+                      {new Date(q.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                </td>
+                <td className="py-3.5 pr-2">
+                  <div className="flex justify-end gap-1">
+                    <button
+                      onClick={() => onView(q)}
+                      aria-label="View question"
+                      className="rounded-md p-2 text-muted transition-colors hover:bg-white/5 hover:text-accent-sky"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => onEdit(q)}
+                      aria-label="Edit question"
+                      className="rounded-md p-2 text-muted transition-colors hover:bg-white/5 hover:text-accent-sky"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(q)}
+                      aria-label="Delete question"
+                      className="rounded-md p-2 text-muted transition-colors hover:bg-white/5 hover:text-accent-rose"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

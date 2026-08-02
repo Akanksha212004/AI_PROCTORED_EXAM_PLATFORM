@@ -4,6 +4,7 @@ import { CheckCircle2, Circle } from "lucide-react";
 
 import { Dialog } from "@/components/ui/Dialog";
 import { Badge, difficultyTone, questionTypeLabel } from "@/components/ui/Badge";
+import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import type { Question } from "@/types/question";
 
 import { getFileUrl } from "@/lib/utils";
@@ -14,9 +15,36 @@ interface Props {
 }
 
 export function QuestionViewModal({ question, onClose }: Props) {
+  // Hooks must run unconditionally on every render, so this is called
+  // before the `if (!question) return null` guard below. When
+  // `question` is null we just pass an empty array through — the hook
+  // short-circuits to an empty result with no network call.
+  //
+  // Layout, in order: [questionText, subject, ...optionTexts (if any),
+  // modelAnswerText (if any)]. Indices below are derived from this
+  // same order so they always line up with what was actually sent.
+  const optionTexts = question?.options.map((o) => o.optionText) ?? [];
+  const dynamicTexts = question
+    ? [
+        question.questionText,
+        question.subject,
+        ...optionTexts,
+        ...(question.modelAnswerText ? [question.modelAnswerText] : []),
+      ]
+    : [];
+  const { translated } = useTranslatedTexts(dynamicTexts);
+
   if (!question) return null;
+
   const showOptions = question.questionType === "MCQ" || question.questionType === "MULTI_SELECT";
   const showModelAnswer = question.questionType === "SHORT_ANSWER" || question.questionType === "LONG_ANSWER";
+
+  const translatedQuestionText = translated[0] ?? question.questionText;
+  const translatedSubject = translated[1] ?? question.subject;
+  const translatedOptionTexts = translated.slice(2, 2 + optionTexts.length);
+  const translatedModelAnswer = question.modelAnswerText
+    ? translated[2 + optionTexts.length] ?? question.modelAnswerText
+    : null;
 
   return (
     <Dialog open={Boolean(question)} onClose={onClose} title="Question Details" size="md">
@@ -26,7 +54,7 @@ export function QuestionViewModal({ question, onClose }: Props) {
           <Badge tone={difficultyTone(question.difficultyLevel)}>
             {question.difficultyLevel.charAt(0) + question.difficultyLevel.slice(1).toLowerCase()}
           </Badge>
-          <Badge tone="neutral">{question.subject}</Badge>
+          <Badge tone="neutral">{translatedSubject}</Badge>
           <Badge tone="neutral">{question.marks} marks</Badge>
           {question.negativeMarks > 0 && (
             <Badge tone="rose">-{question.negativeMarks} negative</Badge>
@@ -35,7 +63,7 @@ export function QuestionViewModal({ question, onClose }: Props) {
 
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted">Question</p>
-          <p className="mt-1.5 whitespace-pre-wrap text-paper">{question.questionText}</p>
+          <p className="mt-1.5 whitespace-pre-wrap text-paper">{translatedQuestionText}</p>
         </div>
 
         {showOptions && (
@@ -56,7 +84,7 @@ export function QuestionViewModal({ question, onClose }: Props) {
                   ) : (
                     <Circle className="h-4 w-4 shrink-0 text-muted" />
                   )}
-                  {opt.optionText}
+                  {translatedOptionTexts[i] ?? opt.optionText}
                 </li>
               ))}
             </ul>
@@ -67,7 +95,7 @@ export function QuestionViewModal({ question, onClose }: Props) {
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted">Model Answer</p>
             <p className="mt-1.5 whitespace-pre-wrap rounded-lg border border-border bg-surface-muted p-3.5 text-sm text-paper">
-              {question.modelAnswerText}
+              {translatedModelAnswer}
             </p>
           </div>
         )}

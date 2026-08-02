@@ -317,6 +317,31 @@ model ExamAccessToken {
   @@map("exam_access_tokens")
 }
 
+/// Server-side cache for machine-translated dynamic content (question
+/// text, exam titles/subjects, examiner feedback, etc.) — NOT the static
+/// UI dictionaries (those live in lib/i18n/translations/* on the
+/// frontend and never touch the database). Keyed on a hash of the
+/// source text (a unique index on the raw text itself would be
+/// impractical for long question bodies) + target language, so the
+/// same examiner-authored sentence is only ever sent to the translation
+/// provider once, no matter how many students/examiners view it.
+model TranslationCache {
+  id             String   @id @default(cuid())
+  /// SHA-256 hex digest of sourceText — the actual uniqueness key.
+  sourceTextHash String   @map("source_text_hash") @db.VarChar(64)
+  /// Kept in full (not just the hash) purely so the cache is
+  /// inspectable/debuggable directly in the DB.
+  sourceText     String   @map("source_text")
+  /// One of the app's non-English LanguageCode values: hi | te | ml | ta.
+  targetLang     String   @map("target_lang") @db.VarChar(5)
+  translatedText String   @map("translated_text")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([sourceTextHash, targetLang])
+  @@index([targetLang])
+  @@map("translation_cache")
+}
+
 enum Role {
   STUDENT
   EXAMINER

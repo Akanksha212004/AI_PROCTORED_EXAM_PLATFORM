@@ -30,4 +30,14 @@ export const env = {
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
+
+  /// Optional. MyMemory (the free machine-translation API used for
+  /// dynamic/database content — see src/services/content.service.ts)
+  /// gives every anonymous caller ~5,000 chars/day. Passing a contact
+  /// email via the `de` query param raises that to ~50,000 chars/day,
+  /// for free, no signup. Since we call it from the server (a single
+  /// shared IP, not one quota per browser), setting this is strongly
+  /// recommended — leave unset and it still works, just with a much
+  /// smaller shared quota. See https://mymemory.translated.net/doc/usagelimits.php
+  MYMEMORY_EMAIL: process.env.MYMEMORY_EMAIL || undefined,
 } as const;
