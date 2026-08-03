@@ -120,7 +120,7 @@ export const te: TranslationDictionary = {
       title: "మీ అభ్యర్థన స్థితిని తనిఖీ చేయండి",
       subtitle: "మీ దరఖాస్తు ఎక్కడ ఉందో చూడటానికి మీ అధికారిక ఇమెయిల్ లేదా అభ్యర్థన ఐడిని నమోదు చేయండి.",
       byEmail: "అధికారిక ఇమెయిల్",
-      byRequestId: "అభ్యర్థన ఐడి",
+      // byRequestId: "అభ్యర్థన ఐడి",
       checkStatus: "స్థితిని తనిఖీ చేయండి",
       checking: "స్థితి తనిఖీ చేయబడుతోంది",
       applicationStatus: "దరఖాస్తు స్థితి",

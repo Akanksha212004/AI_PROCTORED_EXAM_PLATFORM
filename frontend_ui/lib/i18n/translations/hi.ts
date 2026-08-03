@@ -120,7 +120,7 @@ export const hi: TranslationDictionary = {
       title: "अपने अनुरोध की स्थिति जांचें",
       subtitle: "अपना आवेदन कहां है यह देखने के लिए अपना आधिकारिक ईमेल या अनुरोध आईडी दर्ज करें।",
       byEmail: "आधिकारिक ईमेल",
-      byRequestId: "अनुरोध आईडी",
+      // byRequestId: "अनुरोध आईडी",
       checkStatus: "स्थिति जांचें",
       checking: "स्थिति जांची जा रही है",
       applicationStatus: "आवेदन की स्थिति",

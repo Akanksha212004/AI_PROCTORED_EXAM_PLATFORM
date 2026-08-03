@@ -57,7 +57,8 @@ function toResubmitForm(request: ExaminerRequestStatusResponse): ResubmitFormSta
 
 export function ExaminerRequestStatusForm() {
   const { t } = useI18n();
-  const [lookupBy, setLookupBy] = useState<"requestId" | "email">("email");
+  // const [lookupBy, setLookupBy] = useState<"requestId" | "email">("email");
+  // const lookupBy = "email";
   const [lookupValue, setLookupValue] = useState("");
   const [lookupErrors, setLookupErrors] = useState<LookupErrors>({});
   const [isLookingUp, setIsLookingUp] = useState(false);
@@ -78,7 +79,8 @@ export function ExaminerRequestStatusForm() {
     const trimmed = lookupValue.trim();
     if (!trimmed) {
       setLookupErrors({
-        lookup: `Enter your ${lookupBy === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}`,
+        // lookup: `Enter your ${lookupBy === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}`,
+        lookup: `Enter your ${t("auth.requestStatus.byEmail")}`,
       });
       return;
     }
@@ -87,7 +89,10 @@ export function ExaminerRequestStatusForm() {
     setIsEditing(false);
 
     try {
-      const query = lookupBy === "email" ? { email: trimmed.toLowerCase() } : { requestId: trimmed };
+      // const query = lookupBy === "email" ? { email: trimmed.toLowerCase() } : { requestId: trimmed };
+      const query = {
+        email: trimmed.toLowerCase(),
+      };
       const result = await authService.getExaminerRequestStatus(query);
       setRequest(result);
       setResubmitForm(toResubmitForm(result));
@@ -146,7 +151,7 @@ export function ExaminerRequestStatusForm() {
   return (
     <div className="flex flex-col gap-6">
       <form onSubmit={handleLookup} noValidate className="flex flex-col gap-5">
-        <div className="flex gap-2 rounded-lg border border-border bg-surface-muted p-1">
+        {/* <div className="flex gap-2 rounded-lg border border-border bg-surface-muted p-1">
           {(["email", "requestId"] as const).map((option) => (
             <button
               key={option}
@@ -163,12 +168,15 @@ export function ExaminerRequestStatusForm() {
               {option === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}
             </button>
           ))}
-        </div>
+        </div> */}
 
         <Input
-          label={lookupBy === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}
-          type={lookupBy === "email" ? "email" : "text"}
-          placeholder={lookupBy === "email" ? "you@institution.edu" : "e.g. 6f1c2e9a-..."}
+          // label={lookupBy === "email" ? t("auth.requestStatus.byEmail") : t("auth.requestStatus.byRequestId")}
+          // type={lookupBy === "email" ? "email" : "text"}
+          // placeholder={lookupBy === "email" ? "you@institution.edu" : "e.g. 6f1c2e9a-..."}
+          label={t("auth.requestStatus.byEmail")}
+          type="email"
+          placeholder="your@email.com"
           value={lookupValue}
           onChange={(e) => setLookupValue(e.target.value)}
           error={lookupErrors.lookup}

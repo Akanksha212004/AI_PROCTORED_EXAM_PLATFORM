@@ -50,6 +50,93 @@
 
 
 
+// /**
+//  * Repository layer — the Node equivalent of `app/repositories/user_repository.py`.
+//  * This is the ONLY place that runs Prisma queries against `User`.
+//  * Services call into this instead of touching `prisma` directly.
+//  */
+// import type { Role, User } from "@prisma/client";
+
+// import { prisma } from "../db/prisma";
+// import { hashPassword } from "../core/security";
+
+// interface CreateUserInput {
+//   name: string;
+//   email: string;
+//   password: string;
+//   role: Role;
+// }
+
+// interface CreateExaminerRequestInput {
+//   name: string;
+//   email: string;
+//   password: string;
+//   institution: string;
+//   department: string;
+//   designation: string;
+//   employeeId?: string;
+//   yearsOfExperience?: number;
+//   accessRequestReason: string;
+// }
+
+// export const userRepository = {
+//   findById(id: string): Promise<User | null> {
+//     return prisma.user.findUnique({ where: { id } });
+//   },
+
+//   findByEmail(email: string): Promise<User | null> {
+//     return prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+//   },
+
+//   async create(input: CreateUserInput): Promise<User> {
+//     const passwordHash = await hashPassword(input.password);
+//     return prisma.user.create({
+//       data: {
+//         name: input.name,
+//         email: input.email.toLowerCase(),
+//         passwordHash,
+//         role: input.role,
+//       },
+//     });
+//   },
+
+//   /**
+//    * Creates an EXAMINER account in a PENDING approval state — used by
+//    * the public "Request Examiner Access" flow. The account cannot log
+//    * in until an admin approves it (see authService.login).
+//    */
+//   async createExaminerRequest(input: CreateExaminerRequestInput): Promise<User> {
+//     const passwordHash = await hashPassword(input.password);
+//     return prisma.user.create({
+//       data: {
+//         name: input.name,
+//         email: input.email.toLowerCase(),
+//         passwordHash,
+//         role: "EXAMINER",
+//         approvalStatus: "PENDING",
+//         institution: input.institution,
+//         department: input.department,
+//         designation: input.designation,
+//         employeeId: input.employeeId,
+//         yearsOfExperience: input.yearsOfExperience,
+//         accessRequestReason: input.accessRequestReason,
+//       },
+//     });
+//   },
+
+//   updateProfile(id: string, data: { name: string }): Promise<User> {
+//     return prisma.user.update({ where: { id }, data });
+//   },
+
+//   updatePassword(id: string, passwordHash: string): Promise<User> {
+//     return prisma.user.update({ where: { id }, data: { passwordHash } });
+//   },
+// };
+
+
+
+
+
 /**
  * Repository layer — the Node equivalent of `app/repositories/user_repository.py`.
  * This is the ONLY place that runs Prisma queries against `User`.
@@ -129,6 +216,15 @@ export const userRepository = {
   },
 
   updatePassword(id: string, passwordHash: string): Promise<User> {
+    return prisma.user.update({ where: { id }, data: { passwordHash } });
+  },
+
+  // Service file ke compatibility ke liye methods:
+  updateName(id: string, name: string): Promise<User> {
+    return prisma.user.update({ where: { id }, data: { name } });
+  },
+
+  updatePasswordHash(id: string, passwordHash: string): Promise<User> {
     return prisma.user.update({ where: { id }, data: { passwordHash } });
   },
 };

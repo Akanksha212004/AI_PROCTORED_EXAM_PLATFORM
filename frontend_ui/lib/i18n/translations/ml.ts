@@ -120,7 +120,7 @@ export const ml: TranslationDictionary = {
       title: "നിങ്ങളുടെ അഭ്യർത്ഥന നില പരിശോധിക്കുക",
       subtitle: "നിങ്ങളുടെ അപേക്ഷ എവിടെയാണെന്ന് കാണാൻ നിങ്ങളുടെ ഔദ്യോഗിക ഇമെയിൽ അല്ലെങ്കിൽ അഭ്യർത്ഥന ഐഡി നൽകുക.",
       byEmail: "ഔദ്യോഗിക ഇമെയിൽ",
-      byRequestId: "അഭ്യർത്ഥന ഐഡി",
+      // byRequestId: "അഭ്യർത്ഥന ഐഡി",
       checkStatus: "നില പരിശോധിക്കുക",
       checking: "നില പരിശോധിക്കുന്നു",
       applicationStatus: "അപേക്ഷയുടെ നില",
