@@ -112,28 +112,51 @@
 
 import { z } from "zod";
 
+// 1. Role Enum (Required by admin.schema.ts & user schemas)
+export const RoleEnum = z.enum(["STUDENT", "EXAMINER", "ADMIN"]);
+export type Role = z.infer<typeof RoleEnum>;
+
+// 2. Password Schema (Must be a simple string validator)
+export const passwordSchema = z
+  .string()
+  .min(6, "Password must be at least 6 characters");
+
+// 3. Register Schema & Type (Required by auth.routes.ts & auth.service.ts)
+export const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: passwordSchema,
+  role: RoleEnum.optional().default("STUDENT"),
+});
+export type RegisterInput = z.infer<typeof registerSchema>;
+
+// 4. Login Schema & Type
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+export type LoginInput = z.infer<typeof loginSchema>;
+
+// 5. Update Profile Schema & Type
 export const updateProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address").optional(),
   avatarUrl: z.string().url().optional(),
 });
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
+// 6. Change Password Schema & Type
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  newPassword: passwordSchema,
 });
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
-// Alias taaki passwordSchema ya changePasswordSchema dono kaam karein
-export const passwordSchema = changePasswordSchema;
-
+// 7. Base User Schema
 export const userSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string().email(),
-  role: z.string(),
+  role: RoleEnum,
   isActive: z.boolean(),
 });
-
-// Required TypeScript Input types export karo
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
-export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
