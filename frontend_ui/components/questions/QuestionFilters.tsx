@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Card";
 import { DIFFICULTY_LEVELS, QUESTION_TYPES } from "@/types/question";
 import { questionTypeLabel } from "@/components/ui/Badge";
+import { useI18n } from "@/hooks/useI18n";
 import type { DifficultyLevel, QuestionType } from "@/types/question";
 
 export interface FilterState {
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export function QuestionFilters({ value, onChange, subjectOptions }: Props) {
+  const { t } = useI18n();
   const hasActiveFilters =
     value.search || value.subject || value.questionType || value.difficultyLevel;
 
@@ -30,8 +32,8 @@ export function QuestionFilters({ value, onChange, subjectOptions }: Props) {
       <div className="relative flex-1 min-w-[220px]">
         <Search className="pointer-events-none absolute left-3.5 top-[38px] h-4 w-4 text-muted" />
         <Input
-          label="Search"
-          placeholder="Search by question text..."
+          label={t("questions.filters.search")}
+          placeholder={t("questions.filters.searchPlaceholder")}
           value={value.search}
           onChange={(e) => onChange({ ...value, search: e.target.value })}
           className="pl-9"
@@ -40,11 +42,11 @@ export function QuestionFilters({ value, onChange, subjectOptions }: Props) {
 
       <div className="w-full sm:w-44">
         <Select
-          label="Subject"
+          label={t("questions.filters.subject")}
           value={value.subject}
           onChange={(e) => onChange({ ...value, subject: e.target.value })}
         >
-          <option value="">All subjects</option>
+          <option value="">{t("questions.filters.allSubjects")}</option>
           {subjectOptions.map((s) => (
             <option key={s} value={s}>
               {s}
@@ -55,16 +57,16 @@ export function QuestionFilters({ value, onChange, subjectOptions }: Props) {
 
       <div className="w-full sm:w-44">
         <Select
-          label="Question Type"
+          label={t("questions.filters.questionType")}
           value={value.questionType}
           onChange={(e) =>
             onChange({ ...value, questionType: e.target.value as QuestionType | "" })
           }
         >
-          <option value="">All types</option>
-          {QUESTION_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {questionTypeLabel(t)}
+          <option value="">{t("questions.filters.allTypes")}</option>
+          {QUESTION_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {questionTypeLabel(type, t)}
             </option>
           ))}
         </Select>
@@ -72,16 +74,16 @@ export function QuestionFilters({ value, onChange, subjectOptions }: Props) {
 
       <div className="w-full sm:w-40">
         <Select
-          label="Difficulty"
+          label={t("questions.filters.difficulty")}
           value={value.difficultyLevel}
           onChange={(e) =>
             onChange({ ...value, difficultyLevel: e.target.value as DifficultyLevel | "" })
           }
         >
-          <option value="">All levels</option>
+          <option value="">{t("questions.filters.allLevels")}</option>
           {DIFFICULTY_LEVELS.map((d) => (
             <option key={d} value={d}>
-              {d.charAt(0) + d.slice(1).toLowerCase()}
+              {t(`difficultyLevels.${d}`)}
             </option>
           ))}
         </Select>
@@ -93,7 +95,7 @@ export function QuestionFilters({ value, onChange, subjectOptions }: Props) {
           className="flex h-11 items-center gap-1.5 rounded-lg border border-border px-3.5 text-sm text-muted transition-colors hover:bg-white/5 hover:text-paper"
         >
           <X className="h-4 w-4" />
-          Clear
+          {t("questions.filters.clear")}
         </button>
       )}
     </div>

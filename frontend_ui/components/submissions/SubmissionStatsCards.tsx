@@ -1,6 +1,9 @@
+"use client";
+
 import { ClipboardCheck, Clock, FileCheck2 } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 
 interface Props {
   totalSubmissions: number;
@@ -22,6 +25,8 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 }
 
 export function SubmissionStatsCards({ totalSubmissions, pendingCount, gradedCount, isLoading }: Props) {
+  const { t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -34,9 +39,9 @@ export function SubmissionStatsCards({ totalSubmissions, pendingCount, gradedCou
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <StatCard icon={<ClipboardCheck className="h-5 w-5" />} label="Total Submissions" value={totalSubmissions} />
-      <StatCard icon={<Clock className="h-5 w-5" />} label="Pending Grading" value={pendingCount} />
-      <StatCard icon={<FileCheck2 className="h-5 w-5" />} label="Fully Graded" value={gradedCount} />
+      <StatCard icon={<ClipboardCheck className="h-5 w-5" />} label={t("submissions.stats.total")} value={totalSubmissions} />
+      <StatCard icon={<Clock className="h-5 w-5" />} label={t("submissions.stats.pending")} value={pendingCount} />
+      <StatCard icon={<FileCheck2 className="h-5 w-5" />} label={t("submissions.stats.graded")} value={gradedCount} />
     </div>
   );
 }

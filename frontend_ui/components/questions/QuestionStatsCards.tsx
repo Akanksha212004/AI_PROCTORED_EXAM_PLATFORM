@@ -4,6 +4,7 @@ import { BookOpen, Layers, ListChecks, Sparkles } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { Badge, difficultyTone } from "@/components/ui/Badge";
+import { useI18n } from "@/hooks/useI18n";
 import type { QuestionStats } from "@/hooks/useQuestionStats";
 
 interface Props {
@@ -35,6 +36,8 @@ function StatCard({
 }
 
 export function QuestionStatsCards({ stats, isLoading }: Props) {
+  const { t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -52,29 +55,35 @@ export function QuestionStatsCards({ stats, isLoading }: Props) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<BookOpen className="h-5 w-5" />}
-          label="Total Questions"
+          label={t("questions.stats.totalQuestions")}
           value={stats.totalQuestions}
         />
         <StatCard
           icon={<Layers className="h-5 w-5" />}
-          label="Subjects"
+          label={t("questions.stats.subjects")}
           value={stats.subjectCount}
-          hint={stats.isSampled ? "from most recent 100" : undefined}
+          hint={stats.isSampled ? t("questions.stats.subjectsHint") : undefined}
         />
         <StatCard
           icon={<ListChecks className="h-5 w-5" />}
-          label="Difficulty Mix"
+          label={t("questions.stats.difficultyMix")}
           value={
             <div className="mt-1 flex gap-1.5">
-              <Badge tone={difficultyTone("EASY")}>{stats.difficultyDistribution.EASY} Easy</Badge>
-              <Badge tone={difficultyTone("MEDIUM")}>{stats.difficultyDistribution.MEDIUM} Med</Badge>
-              <Badge tone={difficultyTone("HARD")}>{stats.difficultyDistribution.HARD} Hard</Badge>
+              <Badge tone={difficultyTone("EASY")}>
+                {stats.difficultyDistribution.EASY} {t("difficultyLevels.EASY")}
+              </Badge>
+              <Badge tone={difficultyTone("MEDIUM")}>
+                {stats.difficultyDistribution.MEDIUM} {t("difficultyLevels.MEDIUM")}
+              </Badge>
+              <Badge tone={difficultyTone("HARD")}>
+                {stats.difficultyDistribution.HARD} {t("difficultyLevels.HARD")}
+              </Badge>
             </div>
           }
         />
         <StatCard
           icon={<Sparkles className="h-5 w-5" />}
-          label="Recently Added"
+          label={t("questions.stats.recentlyAdded")}
           value={stats.recentQuestions.length}
           hint={stats.recentQuestions[0]?.subject ?? undefined}
         />

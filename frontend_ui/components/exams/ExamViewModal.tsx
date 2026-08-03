@@ -3,6 +3,7 @@
 import { Dialog } from "@/components/ui/Dialog";
 import { Badge } from "@/components/ui/Badge";
 import { questionTypeLabel } from "@/components/ui/Badge";
+import { useI18n } from "@/hooks/useI18n";
 import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import type { Exam } from "@/types/exam";
 
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export function ExamViewModal({ exam, onClose }: Props) {
+  const { t } = useI18n();
+
   // Dynamic (examiner-authored) content only: title, subject, each
   // selection rule's subject filter, and the curated pool's question
   // text + subject. Hook runs unconditionally (before the `!exam`
@@ -43,53 +46,56 @@ export function ExamViewModal({ exam, onClose }: Props) {
     <Dialog open={Boolean(exam)} onClose={onClose} title={translatedTitle} size="lg">
       <div className="space-y-5">
         <div className="flex flex-wrap gap-2">
+          {/* exam.status is a Prisma enum — shown via the pre-built examStatus.* labels */}
           <Badge tone={exam.status === "PUBLISHED" ? "teal" : exam.status === "CANCELLED" ? "rose" : "amber"}>
-            {exam.status}
+            {t(`examStatus.${exam.status}`)}
           </Badge>
           <Badge tone="neutral">{translatedSubject}</Badge>
-          <Badge tone="sky">{exam.durationMinutes} min</Badge>
           <Badge tone="sky">
-            {exam.totalMarks} marks (pass {exam.passingMarks})
+            {exam.durationMinutes} {t("exams.table.minutesSuffix")}
+          </Badge>
+          <Badge tone="sky">
+            {exam.totalMarks} {t("exams.viewModal.marksSuffix")} ({t("exams.viewModal.passPrefix")} {exam.passingMarks})
           </Badge>
           <Badge tone="neutral">{exam.randomizationMode.replace(/_/g, " ")}</Badge>
-          {exam.negativeMarkingEnabled && <Badge tone="rose">Negative marking on</Badge>}
-          {exam.webcamMonitoringEnabled && <Badge tone="teal">Webcam monitoring on</Badge>}
-          {exam.multiFaceDetectionEnabled && <Badge tone="teal">Multi-face detection on</Badge>}
-          {exam.fullScreenModeEnabled && <Badge tone="teal">Full-screen enforced</Badge>}
+          {exam.negativeMarkingEnabled && <Badge tone="rose">{t("exams.viewModal.negativeMarking")}</Badge>}
+          {exam.webcamMonitoringEnabled && <Badge tone="teal">{t("exams.viewModal.webcamMonitoring")}</Badge>}
+          {exam.multiFaceDetectionEnabled && <Badge tone="teal">{t("exams.viewModal.multiFaceDetection")}</Badge>}
+          {exam.fullScreenModeEnabled && <Badge tone="teal">{t("exams.viewModal.fullScreenEnforced")}</Badge>}
           {exam.audioMonitoringEnabled && (
-            <Badge tone="amber">Audio monitoring on (coming soon)</Badge>
+            <Badge tone="amber">{t("exams.viewModal.audioMonitoring")}</Badge>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted">Start</p>
+            <p className="text-xs uppercase tracking-wide text-muted">{t("exams.viewModal.start")}</p>
             <p className="mt-1 text-paper">{new Date(exam.startTime).toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted">End</p>
+            <p className="text-xs uppercase tracking-wide text-muted">{t("exams.viewModal.end")}</p>
             <p className="mt-1 text-paper">{new Date(exam.endTime).toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted">Gaze Sensitivity</p>
+            <p className="text-xs uppercase tracking-wide text-muted">{t("exams.viewModal.gazeSensitivity")}</p>
             <p className="mt-1 text-paper">{exam.gazeSensitivity}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted">Max Tab-Switch Warnings</p>
+            <p className="text-xs uppercase tracking-wide text-muted">{t("exams.viewModal.maxTabSwitchWarnings")}</p>
             <p className="mt-1 text-paper">{exam.maxTabSwitchWarnings}</p>
           </div>
         </div>
 
         {exam.selectionRules.length > 0 && (
           <div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Selection Rules</p>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">{t("exams.viewModal.selectionRules")}</p>
             <ul className="space-y-1.5">
               {exam.selectionRules.map((r, i) => (
                 <li key={r.id} className="rounded-lg border border-border bg-surface-muted px-3.5 py-2 text-sm text-paper">
-                  Pick <span className="text-accent-sky">{r.count}</span>
-                  {r.difficultyLevel ? ` ${r.difficultyLevel}` : ""}
-                  {r.questionType ? ` ${questionTypeLabel(r.questionType)}` : " questions"}
-                  {r.subject ? ` from ${translatedRuleSubjects[i] || r.subject}` : ""}
+                  {t("exams.viewModal.pick")} <span className="text-accent-sky">{r.count}</span>
+                  {r.difficultyLevel ? ` ${t(`difficultyLevels.${r.difficultyLevel}`)}` : ""}
+                  {r.questionType ? ` ${questionTypeLabel(r.questionType, t)}` : ` ${t("exams.viewModal.questionsWord")}`}
+                  {r.subject ? ` ${t("exams.viewModal.from")} ${translatedRuleSubjects[i] || r.subject}` : ""}
                 </li>
               ))}
             </ul>
@@ -99,7 +105,7 @@ export function ExamViewModal({ exam, onClose }: Props) {
         {exam.examQuestions.length > 0 && (
           <div>
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              Curated Pool ({exam.examQuestions.length})
+              {t("exams.viewModal.curatedPool")} ({exam.examQuestions.length})
             </p>
             <ul className="max-h-48 space-y-1.5 overflow-y-auto">
               {exam.examQuestions.map((p, i) => (
@@ -115,8 +121,12 @@ export function ExamViewModal({ exam, onClose }: Props) {
         )}
 
         <div className="flex justify-between border-t border-border pt-4 text-xs text-muted">
-          <span>Created {new Date(exam.createdAt).toLocaleString()}</span>
-          <span>Updated {new Date(exam.updatedAt).toLocaleString()}</span>
+          <span>
+            {t("exams.viewModal.created")} {new Date(exam.createdAt).toLocaleString()}
+          </span>
+          <span>
+            {t("exams.viewModal.updated")} {new Date(exam.updatedAt).toLocaleString()}
+          </span>
         </div>
       </div>
     </Dialog>

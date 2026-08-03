@@ -3,6 +3,7 @@
 import { Eye, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
+import { useI18n } from "@/hooks/useI18n";
 import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
 import type { SubmissionListItem } from "@/types/submission";
 
@@ -21,25 +22,25 @@ function statusTone(status: string): "sky" | "amber" | "teal" {
   return "sky"; // FULLY_AUTO_GRADED
 }
 
-function statusLabel(status: string): string {
-  if (status === "FULLY_GRADED") return "Graded";
-  if (status === "PENDING_REVIEW") return "Needs Review";
-  return "Auto-Graded";
-}
-
 export function SubmissionsTable({ submissions, isLoading, showExaminer = false, onReview }: Props) {
+  const { t } = useI18n();
+
+  function statusLabel(status: string): string {
+    if (status === "FULLY_GRADED") return t("submissions.table.statusGraded");
+    if (status === "PENDING_REVIEW") return t("submissions.table.statusNeedsReview");
+    return t("submissions.table.statusAutoGraded"); // FULLY_AUTO_GRADED
+  }
+
   // Dynamic (examiner-authored) content — exam title + subject, shown
-  // per submission row. Student name/email and status labels are not
-  // translated: names aren't examiner prose, and status labels are
-  // fixed UI strings (would go through the static t() system, not this
-  // one, if/when this page is converted).
+  // per submission row. Student name/email is not translated (not
+  // examiner prose); status labels above are static UI text via t().
   const flatTexts = submissions.flatMap((s) => [s.examTitle, s.examSubject]);
   const { translated } = useTranslatedTexts(flatTexts);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-muted">
-        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading submissions...
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t("submissions.table.loading")}
       </div>
     );
   }
@@ -47,10 +48,8 @@ export function SubmissionsTable({ submissions, isLoading, showExaminer = false,
   if (submissions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20 text-center">
-        <p className="font-display text-lg text-paper">No submissions yet</p>
-        <p className="max-w-sm text-sm text-muted">
-          Once students submit exams you created, they&apos;ll show up here for grading.
-        </p>
+        <p className="font-display text-lg text-paper">{t("submissions.table.empty")}</p>
+        <p className="max-w-sm text-sm text-muted">{t("submissions.table.emptyHint")}</p>
       </div>
     );
   }
@@ -60,13 +59,13 @@ export function SubmissionsTable({ submissions, isLoading, showExaminer = false,
       <table className={`w-full text-left text-sm ${showExaminer ? "min-w-[980px]" : "min-w-[860px]"}`}>
         <thead>
           <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
-            <th className="py-3 pr-4 font-medium">Student</th>
-            <th className="py-3 pr-4 font-medium">Exam</th>
-            {showExaminer && <th className="py-3 pr-4 font-medium">Examiner</th>}
-            <th className="py-3 pr-4 font-medium">Submitted</th>
-            <th className="py-3 pr-4 font-medium">Auto-Score</th>
-            <th className="py-3 pr-4 font-medium">Status</th>
-            <th className="py-3 pr-2 text-right font-medium">Actions</th>
+            <th className="py-3 pr-4 font-medium">{t("submissions.table.student")}</th>
+            <th className="py-3 pr-4 font-medium">{t("submissions.table.exam")}</th>
+            {showExaminer && <th className="py-3 pr-4 font-medium">{t("submissions.table.examiner")}</th>}
+            <th className="py-3 pr-4 font-medium">{t("submissions.table.submitted")}</th>
+            <th className="py-3 pr-4 font-medium">{t("submissions.table.autoScore")}</th>
+            <th className="py-3 pr-4 font-medium">{t("submissions.table.status")}</th>
+            <th className="py-3 pr-2 text-right font-medium">{t("submissions.table.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -103,7 +102,7 @@ export function SubmissionsTable({ submissions, isLoading, showExaminer = false,
                     className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-accent-sky hover:bg-white/5"
                   >
                     <Eye className="h-3.5 w-3.5" />
-                    {s.gradingStatus === "PENDING_REVIEW" ? "Grade" : "View"}
+                    {s.gradingStatus === "PENDING_REVIEW" ? t("submissions.table.grade") : t("submissions.table.view")}
                   </button>
                 </td>
               </tr>

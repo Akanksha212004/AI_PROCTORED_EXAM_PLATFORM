@@ -3,6 +3,7 @@
 import { CalendarClock, ClipboardList, PlayCircle, Layers } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
+import { useI18n } from "@/hooks/useI18n";
 import type { ExamStats } from "@/hooks/useExamStats";
 
 interface Props {
@@ -34,6 +35,8 @@ function StatCard({
 }
 
 export function ExamStatsCards({ stats, isLoading }: Props) {
+  const { t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -48,14 +51,26 @@ export function ExamStatsCards({ stats, isLoading }: Props) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard icon={<ClipboardList className="h-5 w-5" />} label="Total Exams" value={stats.totalExams} />
-      <StatCard icon={<CalendarClock className="h-5 w-5" />} label="Upcoming" value={stats.upcomingCount} />
-      <StatCard icon={<PlayCircle className="h-5 w-5" />} label="Active Now" value={stats.activeNowCount} />
+      <StatCard
+        icon={<ClipboardList className="h-5 w-5" />}
+        label={t("exams.stats.totalExams")}
+        value={stats.totalExams}
+      />
+      <StatCard
+        icon={<CalendarClock className="h-5 w-5" />}
+        label={t("exams.stats.upcoming")}
+        value={stats.upcomingCount}
+      />
+      <StatCard
+        icon={<PlayCircle className="h-5 w-5" />}
+        label={t("exams.stats.activeNow")}
+        value={stats.activeNowCount}
+      />
       <StatCard
         icon={<Layers className="h-5 w-5" />}
-        label="Subjects"
+        label={t("exams.stats.subjects")}
         value={stats.subjects.length}
-        hint={stats.isSampled ? "from most recent 100" : undefined}
+        hint={stats.isSampled ? t("exams.stats.subjectsHint") : undefined}
       />
     </div>
   );

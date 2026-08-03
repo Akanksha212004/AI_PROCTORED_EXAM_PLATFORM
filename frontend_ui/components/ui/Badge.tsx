@@ -35,13 +35,26 @@ export function difficultyTone(level: string): BadgeTone {
   return "rose"; // HARD
 }
 
-export function questionTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    MCQ: "MCQ",
-    MULTI_SELECT: "Multi-Select",
-    SHORT_ANSWER: "Short Answer",
-    LONG_ANSWER: "Long Answer",
-    IMAGE_UPLOAD: "Image Upload",
-  };
-  return labels[type] ?? type;
+const ENGLISH_QUESTION_TYPE_LABELS: Record<string, string> = {
+  MCQ: "MCQ",
+  MULTI_SELECT: "Multi-Select",
+  SHORT_ANSWER: "Short Answer",
+  LONG_ANSWER: "Long Answer",
+  IMAGE_UPLOAD: "Image Upload",
+};
+
+/**
+ * Static UI label for a question type. Pass the `t` function from
+ * useI18n() to get it in the active language (looks up
+ * `questionTypes.<TYPE>` in lib/i18n/translations); omit it (or call
+ * from a non-component context) to fall back to English.
+ */
+export function questionTypeLabel(type: string, t?: (key: string) => string): string {
+  if (t) {
+    const translated = t(`questionTypes.${type}`);
+    // useI18n's t() returns the key itself on a miss — fall back to the
+    // English map (and then the raw type) rather than showing a raw key.
+    if (translated && translated !== `questionTypes.${type}`) return translated;
+  }
+  return ENGLISH_QUESTION_TYPE_LABELS[type] ?? type;
 }
