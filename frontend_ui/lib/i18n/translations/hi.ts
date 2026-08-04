@@ -47,6 +47,7 @@ export const hi: TranslationDictionary = {
     examinerRequests: "परीक्षक अनुरोध",
     quickTip: "त्वरित सुझाव",
     quickTipBody: "परीक्षा शुरू करने से पहले सुनिश्चित करें कि आपका कैमरा, माइक्रोफ़ोन और इंटरनेट काम कर रहे हैं।",
+    
   },
   language: {
     label: "भाषा",
@@ -178,6 +179,7 @@ export const hi: TranslationDictionary = {
       createExam: "परीक्षा बनाएं",
       addQuestion: "प्रश्न जोड़ें",
       quickAccess: "त्वरित पहुंच",
+      
       quickAccessDesc: {
         questionBank: "प्रश्नों का प्रबंधन करें",
         examConfig: "नियम और सेटिंग्स",
