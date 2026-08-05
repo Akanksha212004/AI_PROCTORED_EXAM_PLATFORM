@@ -57,18 +57,18 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[980px] text-left text-sm">
+      <table className="w-full min-w-[640px] text-left text-sm sm:min-w-[980px]">
         <thead>
           <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
             <th className="py-3 pr-4 font-medium">{t("questions.table.sno")}</th>
             <th className="py-3 pr-4 font-medium">{t("questions.table.question")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.subject")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.type")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.difficulty")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.marks")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.negMarks")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.created")}</th>
-            <th className="py-3 pr-4 font-medium">{t("questions.table.modified")}</th>
+            <th className="hidden py-3 pr-4 font-medium sm:table-cell">{t("questions.table.subject")}</th>
+            <th className="hidden py-3 pr-4 font-medium md:table-cell">{t("questions.table.type")}</th>
+            <th className="hidden py-3 pr-4 font-medium md:table-cell">{t("questions.table.difficulty")}</th>
+            <th className="hidden py-3 pr-4 font-medium lg:table-cell">{t("questions.table.marks")}</th>
+            <th className="hidden py-3 pr-4 font-medium lg:table-cell">{t("questions.table.negMarks")}</th>
+            <th className="hidden py-3 pr-4 font-medium lg:table-cell">{t("questions.table.created")}</th>
+            <th className="hidden py-3 pr-4 font-medium lg:table-cell">{t("questions.table.modified")}</th>
             <th className="py-3 pr-2 text-right font-medium">{t("questions.table.actions")}</th>
           </tr>
         </thead>
@@ -82,19 +82,22 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
                 <td className="py-3.5 pr-4 text-muted">
                   {(page - 1) * limit + index + 1}
                 </td>
-                <td className="py-3.5 pr-4 text-paper">{truncate(translatedQuestionText)}</td>
-                <td className="py-3.5 pr-4 text-muted">{translatedSubject}</td>
-                <td className="py-3.5 pr-4">
+                <td className="max-w-[260px] py-3.5 pr-4 text-paper">
+                  <span className="block truncate sm:whitespace-normal sm:break-words">{truncate(translatedQuestionText)}</span>
+                  <span className="mt-0.5 block text-xs text-muted sm:hidden">{translatedSubject}</span>
+                </td>
+                <td className="hidden py-3.5 pr-4 text-muted sm:table-cell">{translatedSubject}</td>
+                <td className="hidden py-3.5 pr-4 md:table-cell">
                   <Badge tone="sky">{questionTypeLabel(q.questionType, t)}</Badge>
                 </td>
-                <td className="py-3.5 pr-4">
+                <td className="hidden py-3.5 pr-4 md:table-cell">
                   <Badge tone={difficultyTone(q.difficultyLevel)}>
                     {t(`difficultyLevels.${q.difficultyLevel}`)}
                   </Badge>
                 </td>
-                <td className="py-3.5 pr-4 text-paper">{q.marks}</td>
-                <td className="py-3.5 pr-4 text-muted">{q.negativeMarks}</td>
-                <td className="py-3.5 pr-4 text-muted">
+                <td className="hidden py-3.5 pr-4 text-paper lg:table-cell">{q.marks}</td>
+                <td className="hidden py-3.5 pr-4 text-muted lg:table-cell">{q.negativeMarks}</td>
+                <td className="hidden py-3.5 pr-4 text-muted lg:table-cell">
                   <div className="flex flex-col">
                     <span>{new Date(q.createdAt).toLocaleDateString()}</span>
                     <span className="text-xs text-muted/70">
@@ -102,7 +105,7 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
                     </span>
                   </div>
                 </td>
-                <td className="py-3.5 pr-4 text-muted">
+                <td className="hidden py-3.5 pr-4 text-muted lg:table-cell">
                   <div className="flex flex-col">
                     <span>{new Date(q.updatedAt).toLocaleDateString()}</span>
                     <span className="text-xs text-muted/70">

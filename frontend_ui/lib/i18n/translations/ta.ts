@@ -65,6 +65,9 @@ export const ta: TranslationDictionary = {
       createOne: "ஒன்றை உருவாக்குங்கள்",
       wrongPortal: "இந்தப் பக்கம் மாணவர்களுக்கு மட்டுமே. தயவுசெய்து உங்கள் தளத்தின் உள்நுழைவுப் பக்கத்தைப் பயன்படுத்தவும்.",
       welcomeBack: "மீண்டும் வரவேற்கிறோம்",
+      examinerQuestion: "தேர்வாளரா?",
+      examinerHint: "தேர்வாளர் போர்ட்டலை அணுகவும்",
+      examinerButton: "தேர்வாளர் போர்ட்டல்",
     },
     register: {
       eyebrow: "தொடங்குங்கள்",
@@ -752,5 +755,56 @@ export const ta: TranslationDictionary = {
     grade: "தரப்படுத்து",
     view: "பார்க்க",
   },
+  },
+
+  liveMonitoring: {
+    loading: "நேரடி அமர்வுகள் ஏற்றப்படுகின்றன...",
+    emptyTitle: "இப்போது யாரும் தேர்வு எழுதவில்லை",
+    emptyHint: "இந்தப் பக்கம் ஒவ்வொரு 10 வினாடிகளுக்கும் தானாக புதுப்பிக்கப்படும் — ஒரு மாணவர் தேர்வைத் தொடங்கியவுடன் இங்கே தோன்றும்.",
+    table: {
+      student: "மாணவர்",
+      exam: "தேர்வு",
+      elapsed: "கடந்த நேரம்",
+      tabSwitches: "தாவல் மாற்றங்கள்",
+      flags: "கொடிகள்",
+      actions: "செயல்கள்",
+      minutesSuffix: "நிமிடம்",
+      flaggedSuffix: "கொடியிடப்பட்டது",
+      clean: "சுத்தமானது",
+      view: "பார்க்க",
+    },
+  },
+
+  studentHistory: {
+    eyebrow: "தேர்வு வரலாறு",
+    title: "உங்கள் தேர்வு வரலாறு",
+    subtitleSingular: "இதுவரை {count} தேர்வு எழுதப்பட்டது.",
+    subtitlePlural: "இதுவரை {count} தேர்வுகள் எழுதப்பட்டன.",
+    subtitleEmpty: "நீங்கள் இன்னும் எந்த தேர்வும் எழுதவில்லை.",
+    loading: "உங்கள் தேர்வு வரலாறு ஏற்றப்படுகிறது...",
+    viewReport: "அறிக்கையைப் பார்க்க",
+    status: {
+      inProgress: "நடந்துகொண்டிருக்கிறது",
+      submitted: "சமர்ப்பிக்கப்பட்டது",
+      autoSubmitted: "தானாக சமர்ப்பிக்கப்பட்டது",
+      expired: "காலாவதியானது",
+    },
+    pagination: {
+      previous: "முந்தைய",
+      next: "அடுத்து",
+      pageOf: "பக்கம் {page} / {totalPages}",
+    },
+  },
+
+  authLayout: {
+    heading1: "தேர்வுகள், வடிவமைப்பால்",
+    heading2: "கண்காணிக்கப்படுகின்றன.",
+    subtitle: "வினாத்தாள் வங்கிகள், நேரக்கெடு தேர்வு அமர்வுகள், நேரடி AI கண்காணிப்பு — உங்கள் நிறுவனத்தின் ஒவ்வொரு தொகுதியுடனும் விரிவடையும் ஒரே அடையாளம்.",
+    features: {
+      questionBanks: "பாடம் வாரியான வினாத்தாள் வங்கிகள்",
+      timedSessions: "நேரக்கெடு, சீரற்ற அமர்வுகள்",
+      liveProctoring: "நேரடி AI கண்காணிப்பு",
+    },
+    footer: "© {year} ProctorEd — உள் தளம்",
   },
 };

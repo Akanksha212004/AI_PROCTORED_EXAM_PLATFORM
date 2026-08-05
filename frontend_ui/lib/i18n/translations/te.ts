@@ -65,6 +65,9 @@ export const te: TranslationDictionary = {
       createOne: "ఒకటి సృష్టించండి",
       wrongPortal: "ఈ పేజీ విద్యార్థుల కోసం మాత్రమే. దయచేసి మీ పోర్టల్ లాగిన్ పేజీని ఉపయోగించండి.",
       welcomeBack: "తిరిగి స్వాగతం",
+      examinerQuestion: "పరీక్షకులా?",
+      examinerHint: "పరీక్షకుల పోర్టల్‌ను యాక్సెస్ చేయండి",
+      examinerButton: "పరీక్షకుల పోర్టల్",
     },
     register: {
       eyebrow: "ప్రారంభించండి",
@@ -752,5 +755,56 @@ export const te: TranslationDictionary = {
     grade: "గ్రేడ్ చేయండి",
     view: "వీక్షించండి",
   },
+  },
+
+  liveMonitoring: {
+    loading: "ప్రత్యక్ష సెషన్‌లు లోడ్ అవుతున్నాయి...",
+    emptyTitle: "ప్రస్తుతం ఎవరూ పరీక్ష రాయడం లేదు",
+    emptyHint: "ఈ పేజీ ప్రతి 10 సెకన్లకు స్వయంచాలకంగా రిఫ్రెష్ అవుతుంది — విద్యార్థి పరీక్ష ప్రారంభించిన వెంటనే ఇక్కడ కనిపిస్తుంది.",
+    table: {
+      student: "విద్యార్థి",
+      exam: "పరీక్ష",
+      elapsed: "గడిచిన సమయం",
+      tabSwitches: "ట్యాబ్ మార్పులు",
+      flags: "ఫ్లాగ్‌లు",
+      actions: "చర్యలు",
+      minutesSuffix: "నిమి",
+      flaggedSuffix: "ఫ్లాగ్ చేయబడింది",
+      clean: "శుభ్రం",
+      view: "వీక్షించండి",
+    },
+  },
+
+  studentHistory: {
+    eyebrow: "పరీక్ష చరిత్ర",
+    title: "మీ పరీక్ష చరిత్ర",
+    subtitleSingular: "ఇప్పటివరకు {count} పరీక్ష రాశారు.",
+    subtitlePlural: "ఇప్పటివరకు {count} పరీక్షలు రాశారు.",
+    subtitleEmpty: "మీరు ఇంకా ఏ పరీక్ష రాయలేదు.",
+    loading: "మీ పరీక్ష చరిత్ర లోడ్ అవుతోంది...",
+    viewReport: "నివేదికను వీక్షించండి",
+    status: {
+      inProgress: "కొనసాగుతోంది",
+      submitted: "సమర్పించబడింది",
+      autoSubmitted: "ఆటోమేటిక్‌గా సమర్పించబడింది",
+      expired: "గడువు ముగిసింది",
+    },
+    pagination: {
+      previous: "మునుపటి",
+      next: "తదుపరి",
+      pageOf: "పేజీ {page} / {totalPages}",
+    },
+  },
+
+  authLayout: {
+    heading1: "పరీక్షలు, రూపకల్పన ద్వారా",
+    heading2: "పర్యవేక్షించబడతాయి.",
+    subtitle: "ప్రశ్న బ్యాంకులు, సమయ నియంత్రిత పరీక్ష సెషన్‌లు మరియు ప్రత్యక్ష AI పర్యవేక్షణ — మీ సంస్థ జోడించే ప్రతి మాడ్యూల్‌తో పెరిగేలా రూపొందించిన ఒకే గుర్తింపు.",
+    features: {
+      questionBanks: "సబ్జెక్టు వారీగా ప్రశ్న బ్యాంకులు",
+      timedSessions: "సమయ నియంత్రిత, యాదృచ్ఛిక సెషన్‌లు",
+      liveProctoring: "ప్రత్యక్ష AI పర్యవేక్షణ",
+    },
+    footer: "© {year} ProctorEd — అంతర్గత ప్లాట్‌ఫారమ్",
   },
 };

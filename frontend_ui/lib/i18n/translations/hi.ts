@@ -47,7 +47,6 @@ export const hi: TranslationDictionary = {
     examinerRequests: "परीक्षक अनुरोध",
     quickTip: "त्वरित सुझाव",
     quickTipBody: "परीक्षा शुरू करने से पहले सुनिश्चित करें कि आपका कैमरा, माइक्रोफ़ोन और इंटरनेट काम कर रहे हैं।",
-    
   },
   language: {
     label: "भाषा",
@@ -66,6 +65,9 @@ export const hi: TranslationDictionary = {
       createOne: "एक बनाएं",
       wrongPortal: "यह पेज केवल छात्रों के लिए है। कृपया अपने पोर्टल के लॉगिन पेज का उपयोग करें।",
       welcomeBack: "वापसी पर स्वागत है",
+      examinerQuestion: "परीक्षक?",
+      examinerHint: "परीक्षक पोर्टल एक्सेस करें",
+      examinerButton: "परीक्षक पोर्टल",
     },
     register: {
       eyebrow: "शुरू करें",
@@ -179,7 +181,6 @@ export const hi: TranslationDictionary = {
       createExam: "परीक्षा बनाएं",
       addQuestion: "प्रश्न जोड़ें",
       quickAccess: "त्वरित पहुंच",
-      
       quickAccessDesc: {
         questionBank: "प्रश्नों का प्रबंधन करें",
         examConfig: "नियम और सेटिंग्स",
@@ -754,5 +755,56 @@ export const hi: TranslationDictionary = {
     grade: "ग्रेड करें",
     view: "देखें",
   },
+  },
+
+  liveMonitoring: {
+    loading: "लाइव सत्र लोड हो रहे हैं...",
+    emptyTitle: "अभी कोई परीक्षा नहीं दे रहा है",
+    emptyHint: "यह पृष्ठ हर 10 सेकंड में अपने आप रीफ्रेश होता है — जैसे ही कोई छात्र परीक्षा शुरू करेगा, यह यहां दिखाई देगा।",
+    table: {
+      student: "छात्र",
+      exam: "परीक्षा",
+      elapsed: "बीता हुआ समय",
+      tabSwitches: "टैब स्विच",
+      flags: "फ्लैग",
+      actions: "कार्रवाई",
+      minutesSuffix: "मिनट",
+      flaggedSuffix: "फ्लैग किया गया",
+      clean: "साफ़",
+      view: "देखें",
+    },
+  },
+
+  studentHistory: {
+    eyebrow: "परीक्षा इतिहास",
+    title: "आपका परीक्षा इतिहास",
+    subtitleSingular: "अब तक {count} परीक्षा दी गई है।",
+    subtitlePlural: "अब तक {count} परीक्षाएं दी गई हैं।",
+    subtitleEmpty: "आपने अभी तक कोई परीक्षा नहीं दी है।",
+    loading: "आपका परीक्षा इतिहास लोड हो रहा है...",
+    viewReport: "रिपोर्ट देखें",
+    status: {
+      inProgress: "जारी है",
+      submitted: "सबमिट किया गया",
+      autoSubmitted: "स्वतः सबमिट किया गया",
+      expired: "समाप्त हो गया",
+    },
+    pagination: {
+      previous: "पिछला",
+      next: "अगला",
+      pageOf: "पृष्ठ {page} / {totalPages}",
+    },
+  },
+
+  authLayout: {
+    heading1: "परीक्षाएं, जो हैं",
+    heading2: "डिज़ाइन से निगरानी में।",
+    subtitle: "प्रश्न बैंक, समयबद्ध परीक्षा सत्र और लाइव एआई निगरानी — सब एक ही पहचान से, आपके संस्थान के हर मॉड्यूल के साथ बढ़ने के लिए तैयार।",
+    features: {
+      questionBanks: "विषयवार प्रश्न बैंक",
+      timedSessions: "समयबद्ध, यादृच्छिक सत्र",
+      liveProctoring: "लाइव एआई निगरानी",
+    },
+    footer: "© {year} ProctorEd — आंतरिक प्लेटफ़ॉर्म",
   },
 };

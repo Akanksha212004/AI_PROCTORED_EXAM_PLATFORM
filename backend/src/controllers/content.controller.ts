@@ -28,6 +28,12 @@ export async function translateContent(req: Request, res: Response, next: NextFu
   try {
     const { texts, targetLang } = req.body as TranslateContentInput;
     const translations = await contentService.translateBatch(texts, targetLang);
+    // Explicit charset: res.json() sets "application/json" with no
+    // charset by default in some Express/Node configs, and a handful of
+    // proxies/CDNs then guess Latin-1 for anything without one. Spelling
+    // it out here guarantees the Devanagari/other non-ASCII bytes are
+    // interpreted as UTF-8 by every hop between here and the browser.
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(200).json({ translations });
   } catch (err) {
     next(err);

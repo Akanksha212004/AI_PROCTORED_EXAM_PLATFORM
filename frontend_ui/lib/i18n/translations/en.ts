@@ -63,6 +63,9 @@ export const en = {
       createOne: "Create one",
       wrongPortal: "This page is for students only. Please use your portal's login page.",
       welcomeBack: "Welcome back",
+      examinerQuestion: "Examiner?",
+      examinerHint: "Access the Examiner Portal",
+      examinerButton: "Examiner Portal",
     },
     register: {
       eyebrow: "Get started",
@@ -756,6 +759,57 @@ export const en = {
     grade: "Grade",
     view: "View",
   },
+  },
+
+  liveMonitoring: {
+    loading: "Loading live sessions...",
+    emptyTitle: "No one is taking an exam right now",
+    emptyHint: "This page auto-refreshes every 10 seconds — it'll populate as soon as a student starts an exam.",
+    table: {
+      student: "Student",
+      exam: "Exam",
+      elapsed: "Elapsed",
+      tabSwitches: "Tab Switches",
+      flags: "Flags",
+      actions: "Actions",
+      minutesSuffix: "min",
+      flaggedSuffix: "flagged",
+      clean: "Clean",
+      view: "View",
+    },
+  },
+
+  studentHistory: {
+    eyebrow: "Exam History",
+    title: "Your Exam History",
+    subtitleSingular: "{count} exam attempted so far.",
+    subtitlePlural: "{count} exams attempted so far.",
+    subtitleEmpty: "You haven't attempted any exams yet.",
+    loading: "Loading your exam history...",
+    viewReport: "View Report",
+    status: {
+      inProgress: "In Progress",
+      submitted: "Submitted",
+      autoSubmitted: "Auto-submitted",
+      expired: "Expired",
+    },
+    pagination: {
+      previous: "Previous",
+      next: "Next",
+      pageOf: "Page {page} of {totalPages}",
+    },
+  },
+
+  authLayout: {
+    heading1: "Exams, invigilated",
+    heading2: "by design.",
+    subtitle: "One identity across question banks, timed exam sessions, and live AI proctoring — built to scale with every module your institution adds.",
+    features: {
+      questionBanks: "Question banks by subject",
+      timedSessions: "Timed, randomized sessions",
+      liveProctoring: "Live AI proctoring",
+    },
+    footer: "© {year} ProctorEd — Internal Platform",
   },
 };
 

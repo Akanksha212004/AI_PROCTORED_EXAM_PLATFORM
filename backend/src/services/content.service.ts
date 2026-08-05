@@ -37,22 +37,69 @@ function inFlightKey(text: string, targetLang: string): string {
   return `${targetLang}::${text}`;
 }
 
-async function callMyMemory(text: string, targetLang: string): Promise<string> {
-  const params = new URLSearchParams({
-    q: text,
-    langpair: `en|${targetLang}`,
+// MyMemory occasionally returns its translation with HTML entities in
+// it (numeric refs like `&#2325;` for a single Devanagari codepoint, or
+// named ones like `&amp;`/`&quot;`) instead of the raw UTF-8 character.
+// Left undecoded, these render as literal markup and — if the string is
+// later re-encoded/re-parsed anywhere downstream — are exactly the kind
+// of mismatch that produces mojibake instead of clean Devanagari. Decode
+// them all here, once, right after the bytes come off the wire.
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: '\u00a0',
+};
+
+function decodeHtmlEntities(text: string): string {
+  return text.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity: string) => {
+    if (entity[0] === '#') {
+      const isHex = entity[1] === 'x' || entity[1] === 'X';
+      const codepoint = parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+      return Number.isNaN(codepoint) ? match : String.fromCodePoint(codepoint);
+    }
+    return NAMED_ENTITIES[entity] ?? match;
   });
+}
+
+async function callMyMemory(text: string, targetLang: string): Promise<string> {
+  // URLSearchParams percent-encodes each value as UTF-8 bytes (the same
+  // thing encodeURIComponent does), so Devanagari/other non-ASCII text
+  // round-trips correctly — this is NOT where the encoding gets lost.
+  // We still build params through it explicitly (rather than manual
+  // string concatenation) specifically to guarantee that encoding.
+  const params = new URLSearchParams();
+  params.set('q', text);
+  params.set('langpair', `en|${targetLang}`);
   if (env.MYMEMORY_EMAIL) params.set('de', env.MYMEMORY_EMAIL);
 
   const response = await fetch(`${MYMEMORY_ENDPOINT}?${params.toString()}`, {
     signal: AbortSignal.timeout(8000),
+    headers: {
+      // Be explicit about what we accept back — some intermediary
+      // caches/proxies fall back to a Latin-1-ish default charset when
+      // the response has no (or an ambiguous) charset on its own
+      // Content-Type, which is exactly how Devanagari turns into
+      // mojibake. Asking for UTF-8 JSON explicitly avoids that.
+      Accept: 'application/json; charset=utf-8',
+    },
   });
 
   if (!response.ok) {
     throw new Error(`MyMemory responded with HTTP ${response.status}`);
   }
 
-  const data = (await response.json()) as {
+  // Decode the raw bytes as UTF-8 ourselves instead of trusting
+  // response.json() to infer the right charset from headers that may be
+  // missing or wrong. This is the safest point to guarantee correct
+  // Devanagari decoding, since everything downstream (cache, API
+  // response, frontend render) just passes this string through as-is.
+  const rawBytes = await response.arrayBuffer();
+  const rawText = new TextDecoder('utf-8').decode(rawBytes);
+
+  const data = JSON.parse(rawText) as {
     responseData?: { translatedText?: string };
     responseStatus?: number | string;
   };
@@ -61,7 +108,7 @@ async function callMyMemory(text: string, targetLang: string): Promise<string> {
   if (!translated || String(data.responseStatus) !== '200') {
     throw new Error('MyMemory returned no usable translation');
   }
-  return translated;
+  return decodeHtmlEntities(translated);
 }
 
 async function translateOneDeduped(text: string, targetLang: string): Promise<string> {

@@ -75,13 +75,13 @@ export function SubmissionsTable({ submissions, isLoading, showExaminer = false,
 
             return (
               <tr key={s.id} className="border-b border-border/60 hover:bg-white/[0.03]">
-                <td className="py-3.5 pr-4">
-                  <p className="text-paper">{s.studentName}</p>
-                  <p className="text-xs text-muted">{s.studentEmail}</p>
+                <td className="max-w-[180px] py-3.5 pr-4">
+                  <p className="truncate text-paper">{s.studentName}</p>
+                  <p className="truncate text-xs text-muted" title={s.studentEmail}>{s.studentEmail}</p>
                 </td>
-                <td className="py-3.5 pr-4">
-                  <p className="text-paper">{translatedExamTitle}</p>
-                  <p className="text-xs text-muted">{translatedExamSubject}</p>
+                <td className="max-w-[200px] py-3.5 pr-4">
+                  <p className="truncate text-paper">{translatedExamTitle}</p>
+                  <p className="truncate text-xs text-muted">{translatedExamSubject}</p>
                 </td>
                 {showExaminer && (
                   <td className="py-3.5 pr-4 text-muted">{s.examinerName ?? "—"}</td>

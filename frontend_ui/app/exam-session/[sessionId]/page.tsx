@@ -201,7 +201,7 @@ function ExamSessionContent() {
   }
 
   return (
-    <div className="min-h-screen bg-ink">
+    <div className="min-h-screen overflow-x-hidden bg-ink">
       {session.exam.fullScreenModeEnabled && !isFullscreen && (
         <FullScreenGate onRequestFullscreen={requestFullscreen} />
       )}
@@ -217,16 +217,16 @@ function ExamSessionContent() {
         />
       )}
 
-      <header className="flex items-center justify-between border-b border-border bg-surface px-6 py-3">
-        <div>
-          <p className="font-medium text-paper">{translatedExamTitle}</p>
-          <p className="text-xs text-muted">{translatedExamSubject}</p>
+      <header className="flex flex-col gap-2 border-b border-border bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="min-w-0 pr-28 sm:pr-0">
+          <p className="truncate font-medium text-paper">{translatedExamTitle}</p>
+          <p className="truncate text-xs text-muted">{translatedExamSubject}</p>
         </div>
         <ExamTimerBar secondsRemaining={timeRemaining} />
       </header>
 
-      <div className="mx-auto flex max-w-6xl gap-6 px-6 py-6">
-        <aside className="w-56 shrink-0">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-3 py-4 sm:px-6 sm:py-6 lg:flex-row">
+        <aside className="w-full shrink-0 lg:w-56">
           <QuestionNavigatorSidebar
             questions={session.questions}
             activeIndex={activeIndex}
@@ -235,7 +235,7 @@ function ExamSessionContent() {
           />
         </aside>
 
-        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface p-6">
+        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface p-4 sm:p-6">
           <QuestionPanel
             question={activeQuestion}
             index={activeIndex}

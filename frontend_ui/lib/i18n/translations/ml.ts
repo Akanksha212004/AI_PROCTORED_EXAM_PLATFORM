@@ -65,6 +65,9 @@ export const ml: TranslationDictionary = {
       createOne: "ഒന്ന് ഉണ്ടാക്കുക",
       wrongPortal: "ഈ പേജ് വിദ്യാർത്ഥികൾക്ക് മാത്രമുള്ളതാണ്. ദയവായി നിങ്ങളുടെ പോർട്ടലിന്റെ ലോഗിൻ പേജ് ഉപയോഗിക്കുക.",
       welcomeBack: "വീണ്ടും സ്വാഗതം",
+      examinerQuestion: "പരീക്ഷകനോ?",
+      examinerHint: "പരീക്ഷക പോർട്ടൽ ആക്സസ് ചെയ്യുക",
+      examinerButton: "പരീക്ഷക പോർട്ടൽ",
     },
     register: {
       eyebrow: "ആരംഭിക്കുക",
@@ -752,5 +755,56 @@ export const ml: TranslationDictionary = {
     grade: "ഗ്രേഡ് ചെയ്യുക",
     view: "കാണുക",
   },
+  },
+
+  liveMonitoring: {
+    loading: "തത്സമയ സെഷനുകൾ ലോഡ് ചെയ്യുന്നു...",
+    emptyTitle: "ഇപ്പോൾ ആരും പരീക്ഷ എഴുതുന്നില്ല",
+    emptyHint: "ഈ പേജ് ഓരോ 10 സെക്കൻഡിലും സ്വയമേവ പുതുക്കുന്നു — ഒരു വിദ്യാർത്ഥി പരീക്ഷ ആരംഭിച്ചാലുടൻ ഇത് ഇവിടെ ദൃശ്യമാകും.",
+    table: {
+      student: "വിദ്യാർത്ഥി",
+      exam: "പരീക്ഷ",
+      elapsed: "കഴിഞ്ഞ സമയം",
+      tabSwitches: "ടാബ് മാറ്റങ്ങൾ",
+      flags: "ഫ്ലാഗുകൾ",
+      actions: "പ്രവർത്തനങ്ങൾ",
+      minutesSuffix: "മിനിറ്റ്",
+      flaggedSuffix: "ഫ്ലാഗ് ചെയ്തു",
+      clean: "ക്ലീൻ",
+      view: "കാണുക",
+    },
+  },
+
+  studentHistory: {
+    eyebrow: "പരീക്ഷാ ചരിത്രം",
+    title: "നിങ്ങളുടെ പരീക്ഷാ ചരിത്രം",
+    subtitleSingular: "ഇതുവരെ {count} പരീക്ഷ എഴുതി.",
+    subtitlePlural: "ഇതുവരെ {count} പരീക്ഷകൾ എഴുതി.",
+    subtitleEmpty: "നിങ്ങൾ ഇതുവരെ ഒരു പരീക്ഷയും എഴുതിയിട്ടില്ല.",
+    loading: "നിങ്ങളുടെ പരീക്ഷാ ചരിത്രം ലോഡ് ചെയ്യുന്നു...",
+    viewReport: "റിപ്പോർട്ട് കാണുക",
+    status: {
+      inProgress: "പുരോഗമിക്കുന്നു",
+      submitted: "സമർപ്പിച്ചു",
+      autoSubmitted: "സ്വയമേവ സമർപ്പിച്ചു",
+      expired: "കാലഹരണപ്പെട്ടു",
+    },
+    pagination: {
+      previous: "മുമ്പത്തേത്",
+      next: "അടുത്തത്",
+      pageOf: "പേജ് {page} / {totalPages}",
+    },
+  },
+
+  authLayout: {
+    heading1: "പരീക്ഷകൾ, രൂപകൽപ്പന കൊണ്ട്",
+    heading2: "നിരീക്ഷിക്കപ്പെടുന്നു.",
+    subtitle: "ചോദ്യ ബാങ്കുകൾ, സമയബന്ധിത പരീക്ഷാ സെഷനുകൾ, തത്സമയ AI നിരീക്ഷണം — നിങ്ങളുടെ സ്ഥാപനം ചേർക്കുന്ന ഓരോ മൊഡ്യൂളിനൊപ്പവും വളരാൻ തയ്യാറാക്കിയ ഒരൊറ്റ ഐഡന്റിറ്റി.",
+    features: {
+      questionBanks: "വിഷയം അനുസരിച്ചുള്ള ചോദ്യ ബാങ്കുകൾ",
+      timedSessions: "സമയബന്ധിത, ക്രമരഹിത സെഷനുകൾ",
+      liveProctoring: "തത്സമയ AI നിരീക്ഷണം",
+    },
+    footer: "© {year} ProctorEd — ആന്തരിക പ്ലാറ്റ്‌ഫോം",
   },
 };
