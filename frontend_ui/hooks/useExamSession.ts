@@ -26,6 +26,9 @@ export function useExamSession(sessionId: string) {
   const [finalResult, setFinalResult] = useState<SubmitSessionResult | null>(null);
 
   const textDebounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  // Keyed per-question (NOT a single shared ref) so selecting an option on
+  // Q1 and then quickly switching to Q2 doesn't cancel Q1's pending save.
+  const optionDebounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const hasAutoSubmitted = useRef(false);
 
   const [visitedQuestionIds, setVisitedQuestionIds] = useState<Set<string>>(new Set());
@@ -90,17 +93,48 @@ export function useExamSession(sessionId: string) {
     }
   }, [timeRemaining, session, submitExam]);
 
-  async function selectOptions(questionId: string, optionIds: string[]) {
-    // Discrete action (radio/checkbox click) — save immediately, no debounce.
-    try {
-      const updated = await examSessionService.submitAnswer(sessionId, {
-        questionId,
-        selectedOptionIds: optionIds,
-      });
-      setSession(updated);
-    } catch (err) {
-      toast.error(extractExamErrorMessage(err));
+  function selectOptions(questionId: string, optionIds: string[]) {
+    // 1. Optimistic, IMMUTABLE update — goes through setSession so React
+    //    actually re-renders (the navigator sidebar's color depends on
+    //    this state), unlike mutating session.questions in place which
+    //    React can't detect and never repaints from.
+    setSession((s) => {
+      if (!s) return s;
+      return {
+        ...s,
+        questions: s.questions.map((q) =>
+          q.questionId === questionId
+            ? {
+                ...q,
+                answer: {
+                  submittedText: q.answer?.submittedText ?? null,
+                  submittedFileUrl: q.answer?.submittedFileUrl ?? null,
+                  markedForReview: q.answer?.markedForReview ?? false,
+                  selectedOptionIds: optionIds,
+                },
+              }
+            : q
+        ),
+      };
+    });
+
+    // 2. Debounce the actual network save PER QUESTION so rapid clicks on
+    //    the same question coalesce into one request, without cancelling
+    //    saves for other questions the student has since moved on to.
+    if (optionDebounceTimers.current[questionId]) {
+      clearTimeout(optionDebounceTimers.current[questionId]);
     }
+    optionDebounceTimers.current[questionId] = setTimeout(async () => {
+      try {
+        const updated = await examSessionService.submitAnswer(sessionId, {
+          questionId,
+          selectedOptionIds: optionIds,
+        });
+        setSession(updated); // reconcile with server truth
+      } catch (err) {
+        toast.error(extractExamErrorMessage(err));
+      }
+    }, 300);
   }
 
   function setTextDraft(questionId: string, text: string) {
@@ -122,7 +156,19 @@ export function useExamSession(sessionId: string) {
     }
     textDebounceTimers.current[questionId] = setTimeout(async () => {
       try {
-        await examSessionService.submitAnswer(sessionId, { questionId, submittedText: text });
+        // An empty/whitespace-only box means the student cleared their
+        // answer, not "no answer yet". The backend deliberately REJECTS
+        // an empty submittedText for SHORT_ANSWER/LONG_ANSWER (422:
+        // "submittedText is required") — that's correct for the normal
+        // save path, but it means typing something and then deleting it
+        // all was hitting that same validation and surfacing a
+        // confusing error. Route empty text through clearAnswer instead,
+        // which explicitly supports wiping an answer without erroring.
+        if (text.trim().length === 0) {
+          await examSessionService.clearAnswer(sessionId, questionId);
+        } else {
+          await examSessionService.submitAnswer(sessionId, { questionId, submittedText: text });
+        }
       } catch (err) {
         toast.error(extractExamErrorMessage(err));
       }

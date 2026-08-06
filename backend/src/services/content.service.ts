@@ -1,7 +1,7 @@
 // src/services/content.service.ts
 //
 // Translates dynamic/database content (question text, exam titles,
-// subjects, feedback, etc.) via MyMemory, backed by the Postgres cache
+// subjects, feedback, etc.) via Sarvam AI, backed by the Postgres cache
 // in content.repository. Two things this deliberately guards against:
 //
 // 1. Thundering herd: if 50 students all switch to Hindi for the same
@@ -9,23 +9,48 @@
 //    at first — without de-duping, that's 50 simultaneous outbound
 //    calls for the identical string. `inFlight` collapses concurrent
 //    requests for the same (text, targetLang) pair into one shared
-//    promise, so only ONE actually reaches MyMemory; the rest just
+//    promise, so only ONE actually reaches Sarvam; the rest just
 //    await it.
-// 2. Never blocking the UI: every failure (network error, MyMemory
-//    down, malformed response, rate-limited) falls back to the
-//    original text rather than throwing. An exam must never break
-//    because a translation call failed.
+// 2. Never blocking the UI: every failure (network error, Sarvam down,
+//    malformed response, rate-limited) falls back to the original text
+//    rather than throwing. An exam must never break because a
+//    translation call failed.
+//
+// NOTE: This used to call MyMemory (a free, crowd-sourced Translation
+// Memory lookup service). It was replaced with Sarvam AI because
+// MyMemory doesn't run a real translation model for most requests —
+// it fuzzy-matches against a shared community database, and for
+// longer/uncommon sentences (exam guidelines, question text) that
+// database has no good match. It then either stitches together
+// mismatched fragments or returns already-corrupted entries that some
+// other contributor submitted with the wrong encoding — that's what
+// was producing mojibake ("alien script") in the UI, not an encoding
+// bug on our side. Sarvam AI is a proper NMT model trained
+// specifically on Indian languages, so it doesn't have this failure
+// mode, and it doesn't need the defensive HTML-entity-decoding /
+// manual-UTF8-decoding this file used to do just to work around
+// MyMemory's quirks.
 
 import { env } from '../core/config';
 import * as contentRepository from '../repositories/content.repository';
 
-const MYMEMORY_ENDPOINT = 'https://api.mymemory.translated.net/get';
+const SARVAM_ENDPOINT = 'https://api.sarvam.ai/translate';
 
-// MyMemory caps each individual `q` at ~500 bytes. Question text can
-// run longer than that, so anything over the limit is left untranslated
-// rather than silently truncated (a cut-off translation is worse than
-// none) — the UI just falls back to the original English for that item.
-const MYMEMORY_MAX_BYTES = 490;
+// Sarvam's sarvam-translate:v1 model accepts up to 2000 characters per
+// call. Question text can occasionally run longer than that, so
+// anything over the limit is left untranslated rather than silently
+// truncated (a cut-off translation is worse than none) — the UI just
+// falls back to the original English for that item.
+const SARVAM_MAX_CHARS = 2000;
+
+// Sarvam's target_language_code values — our LanguageCode ('hi' | 'te'
+// | 'ml' | 'ta') needs the '-IN' region suffix.
+const TARGET_LANGUAGE_CODES: Record<string, string> = {
+  hi: 'hi-IN',
+  te: 'te-IN',
+  ml: 'ml-IN',
+  ta: 'ta-IN',
+};
 
 // Module-level map, shared across every request this process handles.
 // Cleared as soon as each translation resolves (success or failure) —
@@ -37,78 +62,52 @@ function inFlightKey(text: string, targetLang: string): string {
   return `${targetLang}::${text}`;
 }
 
-// MyMemory occasionally returns its translation with HTML entities in
-// it (numeric refs like `&#2325;` for a single Devanagari codepoint, or
-// named ones like `&amp;`/`&quot;`) instead of the raw UTF-8 character.
-// Left undecoded, these render as literal markup and — if the string is
-// later re-encoded/re-parsed anywhere downstream — are exactly the kind
-// of mismatch that produces mojibake instead of clean Devanagari. Decode
-// them all here, once, right after the bytes come off the wire.
-const NAMED_ENTITIES: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: '\u00a0',
-};
+async function callSarvam(text: string, targetLang: string): Promise<string> {
+  const targetLanguageCode = TARGET_LANGUAGE_CODES[targetLang];
+  if (!targetLanguageCode) {
+    throw new Error(`Unsupported target language: ${targetLang}`);
+  }
 
-function decodeHtmlEntities(text: string): string {
-  return text.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity: string) => {
-    if (entity[0] === '#') {
-      const isHex = entity[1] === 'x' || entity[1] === 'X';
-      const codepoint = parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
-      return Number.isNaN(codepoint) ? match : String.fromCodePoint(codepoint);
-    }
-    return NAMED_ENTITIES[entity] ?? match;
-  });
-}
-
-async function callMyMemory(text: string, targetLang: string): Promise<string> {
-  // URLSearchParams percent-encodes each value as UTF-8 bytes (the same
-  // thing encodeURIComponent does), so Devanagari/other non-ASCII text
-  // round-trips correctly — this is NOT where the encoding gets lost.
-  // We still build params through it explicitly (rather than manual
-  // string concatenation) specifically to guarantee that encoding.
-  const params = new URLSearchParams();
-  params.set('q', text);
-  params.set('langpair', `en|${targetLang}`);
-  if (env.MYMEMORY_EMAIL) params.set('de', env.MYMEMORY_EMAIL);
-
-  const response = await fetch(`${MYMEMORY_ENDPOINT}?${params.toString()}`, {
+  const response = await fetch(SARVAM_ENDPOINT, {
+    method: 'POST',
     signal: AbortSignal.timeout(8000),
     headers: {
-      // Be explicit about what we accept back — some intermediary
-      // caches/proxies fall back to a Latin-1-ish default charset when
-      // the response has no (or an ambiguous) charset on its own
-      // Content-Type, which is exactly how Devanagari turns into
-      // mojibake. Asking for UTF-8 JSON explicitly avoids that.
-      Accept: 'application/json; charset=utf-8',
+      'Content-Type': 'application/json',
+      'api-subscription-key': env.SARVAM_API_KEY,
     },
+    body: JSON.stringify({
+      input: text,
+      source_language_code: 'en-IN',
+      target_language_code: targetLanguageCode,
+      // sarvam-translate:v1 (rather than mayura:v1) — supports the
+      // full 2000-char input length and is the more general-purpose
+      // model; we don't need mayura's colloquial/code-mixed modes for
+      // formal exam content.
+      model: 'sarvam-translate:v1',
+      mode: 'formal',
+    }),
   });
 
   if (!response.ok) {
-    throw new Error(`MyMemory responded with HTTP ${response.status}`);
+    throw new Error(`Sarvam AI responded with HTTP ${response.status}`);
   }
 
   // Decode the raw bytes as UTF-8 ourselves instead of trusting
-  // response.json() to infer the right charset from headers that may be
-  // missing or wrong. This is the safest point to guarantee correct
-  // Devanagari decoding, since everything downstream (cache, API
-  // response, frontend render) just passes this string through as-is.
+  // response.json() to infer the right charset from headers that may
+  // be missing or wrong — this is the same safe pattern used
+  // everywhere else in this codebase for non-ASCII text.
   const rawBytes = await response.arrayBuffer();
   const rawText = new TextDecoder('utf-8').decode(rawBytes);
 
   const data = JSON.parse(rawText) as {
-    responseData?: { translatedText?: string };
-    responseStatus?: number | string;
+    translated_text?: string;
+    request_id?: string | null;
   };
 
-  const translated = data.responseData?.translatedText;
-  if (!translated || String(data.responseStatus) !== '200') {
-    throw new Error('MyMemory returned no usable translation');
+  if (!data.translated_text) {
+    throw new Error('Sarvam AI returned no usable translation');
   }
-  return decodeHtmlEntities(translated);
+  return data.translated_text;
 }
 
 async function translateOneDeduped(text: string, targetLang: string): Promise<string> {
@@ -118,9 +117,9 @@ async function translateOneDeduped(text: string, targetLang: string): Promise<st
 
   const promise = (async () => {
     try {
-      const translated = await callMyMemory(text, targetLang);
+      const translated = await callSarvam(text, targetLang);
       // Cache immediately — the very next request for this text (even
-      // one that arrives milliseconds later) hits Postgres, not MyMemory.
+      // one that arrives milliseconds later) hits Postgres, not Sarvam.
       await contentRepository.saveTranslation(text, targetLang, translated);
       return translated;
     } finally {
@@ -135,7 +134,7 @@ async function translateOneDeduped(text: string, targetLang: string): Promise<st
 /**
  * Translates a batch of strings into targetLang. Cache-first: only
  * texts with no existing TranslationCache row are actually sent to
- * MyMemory. Always resolves — never rejects — so a translation
+ * Sarvam AI. Always resolves — never rejects — so a translation
  * provider outage degrades to "shows original text" rather than a
  * broken page.
  */
@@ -151,8 +150,8 @@ export async function translateBatch(texts: string[], targetLang: string): Promi
       const hit = cached.get(text);
       if (hit !== undefined) return hit;
 
-      if (Buffer.byteLength(text, 'utf8') > MYMEMORY_MAX_BYTES) {
-        // Too long for a single MyMemory call — fail soft rather than
+      if (text.length > SARVAM_MAX_CHARS) {
+        // Too long for a single Sarvam call — fail soft rather than
         // sending a truncated/garbled request.
         return text;
       }

@@ -1,12 +1,16 @@
 import type { TranslationDictionary } from "./en";
 
 export const hi: TranslationDictionary = {
-  common: {
+    common: {
     appName: "ProctorEd",
     signOut: "साइन आउट",
     loading: "लोड हो रहा है...",
     cancel: "रद्द करें",
     back: "वापस",
+
+    backToDashboard: "डैशबोर्ड पर वापस जाएं",
+    submit: "सबमिट करें",
+
     justNow: "अभी अभी",
     minutesAgo: "{count} मिनट पहले",
     hoursAgo: "{count} घंटे पहले",
@@ -29,6 +33,12 @@ export const hi: TranslationDictionary = {
       nextPage: "अगला पृष्ठ",
     },
   },
+
+  studentAnalytics: {
+    title: "एनालिटिक्स",
+    subtitle: "समय के साथ अपने शैक्षणिक प्रदर्शन और परीक्षा प्रगति को ट्रैक करें।",
+  },
+
   nav: {
     dashboard: "डैशबोर्ड",
     questionBank: "प्रश्न बैंक",
@@ -48,6 +58,30 @@ export const hi: TranslationDictionary = {
     quickTip: "त्वरित सुझाव",
     quickTipBody: "परीक्षा शुरू करने से पहले सुनिश्चित करें कि आपका कैमरा, माइक्रोफ़ोन और इंटरनेट काम कर रहे हैं।",
   },
+
+  analyticsCharts: {
+    scoreTrend: {
+      title: "स्कोर ट्रेंड",
+      weeklyAverage: "साप्ताहिक औसत",
+    },
+    passFailDonut: {
+      title: "पास / फेल अनुपात",
+      passed: "उत्तीर्ण",
+      failed: "अनुत्तीर्ण",
+      passRate: "पास दर",
+      totalAttempts: "कुल प्रयास",
+    },
+    examComparison: {
+      title: "परीक्षा तुलना",
+      columns: {
+        exam: "परीक्षा",
+        attempts: "प्रयास",
+        averageScore: "औसत स्कोर",
+        passRate: "पास दर",
+      },
+    },
+  },
+
   language: {
     label: "भाषा",
     change: "भाषा बदलें",
@@ -148,29 +182,79 @@ export const hi: TranslationDictionary = {
     },
   },
   examTaking: {
-    loadingExam: "आपकी परीक्षा लोड हो रही है...",
-    examAutoSubmitted: "परीक्षा स्वतः सबमिट हो गई",
-    examSubmittedSuccessfully: "परीक्षा सफलतापूर्वक सबमिट हुई",
-    responsesRecorded: "आपके उत्तर सफलतापूर्वक दर्ज कर लिए गए हैं।",
-    pendingSubjectiveNote:
-      "यदि आपकी परीक्षा में विषयनिष्ठ प्रश्न हैं, तो अंतिम परिणाम परीक्षक मूल्यांकन के बाद उपलब्ध होंगे।",
-    redirectingIn: "डैशबोर्ड पर रीडायरेक्ट हो रहा है",
-    questionOf: "प्रश्न {current} में से {total}",
-    marks: "अंक",
     previous: "पिछला",
     next: "अगला",
     saveAndNext: "सहेजें और आगे बढ़ें",
-    clearResponse: "उत्तर साफ़ करें",
+    clearResponse: "उत्तर हटाएं",
     markForReview: "समीक्षा के लिए चिह्नित करें",
     unmark: "चिह्न हटाएं",
     andNext: "और आगे बढ़ें",
     submitExam: "परीक्षा सबमिट करें",
+    loadingExam: "परीक्षा लोड हो रही है...",
+    examAutoSubmitted: "परीक्षा स्वतः सबमिट हो गई",
+    examSubmittedSuccessfully: "परीक्षा सफलतापूर्वक सबमिट हो गई",
+    responsesRecorded: "आपके उत्तर सफलतापूर्वक दर्ज कर लिए गए हैं।",
+    pendingSubjectiveNote: "लिखित उत्तरों का मूल्यांकन होना अभी शेष है।",
+    redirectingIn: "{count} सेकंड में डैशबोर्ड पर वापस भेजा जा रहा है...",
+    beforeYouBegin: "शुरू करने से पहले",
+    checklistSubtitle: "कृपया परीक्षा दिशानिर्देशों को ध्यान से पढ़ें।",
+    rule1: "यह परीक्षा पूर्ण स्क्रीन (Fullscreen) मोड में दी जानी चाहिए।",
+    rule2: "आपका कैमरा और माइक्रोफ़ोन पूरी परीक्षा के दौरान सक्रिय रहेंगे।",
+    rule3: "टैब बदलने या स्क्रीन से बाहर जाने पर चेतावनी दी जाएगी और परीक्षा स्वतः सबमिट हो सकती है।",
+    startExamButton: "परीक्षा शुरू करें",
+    preExam: {
+      guidelinesLabel: "परीक्षा दिशानिर्देश",
+      durationRule: "आपको यह परीक्षा पूरी करने के लिए {minutes} मिनट मिलेंगे। शुरू होने के बाद टाइमर रुकेगा नहीं।",
+      fullscreenRule: "यह परीक्षा फुलस्क्रीन मोड में देनी होगी। फुलस्क्रीन से बाहर जाना या टैब बदलना उल्लंघन माना जाएगा — {warnings} चेतावनियों के बाद आपकी परीक्षा अपने आप सबमिट हो जाएगी।",
+      webcamRule: "पूरी परीक्षा के दौरान आपका वेबकैम चालू रहेगा और समय-समय पर मॉनिटर किया जाएगा। अच्छी रोशनी वाली जगह पर बैठें और अपना चेहरा फ्रेम में रखें।",
+      multiFaceRule: "कैमरे में केवल आप ही दिखने चाहिए। फ्रेम में कोई और व्यक्ति आने पर उसे फ्लैग किया जाएगा।",
+      audioRule: "परीक्षा के दौरान आपका माइक्रोफ़ोन मॉनिटर किया जाएगा। अपने आस-पास शांति बनाए रखें।",
+      negativeMarkingRule: "इस परीक्षा में नकारात्मक अंकन है — गलत उत्तरों पर अंक कट सकते हैं।",
+      noRefreshRule: "परीक्षा शुरू होने के बाद इस टैब को रिफ्रेश, बंद या इससे बाहर न जाएं।",
+      systemCheckLabel: "सिस्टम जांच",
+      permissionNeeded: "परीक्षा शुरू करने से पहले प्रॉक्टरिंग के लिए हमें आपके {mediaLabel} की अनुमति चाहिए।",
+      mediaBoth: "कैमरा और माइक्रोफ़ोन",
+      mediaCamera: "कैमरा",
+      mediaMic: "माइक्रोफ़ोन",
+      enableButton: "{mediaLabel} चालू करें",
+      waitingPermission: "ब्राउज़र की अनुमति की प्रतीक्षा हो रही है...",
+      mediaReady: "{mediaLabel} तैयार है",
+      permissionDenied: "अनुमति अस्वीकृत",
+      permissionDeniedHint: "अपने ब्राउज़र की साइट सेटिंग्स में कैमरा/माइक्रोफ़ोन एक्सेस की अनुमति दें, फिर दोबारा कोशिश करें। इसके बिना यह परीक्षा शुरू नहीं की जा सकती।",
+      tryAgain: "फिर से कोशिश करें",
+      deviceError: "आपके डिवाइस तक पहुंच नहीं हो सकी",
+      deviceErrorHint: "सुनिश्चित करें कि कोई अन्य ऐप आपके कैमरे या माइक्रोफ़ोन का उपयोग नहीं कर रहा है, फिर दोबारा कोशिश करें।",
+      acknowledgement: "मैंने ऊपर दिए गए दिशानिर्देश पढ़ और समझ लिए हैं, और परीक्षा की पूरी अवधि के दौरान बताए अनुसार मॉनिटर किए जाने के लिए सहमत हूं।",
+      beginButton: "परीक्षा शुरू करें",
+    },
+    proctoringFeed: "प्रॉक्टरिंग फ़ीड",
     typeAnswer: "अपना उत्तर यहाँ लिखें...",
+    marks: "अंक",
+    questionOf: "प्रश्न {{current}} / {{total}}",
     viewUploadedAnswer: "अपलोड किया गया उत्तर देखें",
     replace: "बदलें",
-    uploadHandwritten: "अपना हस्तलिखित उत्तर अपलोड करने के लिए क्लिक करें",
-    uploadHint: "PNG, JPEG, WEBP, या PDF — 10MB तक",
+    uploadHandwritten: "हस्तलिखित उत्तर अपलोड करें",
+    uploadHint: "10MB तक PNG, JPG, WEBP या PDF",
+    legend: {
+      notVisited: "नहीं देखा गया",
+      answered: "उत्तर दिया गया",
+      notAnswered: "उत्तर नहीं दिया गया",
+      markedForReviewAnswered: "समीक्षा के लिए चिह्नित (उत्तर दिया)",
+      markedForReview: "समीक्षा के लिए चिह्नित",
+    },
+    cameraToggle: {
+      hide: "कैमरा छुपाएं",
+      show: "कैमरा दिखाएं",
+    },
+    submitModal: {
+      title: "परीक्षा सबमिट करें",
+      warning: "क्या आप वाकई सबमिट करना चाहते हैं? इसके बाद आप अपने उत्तर नहीं बदल सकेंगे।",
+      unansweredWarning: "{{count}} प्रश्नों के उत्तर अभी भी नहीं दिए गए हैं।",
+      keepWorking: "परीक्षा जारी रखें",
+      confirmSubmit: "परीक्षा सबमिट करें",
+    },
   },
+
   dashboard: {
     examiner: {
       greetingMorning: "सुप्रभात",
@@ -807,4 +891,56 @@ export const hi: TranslationDictionary = {
     },
     footer: "© {year} ProctorEd — आंतरिक प्लेटफ़ॉर्म",
   },
+
+  studentExams: {
+    title: "मेरी परीक्षाएं",
+    subtitle: "अपनी निर्धारित और उपलब्ध परीक्षाएं देखें और शुरू करें।",
+    startExam: "परीक्षा शुरू करें",
+    alreadyAttempted: "आप पहले ही यह परीक्षा दे चुके हैं",
+  },
+
+  studentSettings: {
+    title: "सेटिंग्स",
+    subtitle: "अपनी प्रोफ़ाइल जानकारी और खाता सुरक्षा प्रबंधित करें।",
+    profileSection: {
+      heading: "प्रोफ़ाइल जानकारी",
+      nameLabel: "पूरा नाम",
+      emailLabel: "ईमेल पता",
+      emailHint: "ईमेल पता बदला नहीं जा सकता।",
+      save: "प्रोफ़ाइल सहेजें",
+    },
+    passwordSection: {
+      heading: "पासवर्ड बदलें",
+      currentPasswordLabel: "वर्तमान पासवर्ड",
+      newPasswordLabel: "नया पासवर्ड",
+      newPasswordHint: "कम से कम 8 अक्षर, एक बड़ा अक्षर और एक विशेष चिह्न।",
+      confirmPasswordLabel: "नए पासवर्ड की पुष्टि करें",
+      update: "पासवर्ड अपडेट करें",
+    },
+  },
+
+  studentProfile: {
+    title: "छात्र प्रोफ़ाइल",
+    subtitle: "आपका शैक्षणिक रिकॉर्ड और प्रदर्शन विवरण।",
+    studentBadge: "छात्र",
+    memberSince: "सदस्यता तिथि",
+    editProfile: "प्रोफ़ाइल संपादित करें",
+    stats: {
+      examsTaken: "दी गई परीक्षाएं",
+      averageScore: "औसत स्कोर",
+      bestScore: "सर्वश्रेष्ठ स्कोर",
+      lowestScore: "न्यूनतम स्कोर",
+    },
+  },
+
+  student: {
+    history: "परीक्षा इतिहास",
+    submitExam: "परीक्षा सबमिट करें",
+    myExams: "मेरी परीक्षाएं",
+    profile: "प्रोफ़ाइल",
+    settings: "सेटिंग्स",
+    analytics: "एनालिटिक्स",
+    logout: "साइन आउट",
+  },
+  
 };

@@ -32,6 +32,7 @@ export default function ExamSessionPage() {
 }
 
 function ExamSessionContent() {
+
   const params = useParams<{ sessionId: string }>();
   const router = useRouter();
   const { t } = useI18n();
@@ -160,7 +161,7 @@ function ExamSessionContent() {
             {Boolean(finalResult.pendingSubjectiveCount) && ` ${t("examTaking.pendingSubjectiveNote")}`}
           </p>
           <p className="mt-6 text-xs text-muted">
-            {t("examTaking.redirectingIn")} {countdown}...
+            {t("examTaking.redirectingIn", { count: countdown })}
           </p>
         </div>
       </div>
@@ -241,6 +242,7 @@ function ExamSessionContent() {
             index={activeIndex}
             total={session.questions.length}
             onSelectOptions={(ids) => selectOptions(activeQuestion.questionId, ids)}
+
             onTextChange={(text) => setTextDraft(activeQuestion.questionId, text)}
             onFileUpload={(file) => uploadFile(activeQuestion.questionId, file)}
             onBeforeFilePick={suppressNextBlur}

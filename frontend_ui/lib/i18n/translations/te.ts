@@ -1,12 +1,17 @@
 import type { TranslationDictionary } from "./en";
 
-export const te: TranslationDictionary = {
+export 
+const te: TranslationDictionary = {
   common: {
     appName: "ProctorEd",
     signOut: "సైన్ అవుట్",
     loading: "లోడ్ అవుతోంది...",
     cancel: "రద్దు చేయండి",
     back: "వెనుకకు",
+
+    backToDashboard: "డ్యాష్‌బోర్డ్‌కు తిరిగి వెళ్ళండి",
+    submit: "సమర్పించండి",
+
     justNow: "ఇప్పుడే",
     minutesAgo: "{count} నిమిషాల క్రితం",
     hoursAgo: "{count} గంటల క్రితం",
@@ -29,6 +34,12 @@ export const te: TranslationDictionary = {
       nextPage: "తదుపరి పేజీ",
     },
   },
+
+  studentAnalytics: {
+    title: "విశ్లేషణలు",
+    subtitle: "కాలక్రమేణా మీ విద్యా పనితీరు మరియు పరీక్షా పురోగతిని ట్రాక్ చేయండి.",
+  },
+
   nav: {
     dashboard: "డాష్‌బోర్డ్",
     questionBank: "ప్రశ్నల బ్యాంక్",
@@ -48,6 +59,30 @@ export const te: TranslationDictionary = {
     quickTip: "త్వరిత సూచన",
     quickTipBody: "పరీక్ష ప్రారంభించే ముందు మీ కెమెరా, మైక్రోఫోన్ మరియు ఇంటర్నెట్ పనిచేస్తున్నాయని నిర్ధారించుకోండి.",
   },
+
+  analyticsCharts: {
+    scoreTrend: {
+      title: "స్కోరు ట్రెండ్",
+      weeklyAverage: "వారాంతపు సగటు",
+    },
+    passFailDonut: {
+      title: "పాస్ / ఫెయిల్ నిష్పత్తి",
+      passed: "ఉత్తీర్ణత",
+      failed: "ఫెయిల్",
+      passRate: "పాస్ శాతం",
+      totalAttempts: "మొత్తం ప్రయత్నాలు",
+    },
+    examComparison: {
+      title: "పరీక్షల పోలిక",
+      columns: {
+        exam: "పరీక్ష",
+        attempts: "ప్రయత్నాలు",
+        averageScore: "సగటు స్కోరు",
+        passRate: "పాస్ శాతం",
+      },
+    },
+  },
+
   language: {
     label: "భాష",
     change: "భాష మార్చండి",
@@ -147,30 +182,81 @@ export const te: TranslationDictionary = {
       signingIn: "సైన్ ఇన్ అవుతోంది",
     },
   },
+  
   examTaking: {
-    loadingExam: "మీ పరీక్ష లోడ్ అవుతోంది...",
+    previous: "మునుపటిది",
+    next: "తదుపరిది",
+    saveAndNext: "సేవ్ చేసి తదుపరిది",
+    clearResponse: "సమాధానం తొలగించు",
+    markForReview: "సమీక్ష కోసం గుర్తించండి",
+    unmark: "గుర్తు తొలగించు",
+    andNext: "& తదుపరిది",
+    submitExam: "పరీక్ష సమర్పించండి",
+    loadingExam: "పరీక్ష లోడ్ అవుతోంది...",
     examAutoSubmitted: "పరీక్ష స్వయంచాలకంగా సమర్పించబడింది",
     examSubmittedSuccessfully: "పరీక్ష విజయవంతంగా సమర్పించబడింది",
     responsesRecorded: "మీ సమాధానాలు విజయవంతంగా నమోదు చేయబడ్డాయి.",
-    pendingSubjectiveNote:
-      "మీ పరీక్షలో వ్యక్తిగత అభిప్రాయ ప్రశ్నలు ఉంటే, పరీక్షకుడి మూల్యాంకనం తర్వాత తుది ఫలితాలు అందుబాటులో ఉంటాయి.",
-    redirectingIn: "డాష్‌బోర్డ్‌కు దారిమార్పు అవుతోంది",
-    questionOf: "ప్రశ్న {current} / {total}",
+    pendingSubjectiveNote: "వివరణాత్మక సమాధానాల మూల్యాంకనం పెండింగ్‌లో ఉంది.",
+    redirectingIn: "సెకన్లలో డ్యాష్‌బోర్డ్‌కు మళ్లిస్తుంది...",
+    beforeYouBegin: "ప్రారంభించడానికి ముందు",
+    checklistSubtitle: "దయచేసి పరీక్షా మార్గదర్శకాలను జాగ్రత్తగా చదవండి.",
+    rule1: "ఈ పరీక్షను తప్పనిసరిగా పూర్తి స్క్రీన్ (Fullscreen) మోడ్‌లో రాయాలి.",
+    rule2: "పరీక్ష సమయంలో మీ కెమెరా మరియు మైక్రోఫోన్ యాక్టివ్‌గా ఉంటాయి.",
+    rule3: "ట్యాబ్‌లు మార్చడం లేదా స్క్రీన్ నుండి బయటకు వెళ్లడం హెచ్చరికలకు మరియు ఆటో-సబ్‌మిట్‌కు దారితీస్తుంది.",
+    startExamButton: "పరీక్ష ప్రారంభించండి",
+    preExam: {
+      guidelinesLabel: "పరీక్షా మార్గదర్శకాలు",
+      durationRule: "ఈ పరీక్షను పూర్తి చేయడానికి మీకు {minutes} నిమిషాలు ఉంటాయి. ప్రారంభమైన తర్వాత టైమర్ ఆగదు.",
+      fullscreenRule: "ఈ పరీక్షను తప్పనిసరిగా ఫుల్‌స్క్రీన్ మోడ్‌లో రాయాలి. ఫుల్‌స్క్రీన్ నుండి బయటకు వెళ్లడం లేదా ట్యాబ్ మార్చడం ఉల్లంఘనగా పరిగణించబడుతుంది — {warnings} హెచ్చరికల తర్వాత మీ పరీక్ష స్వయంచాలకంగా సమర్పించబడుతుంది.",
+      webcamRule: "పరీక్ష మొత్తం సమయంలో మీ వెబ్‌క్యామ్ ఆన్‌లో ఉండి, ఎప్పటికప్పుడు పర్యవేక్షించబడుతుంది. బాగా వెలుతురు ఉన్న చోట కూర్చుని మీ ముఖం ఫ్రేమ్‌లో ఉండేలా చూసుకోండి.",
+      multiFaceRule: "కెమెరాలో మీరు మాత్రమే కనిపించాలి. ఫ్రేమ్‌లోకి వేరే వ్యక్తులు వస్తే ఫ్లాగ్ చేయబడుతుంది.",
+      audioRule: "పరీక్ష అంతటా మీ మైక్రోఫోన్ పర్యవేక్షించబడుతుంది. మీ చుట్టుపక్కల నిశ్శబ్దంగా ఉంచండి.",
+      negativeMarkingRule: "ఈ పరీక్షలో నెగటివ్ మార్కింగ్ ఉంది — తప్పు సమాధానాలకు మార్కులు తగ్గించబడవచ్చు.",
+      noRefreshRule: "పరీక్ష ప్రారంభమైన తర్వాత ఈ ట్యాబ్‌ను రిఫ్రెష్ చేయవద్దు, మూసివేయవద్దు లేదా బయటకు వెళ్లవద్దు.",
+      systemCheckLabel: "సిస్టమ్ చెక్",
+      permissionNeeded: "పరీక్ష ప్రారంభం కావడానికి ముందు ప్రాక్టరింగ్ కోసం మీ {mediaLabel} వినియోగానికి మాకు అనుమతి కావాలి.",
+      mediaBoth: "కెమెరా మరియు మైక్రోఫోన్",
+      mediaCamera: "కెమెరా",
+      mediaMic: "మైక్రోఫోన్",
+      enableButton: "{mediaLabel} ఆన్ చేయండి",
+      waitingPermission: "బ్రౌజర్ అనుమతి కోసం వేచి ఉంది...",
+      mediaReady: "{mediaLabel} సిద్ధంగా ఉంది",
+      permissionDenied: "అనుమతి తిరస్కరించబడింది",
+      permissionDeniedHint: "మీ బ్రౌజర్ సైట్ సెట్టింగ్‌లలో కెమెరా/మైక్రోఫోన్ యాక్సెస్‌ను అనుమతించి, మళ్లీ ప్రయత్నించండి. దీని లేకుండా ఈ పరీక్షను ప్రారంభించలేరు.",
+      tryAgain: "మళ్లీ ప్రయత్నించండి",
+      deviceError: "మీ పరికరాన్ని యాక్సెస్ చేయలేకపోయాము",
+      deviceErrorHint: "మరే ఇతర యాప్ మీ కెమెరా లేదా మైక్రోఫోన్‌ను ఉపయోగించడం లేదని నిర్ధారించుకుని, మళ్లీ ప్రయత్నించండి.",
+      acknowledgement: "పైన ఇచ్చిన మార్గదర్శకాలను నేను చదివి అర్థం చేసుకున్నాను, మరియు పరీక్ష మొత్తం సమయంలో వివరించిన విధంగా పర్యవేక్షించబడటానికి నేను అంగీకరిస్తున్నాను.",
+      beginButton: "పరీక్ష ప్రారంభించండి",
+    },
+    proctoringFeed: "ప్రాక్టరింగ్ ఫీడ్",
+    typeAnswer: "మీ సమాధానాన్ని ఇక్కడ రాయండి...",
     marks: "మార్కులు",
-    previous: "మునుపటి",
-    next: "తదుపరి",
-    saveAndNext: "సేవ్ చేసి తదుపరికి వెళ్ళండి",
-    clearResponse: "సమాధానం క్లియర్ చేయండి",
-    markForReview: "సమీక్ష కోసం గుర్తు పెట్టండి",
-    unmark: "గుర్తు తీసివేయండి",
-    andNext: "& తదుపరి",
-    submitExam: "పరీక్షను సమర్పించండి",
-    typeAnswer: "మీ సమాధానాన్ని ఇక్కడ టైప్ చేయండి...",
+    questionOf: "ప్రశ్న {{current}} / {{total}}",
     viewUploadedAnswer: "అప్‌లోడ్ చేసిన సమాధానాన్ని చూడండి",
     replace: "మార్చండి",
-    uploadHandwritten: "మీ చేతిరాత సమాధానాన్ని అప్‌లోడ్ చేయడానికి క్లిక్ చేయండి",
-    uploadHint: "PNG, JPEG, WEBP, లేదా PDF — 10MB వరకు",
+    uploadHandwritten: "చేతితో రాసిన సమాధానాన్ని అప్‌లోడ్ చేయండి",
+    uploadHint: "10MB వరకు PNG, JPG, WEBP లేదా PDF",
+    legend: {
+      notVisited: "చూడలేదు",
+      answered: "సమాధానం ఇచ్చారు",
+      notAnswered: "సమాధానం ఇవ్వలేదు",
+      markedForReviewAnswered: "సమీక్ష కోసం గుర్తించబడింది (సమాధానం ఇచ్చారు)",
+      markedForReview: "సమీక్ష కోసం గుర్తించబడింది",
+    },
+    cameraToggle: {
+      hide: "కెమెరా దాచు",
+      show: "కెమెరా చూపించు",
+    },
+    submitModal: {
+      title: "పరీక్ష సమర్పించండి",
+      warning: "మీరు ఖచ్చితంగా సమర్పించాలనుకుంటున్నారా? దీని తర్వాత మీరు సమాధానాలను మార్చలేరు.",
+      unansweredWarning: "ఇంకా {{count}} ప్రశ్నలకు సమాధానం ఇవ్వలేదు.",
+      keepWorking: "పరీక్ష కొనసాగించండి",
+      confirmSubmit: "పరీక్ష సమర్పించండి",
+    },
   },
+
   dashboard: {
     examiner: {
       greetingMorning: "శుభోదయం",
@@ -807,4 +893,56 @@ export const te: TranslationDictionary = {
     },
     footer: "© {year} ProctorEd — అంతర్గత ప్లాట్‌ఫారమ్",
   },
+
+  studentExams: {
+    title: "నా పరీక్షలు",
+    subtitle: "మీ షెడ్యూల్ చేసిన మరియు అందుబాటులో ఉన్న పరీక్షలను చూడండి మరియు ప్రారంభించండి.",
+    startExam: "పరీక్ష ప్రారంభించండి",
+    alreadyAttempted: "మీరు ఇప్పటికే ఈ పరీక్ష రాశారు",
+  },
+
+  studentSettings: {
+    title: "సెట్టింగ్‌లు",
+    subtitle: "మీ ప్రొఫైల్ సమాచారం మరియు ఖాతా భద్రతను నిర్వహించండి.",
+    profileSection: {
+      heading: "ప్రొఫైల్ సమాచారం",
+      nameLabel: "పూర్తి పేరు",
+      emailLabel: "ఈమెయిల్ చిరునామా",
+      emailHint: "ఈమెయిల్ చిరునామాను మార్చలేరు.",
+      save: "ప్రొఫైల్ సేవ్ చేయండి",
+    },
+    passwordSection: {
+      heading: "పాస్‌వర్డ్ మార్చండి",
+      currentPasswordLabel: "ప్రస్తుత పాస్‌వర్డ్",
+      newPasswordLabel: "కొత్త పాస్‌వర్డ్",
+      newPasswordHint: "కనీసం 8 అక్షరాలు, 1 పెద్ద అక్షరం మరియు 1 ప్రత్యేక చిహ్నం ఉండాలి.",
+      confirmPasswordLabel: "కొత్త పాస్‌వర్డ్‌ను నిర్ధారించండి",
+      update: "పాస్‌వర్డ్ అప్‌డేట్ చేయండి",
+    },
+  },
+
+  studentProfile: {
+    title: "విద్యార్థి ప్రొఫైల్",
+    subtitle: "మీ అకడమిక్ రికార్డు మరియు పనితీరు వివరాలు.",
+    studentBadge: "విద్యార్థి",
+    memberSince: "సభ్యత్వ తేదీ",
+    editProfile: "ప్రొఫైల్ ఎడిట్ చేయండి",
+    stats: {
+      examsTaken: "రాసిన పరీక్షలు",
+      averageScore: "సగటు స్కోరు",
+      bestScore: "అత్యుత్తమ స్కోరు",
+      lowestScore: "అత్యల్ప స్కోరు",
+    },
+  },
+
+  student: {
+    history: "పరీక్షా చరిత్ర",
+    submitExam: "పరీక్ష సమర్పించండి",
+    myExams: "నా పరీక్షలు",
+    profile: "ప్రొఫైల్",
+    settings: "సెట్టింగ్‌లు",
+    analytics: "విశ్లేషణలు",
+    logout: "సైన్ అవుట్",
+  },
+
 };

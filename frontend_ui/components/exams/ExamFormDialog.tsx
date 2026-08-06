@@ -482,12 +482,14 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
             />
           </div>
 
-          {form.audioMonitoringEnabled && (
-            <p className="mt-3 rounded-lg border border-accent-sky/30 bg-accent-sky/10 px-3 py-2 text-xs text-accent-sky">
-              Audio monitoring flags sustained loud talking/background noise picked up on the student&apos;s mic
-              during the exam (a live volume signal, not speech-to-text or speaker identification).
-            </p>
-          )}
+          {form.audioMonitoringEnabled 
+          //   && (
+          //   <p className="mt-3 rounded-lg border border-accent-sky/30 bg-accent-sky/10 px-3 py-2 text-xs text-accent-sky">
+          //     Audio monitoring flags sustained loud talking/background noise picked up on the student&apos;s mic
+          //     during the exam (a live volume signal, not speech-to-text or speaker identification).
+          //   </p>
+          // )
+          }
         </div>
 
         {/* ── Selection rule builder ── */}

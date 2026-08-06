@@ -21,7 +21,8 @@
 
 import fs from "fs";
 import { ApiError } from "../utils/apiError";
-import { QuestionType, Role, SessionStatus } from "@prisma/client";
+import { QuestionType, Role, SessionStatus, Prisma } from "@prisma/client";
+import { prisma } from "../db/prisma";
 
 import * as examSessionRepository from "../repositories/examSession.repository";
 import type { ExamForSession, SessionWithPaper } from "../repositories/examSession.repository";
@@ -123,6 +124,54 @@ function toStudentSessionView(session: SessionWithPaper, timeRemainingSeconds: n
   };
 }
 
+/**
+ * Builds the student-facing view for `session` with ONE answer patched in
+ * memory, instead of re-fetching the whole session (all questions + all
+ * options + all answers) from the DB a second time.
+ *
+ * Every answer-save used to do TWO heavy `findSessionWithPaper` queries —
+ * one inside assertSessionWritable() and a second one inside the
+ * getSession() call made right after saving. On exams with many
+ * questions/options that round-trip was slow enough to (a) make the
+ * navigator's answered/not-answered color visibly lag behind the click,
+ * and (b) occasionally blow past the frontend's request timeout under
+ * rapid clicking, surfacing as a generic "Something went wrong" toast.
+ * This keeps the response correct while only hitting the DB once.
+ */
+function toStudentSessionViewWithPatchedAnswer(
+  session: SessionWithPaper,
+  timeRemainingSeconds: number,
+  questionId: string,
+  patch: {
+    submittedText?: string | null;
+    submittedFileUrl?: string | null;
+    selectedOptionIds?: string[];
+    markedForReview?: boolean;
+  }
+) {
+  const existing = session.answers.find((a) => a.questionId === questionId);
+
+  const patchedAnswer = {
+    ...(existing ?? {}),
+    questionId,
+    submittedText: patch.submittedText !== undefined ? patch.submittedText : existing?.submittedText ?? null,
+    submittedFileUrl:
+      patch.submittedFileUrl !== undefined ? patch.submittedFileUrl : existing?.submittedFileUrl ?? null,
+    markedForReview: patch.markedForReview !== undefined ? patch.markedForReview : existing?.markedForReview ?? false,
+    selectedOptions:
+      patch.selectedOptionIds !== undefined
+        ? patch.selectedOptionIds.map((optionId) => ({ optionId }))
+        : existing?.selectedOptions ?? [],
+  };
+
+  const patchedSession = {
+    ...session,
+    answers: [...session.answers.filter((a) => a.questionId !== questionId), patchedAnswer],
+  } as SessionWithPaper;
+
+  return toStudentSessionView(patchedSession, timeRemainingSeconds);
+}
+
 function assertOwnsSession(session: { studentId: string }, currentUser: AuthUser) {
   if (session.studentId !== currentUser.id) {
     throw new ApiError(403, "You do not have access to this exam session");
@@ -199,6 +248,7 @@ export async function submitAnswer(sessionId: string, payload: unknown, currentU
   if (!parsed.success) throw zodErrorToApiError(parsed.error);
 
   const session = await assertSessionWritable(sessionId, currentUser);
+  const timeRemainingSeconds = computeTimeRemainingSeconds(session);
 
   const { questionId, selectedOptionIds, submittedText, markedForReview, clearAnswer } =
     parsed.data as SubmitAnswerInput;
@@ -216,7 +266,11 @@ export async function submitAnswer(sessionId: string, payload: unknown, currentU
       studentId: currentUser.id,
       questionId,
     });
-    return getSession(sessionId, currentUser);
+    return toStudentSessionViewWithPatchedAnswer(session, timeRemainingSeconds, questionId, {
+      submittedText: null,
+      submittedFileUrl: null,
+      selectedOptionIds: [],
+    });
   }
 
   if (markedForReview !== undefined && selectedOptionIds === undefined && submittedText === undefined) {
@@ -226,7 +280,7 @@ export async function submitAnswer(sessionId: string, payload: unknown, currentU
       questionId,
       markedForReview,
     });
-    return getSession(sessionId, currentUser);
+    return toStudentSessionViewWithPatchedAnswer(session, timeRemainingSeconds, questionId, { markedForReview });
   }
 
   if (questionType === QuestionType.IMAGE_UPLOAD) {
@@ -261,7 +315,12 @@ export async function submitAnswer(sessionId: string, payload: unknown, currentU
     markedForReview, // pass through so an answer + review-flag can be saved in one call too
   });
 
-  return getSession(sessionId, currentUser);
+  return toStudentSessionViewWithPatchedAnswer(session, timeRemainingSeconds, questionId, {
+    submittedText: submittedText ?? null,
+    selectedOptionIds:
+      questionType === QuestionType.MCQ || questionType === QuestionType.MULTI_SELECT ? selectedOptionIds : undefined,
+    markedForReview,
+  });
 }
 
 export async function submitAnswerFile(
@@ -315,8 +374,21 @@ async function finalizeSession(
   }
 
   const answersByQuestion = new Map(session.answers.map((a) => [a.questionId, a]));
+
+  // IMPORTANT: this used to fire N independent DB calls concurrently via
+  // Promise.all — faster than the original sequential loop, but each one
+  // opened its own connection at (roughly) the same instant. On a hosted
+  // Postgres with a capped/pooled connection limit (Neon, Supabase,
+  // Railway, etc.) that connection burst is exactly what shows up as
+  // "Error in PostgreSQL connection ... connection forcibly closed by the
+  // remote host" — the provider/pooler resets connections it can't
+  // accommodate. The fix keeps the speed win but does it over ONE
+  // connection: compute everything in memory first (no DB calls in this
+  // loop), then send all the writes together as a single batched
+  // `prisma.$transaction([...])` call.
   let autoGradedTotal = 0;
   let pendingSubjectiveCount = 0;
+  const writeOps: Prisma.PrismaPromise<unknown>[] = [];
 
   for (const sq of session.sessionQuestions) {
     const answer = answersByQuestion.get(sq.questionId);
@@ -336,22 +408,20 @@ async function finalizeSession(
         ? -sq.question.negativeMarks
         : 0;
 
-      await examSessionRepository.setAnswerMarks(answer.id, marks);
+      writeOps.push(examSessionRepository.setAnswerMarks(answer.id, marks));
       autoGradedTotal += marks;
     } else {
       // SHORT_ANSWER / LONG_ANSWER / IMAGE_UPLOAD -> queue for grading
       if (!answer) continue; // nothing submitted, nothing to grade
-      try {
-        await examSessionRepository.createPendingGrading(answer.id);
-        pendingSubjectiveCount += 1;
-      } catch {
-        // already queued (idempotent re-finalize / race) — ignore duplicate
-      }
+      writeOps.push(examSessionRepository.createPendingGrading(answer.id));
+      pendingSubjectiveCount += 1;
     }
   }
 
-  await examSessionRepository.updateSessionStatus(sessionId, finalStatus);
-  await examSessionRepository.upsertResult(sessionId, autoGradedTotal);
+  writeOps.push(examSessionRepository.updateSessionStatus(sessionId, finalStatus));
+  writeOps.push(examSessionRepository.upsertResult(sessionId, autoGradedTotal));
+
+  await prisma.$transaction(writeOps);
 
   return {
     status: finalStatus,

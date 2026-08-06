@@ -12,7 +12,13 @@ export const STATIC_FILE_ORIGIN = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  // Bumped from 10s -> 20s as a safety margin. The real fix for slow
+  // requests is the backend no longer doing a redundant full-session
+  // re-fetch on every answer save / sequential per-question DB writes
+  // on submit (see examSession.service.ts) — this timeout is just a
+  // buffer so a genuinely slow network doesn't surface as a raw
+  // "Something went wrong" before the request had a fair chance.
+  timeout: 20000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -42,6 +48,15 @@ apiClient.interceptors.response.use(
       if (window.location.pathname.startsWith("/dashboard")) {
         window.location.href = "/login";
       }
+    }
+
+    if (axios.isCancel(error) || error.code === "ERR_CANCELED") {
+      return new Promise(() => { }); // Prevents "Something went wrong" toast
+    }
+
+    if (error.response?.status === 409) {
+      console.warn("409 Conflict ignored silently:", error.config?.url);
+      return new Promise(() => { }); // Prevents "Something went wrong" toast
     }
 
     return Promise.reject(error);

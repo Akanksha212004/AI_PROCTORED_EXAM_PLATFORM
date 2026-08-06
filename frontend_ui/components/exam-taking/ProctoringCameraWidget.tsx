@@ -3,6 +3,8 @@
 
 // components/exam-taking/ProctoringCameraWidget.tsx
 
+import React, { memo } from "react";
+
 import { AlertTriangle, Camera, CameraOff } from "lucide-react";
 import { useState, type RefObject } from "react";
 import type { GazeDirection } from "@/types/proctorEvent";
@@ -17,7 +19,8 @@ interface Props {
   canvasRef: RefObject<HTMLCanvasElement>;
 }
 
-export function ProctoringCameraWidget({
+// export function ProctoringCameraWidget({
+export const ProctoringCameraWidget = memo(function ProctoringCameraWidget({
   status,
   faceCount,
   gazeDirection,
@@ -34,18 +37,18 @@ export function ProctoringCameraWidget({
   const warningText = mobileDeviceDetected
     ? "Mobile phone detected"
     : faceCount === 0
-    ? "No face detected"
-    : faceCount && faceCount > 1
-    ? "Multiple faces detected"
-    : "Look at the screen";
+      ? "No face detected"
+      : faceCount && faceCount > 1
+        ? "Multiple faces detected"
+        : "Look at the screen";
 
   const warningDetail = mobileDeviceDetected
     ? "A mobile phone was seen in your camera frame. This has been flagged."
     : faceCount === 0
-    ? "Your camera doesn't currently see a face. Make sure you're clearly visible and well-lit."
-    : faceCount && faceCount > 1
-    ? "More than one person appears to be in frame. Only the student taking the exam should be visible."
-    : "Your gaze has moved away from the screen for an extended period. Please keep your eyes on the exam.";
+      ? "Your camera doesn't currently see a face. Make sure you're clearly visible and well-lit."
+      : faceCount && faceCount > 1
+        ? "More than one person appears to be in frame. Only the student taking the exam should be visible."
+        : "Your gaze has moved away from the screen for an extended period. Please keep your eyes on the exam.";
 
   return (
     <div className="fixed right-2 top-20 z-40 w-28 overflow-visible rounded-xl border border-border bg-surface shadow-card sm:right-4 sm:top-24 sm:w-44">
@@ -89,4 +92,4 @@ export function ProctoringCameraWidget({
       )}
     </div>
   );
-}
+});

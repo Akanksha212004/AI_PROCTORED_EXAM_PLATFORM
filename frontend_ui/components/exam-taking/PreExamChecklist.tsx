@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/hooks/useI18n";
 
 interface Props {
   examTitle: string;
@@ -55,6 +56,8 @@ export function PreExamChecklist({
   maxTabSwitchWarnings,
   onBegin,
 }: Props) {
+  const { t } = useI18n();
+
   const mediaRequired = webcamMonitoringEnabled || audioMonitoringEnabled;
 
   const [mediaStatus, setMediaStatus] = useState<MediaCheckStatus>(
@@ -107,10 +110,10 @@ export function PreExamChecklist({
 
   const mediaLabel =
     webcamMonitoringEnabled && audioMonitoringEnabled
-      ? "camera and microphone"
+      ? t("examTaking.preExam.mediaBoth")
       : webcamMonitoringEnabled
-      ? "camera"
-      : "microphone";
+      ? t("examTaking.preExam.mediaCamera")
+      : t("examTaking.preExam.mediaMic");
 
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-ink">
@@ -121,7 +124,7 @@ export function PreExamChecklist({
               <ShieldAlert className="h-5 w-5 text-accent-sky" />
             </div>
             <div>
-              <h1 className="font-display text-xl font-semibold text-paper">Before you begin</h1>
+              <h1 className="font-display text-xl font-semibold text-paper">{t("examTaking.beforeYouBegin")}</h1>
               <p className="text-sm text-muted">
                 {examTitle} · {examSubject}
               </p>
@@ -130,60 +133,64 @@ export function PreExamChecklist({
 
           {/* Guidelines */}
           <div className="mt-6 space-y-3 rounded-xl border border-border bg-surface-muted/40 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Exam guidelines</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              {t("examTaking.preExam.guidelinesLabel")}
+            </p>
 
             <GuidelineRow
               icon={<TimerReset className="h-4 w-4" />}
-              text={`You will have ${durationMinutes} minute${durationMinutes === 1 ? "" : "s"} to complete this exam. The timer will not pause once started.`}
+              text={t("examTaking.preExam.durationRule", { minutes: durationMinutes })}
             />
 
             {fullScreenModeEnabled && (
               <GuidelineRow
                 icon={<Maximize2 className="h-4 w-4" />}
-                text={`This exam must be taken in fullscreen mode. Exiting fullscreen or switching tabs is treated as a violation — after ${maxTabSwitchWarnings} warning${maxTabSwitchWarnings === 1 ? "" : "s"}, your exam will be auto-submitted.`}
+                text={t("examTaking.preExam.fullscreenRule", { warnings: maxTabSwitchWarnings })}
               />
             )}
 
             {webcamMonitoringEnabled && (
               <GuidelineRow
                 icon={<Camera className="h-4 w-4" />}
-                text="Your webcam will stay on and be periodically monitored for the entire exam. Sit somewhere well-lit and keep your face in frame."
+                text={t("examTaking.preExam.webcamRule")}
               />
             )}
 
             {multiFaceDetectionEnabled && (
               <GuidelineRow
                 icon={<Users className="h-4 w-4" />}
-                text="Only you should be visible on camera. Other people entering the frame will be flagged."
+                text={t("examTaking.preExam.multiFaceRule")}
               />
             )}
 
             {audioMonitoringEnabled && (
               <GuidelineRow
                 icon={<Mic className="h-4 w-4" />}
-                text="Your microphone will be monitored for the duration of the exam. Keep your surroundings quiet."
+                text={t("examTaking.preExam.audioRule")}
               />
             )}
 
             {negativeMarkingEnabled && (
               <GuidelineRow
                 icon={<AlertTriangle className="h-4 w-4" />}
-                text="This exam has negative marking — incorrect answers may deduct marks."
+                text={t("examTaking.preExam.negativeMarkingRule")}
               />
             )}
 
             <GuidelineRow
               icon={<MonitorCheck className="h-4 w-4" />}
-              text="Do not refresh, close, or navigate away from this tab once the exam has started."
+              text={t("examTaking.preExam.noRefreshRule")}
             />
           </div>
 
           {/* Camera / mic check */}
           {mediaRequired && (
             <div className="mt-6 rounded-xl border border-border bg-surface-muted/40 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted">System check</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                {t("examTaking.preExam.systemCheckLabel")}
+              </p>
               <p className="mt-1 text-sm text-paper/85">
-                We need permission to use your {mediaLabel} for proctoring before the exam can start.
+                {t("examTaking.preExam.permissionNeeded", { mediaLabel })}
               </p>
 
               <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -205,33 +212,32 @@ export function PreExamChecklist({
                 <div className="flex-1 space-y-2">
                   {mediaStatus === "idle" && (
                     <Button onClick={requestMediaAccess} className="w-auto px-4">
-                      <Camera className="h-4 w-4" /> Enable {mediaLabel}
+                      <Camera className="h-4 w-4" /> {t("examTaking.preExam.enableButton", { mediaLabel })}
                     </Button>
                   )}
 
                   {mediaStatus === "requesting" && (
                     <p className="flex items-center gap-2 text-sm text-muted">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Waiting for browser permission...
+                      <Loader2 className="h-4 w-4 animate-spin" /> {t("examTaking.preExam.waitingPermission")}
                     </p>
                   )}
 
                   {mediaStatus === "granted" && (
                     <p className="flex items-center gap-2 text-sm font-medium text-accent-teal">
-                      <CheckCircle2 className="h-4 w-4" /> {mediaLabel[0].toUpperCase() + mediaLabel.slice(1)} ready
+                      <CheckCircle2 className="h-4 w-4" /> {t("examTaking.preExam.mediaReady", { mediaLabel })}
                     </p>
                   )}
 
                   {mediaStatus === "denied" && (
                     <div className="space-y-2">
                       <p className="flex items-center gap-2 text-sm font-medium text-accent-rose">
-                        <AlertTriangle className="h-4 w-4" /> Permission denied
+                        <AlertTriangle className="h-4 w-4" /> {t("examTaking.preExam.permissionDenied")}
                       </p>
                       <p className="text-xs text-muted">
-                        Allow camera/microphone access in your browser&apos;s site settings, then try again. This exam
-                        cannot be started without it.
+                        {t("examTaking.preExam.permissionDeniedHint")}
                       </p>
                       <Button variant="secondary" onClick={requestMediaAccess} className="w-auto px-4">
-                        Try Again
+                        {t("examTaking.preExam.tryAgain")}
                       </Button>
                     </div>
                   )}
@@ -239,13 +245,13 @@ export function PreExamChecklist({
                   {mediaStatus === "error" && (
                     <div className="space-y-2">
                       <p className="flex items-center gap-2 text-sm font-medium text-accent-rose">
-                        <AlertTriangle className="h-4 w-4" /> Couldn&apos;t access your device
+                        <AlertTriangle className="h-4 w-4" /> {t("examTaking.preExam.deviceError")}
                       </p>
                       <p className="text-xs text-muted">
-                        Make sure no other application is using your camera or microphone, then try again.
+                        {t("examTaking.preExam.deviceErrorHint")}
                       </p>
                       <Button variant="secondary" onClick={requestMediaAccess} className="w-auto px-4">
-                        Try Again
+                        {t("examTaking.preExam.tryAgain")}
                       </Button>
                     </div>
                   )}
@@ -263,13 +269,12 @@ export function PreExamChecklist({
               className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-accent-sky"
             />
             <span className="text-sm text-paper/85">
-              I have read and understood the guidelines above, and I agree to be monitored as described for the
-              duration of this exam.
+              {t("examTaking.preExam.acknowledgement")}
             </span>
           </label>
 
           <Button onClick={handleBegin} disabled={!canBegin} className="mt-6 w-auto px-6">
-            Begin Exam
+            {t("examTaking.preExam.beginButton")}
           </Button>
         </div>
       </div>

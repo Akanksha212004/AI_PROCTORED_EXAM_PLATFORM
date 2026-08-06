@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Database, Eye, ShieldCheck, Timer } from "lucide-react";
@@ -74,7 +73,7 @@ export function AuthLayout({ children, eyebrowKey, titleKey, subtitleKey }: Auth
           </div>
         </div>
 
-        <p className="relative z-10 font-mono text-[11px] text-paper/30">
+        <p suppressHydrationWarning className="relative z-10 font-mono text-[11px] text-paper/30">
           {t("authLayout.footer").replace("{year}", String(new Date().getFullYear()))}
         </p>
       </div>

@@ -186,22 +186,32 @@ export async function updateAnswerFileUrl(examSessionId: string, questionId: str
   });
 }
 
-export async function updateSessionStatus(id: string, status: "SUBMITTED" | "AUTO_SUBMITTED" | "EXPIRED") {
+// NOTE: these four are intentionally NOT `async` (no `await` inside, just
+// returning the Prisma call directly). Prisma's array-form
+// `prisma.$transaction([...])` needs the actual PrismaPromise objects to
+// batch multiple writes over a SINGLE database connection. Wrapping a
+// Prisma call in an `async function` re-wraps it in a plain native
+// Promise, which loses that special batching behavior — Prisma then has
+// no choice but to open one connection PER call. That's exactly what was
+// flooding the DB with parallel connections (and, on a hosted/pooled
+// Postgres with a connection cap, tripping "connection forcibly closed"
+// resets) once finalizeSession() started firing these concurrently.
+export function updateSessionStatus(id: string, status: "SUBMITTED" | "AUTO_SUBMITTED" | "EXPIRED") {
   return prisma.examSession.update({
     where: { id },
     data: { status, endTime: new Date() },
   });
 }
 
-export async function setAnswerMarks(answerId: string, marksAwarded: number) {
+export function setAnswerMarks(answerId: string, marksAwarded: number) {
   return prisma.answer.update({ where: { id: answerId }, data: { marksAwarded } });
 }
 
-export async function createPendingGrading(answerId: string) {
+export function createPendingGrading(answerId: string) {
   return prisma.subjectiveGrading.create({ data: { answerId, status: "PENDING" } });
 }
 
-export async function upsertResult(examSessionId: string, totalMarks: number) {
+export function upsertResult(examSessionId: string, totalMarks: number) {
   return prisma.result.upsert({
     where: { examSessionId },
     create: { examSessionId, totalMarks },
