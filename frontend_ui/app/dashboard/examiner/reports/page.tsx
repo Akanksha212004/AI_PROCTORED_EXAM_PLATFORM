@@ -9,6 +9,13 @@ import { useI18n } from "@/hooks/useI18n";
 import { useReports, type ExamReportRow, type ExamReportStatus } from "@/hooks/useReports";
 import { cn } from "@/lib/utils";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 export default function ReportsPage() {
   return (
     <RoleGuard allowedRole="EXAMINER">
@@ -91,8 +98,16 @@ function ReportsContent() {
                 {items.map((exam: ExamReportRow) => (
                   <tr key={exam.id} className="border-b border-border/60 last:border-0">
                     <td className="max-w-[220px] px-5 py-3.5">
-                      <p className="truncate font-medium text-paper">{exam.title}</p>
-                      <p className="truncate text-xs text-muted">{exam.subject}</p>
+                      {/* <p className="truncate font-medium text-paper">{exam.title}</p>
+                      <p className="truncate text-xs text-muted">{exam.subject}</p> */}
+
+                      <p className="truncate font-medium text-paper">
+                        <LocalizedText text={exam.title} />
+                      </p>
+                      <p className="truncate text-xs text-muted">
+                        <LocalizedText text={exam.subject} />
+                      </p>
+
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={cn("rounded-full px-2.5 py-1 text-xs font-medium", STATUS_CLASS[exam.status])}>
@@ -163,8 +178,16 @@ function ReportsContent() {
               <>
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="truncate font-display text-lg font-semibold text-paper">{viewDetail.exam.title}</p>
-                    <p className="truncate text-xs text-muted">{viewDetail.exam.subject}</p>
+                    {/* <p className="truncate font-display text-lg font-semibold text-paper">{viewDetail.exam.title}</p>
+                    <p className="truncate text-xs text-muted">{viewDetail.exam.subject}</p> */}
+
+                    <p className="truncate font-display text-lg font-semibold text-paper">
+                      <LocalizedText text={viewDetail.exam.title} />
+                    </p>
+                    <p className="truncate text-xs text-muted">
+                      <LocalizedText text={viewDetail.exam.subject} />
+                    </p>
+
                   </div>
                   <button
                     onClick={closeReport}

@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import { Plus, Trash2, Search, X } from "lucide-react";
@@ -30,6 +27,13 @@ import {
 } from "@/types/exam";
 import { DIFFICULTY_LEVELS, QUESTION_TYPES, type Question } from "@/types/question";
 import { questionTypeLabel } from "@/components/ui/Badge";
+
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
 
 interface Props {
   open: boolean;
@@ -106,6 +110,53 @@ function examToForm(e: Exam): FormState {
 }
 
 export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Props) {
+
+  // 1. Modal Title
+  const dialogTitle = useAutoTranslate(mode === "create" ? "Create Exam" : "Edit Exam");
+
+  // 2. Form Field Labels
+  const titleLabel = useAutoTranslate("Title");
+  const subjectLabel = useAutoTranslate("Subject");
+  const subjectPlaceholder = useAutoTranslate("Pick or type a subject...");
+  const durationLabel = useAutoTranslate("Duration (minutes)");
+  const totalMarksLabel = useAutoTranslate("Total Marks");
+  const passingMarksLabel = useAutoTranslate("Passing Marks");
+  const statusLabel = useAutoTranslate("Status");
+  const randomizationLabel = useAutoTranslate("Randomization Mode");
+  const startTimeLabel = useAutoTranslate("Start Time");
+  const endTimeLabel = useAutoTranslate("End Time");
+
+  const draftLabel = useAutoTranslate("Draft");
+  const publishedLabel = useAutoTranslate("Published");
+  const proctoringHeading = useAutoTranslate("Proctoring & Marking");
+  const negativeMarkingLabel = useAutoTranslate("Negative marking enabled");
+  const webcamMonitoringLabel = useAutoTranslate("Webcam monitoring enabled");
+  const multiFaceLabel = useAutoTranslate("Multi-face detection enabled");
+  const fullscreenModeLabel = useAutoTranslate("Full-screen mode enforced");
+  const audioMonitoringLabel = useAutoTranslate("Audio monitoring enabled");
+  const gazeSensitivityLabel = useAutoTranslate("Gaze Sensitivity");
+  const maxTabSwitchLabel = useAutoTranslate("Max Tab-Switch Warnings");
+  const autoSelectionRulesLabel = useAutoTranslate("Auto-Selection Rules");
+  const addRuleBtnLabel = useAutoTranslate("+ Add rule");
+  const curatedPoolLabel = useAutoTranslate("Curated Question Pool (optional)");
+  const searchPlaceholder = useAutoTranslate("Search questions by text...");
+  const searchBtnLabel = useAutoTranslate("Search");
+  const cancelBtnLabel = useAutoTranslate("Cancel");
+  const submitBtnLabel = useAutoTranslate(mode === "create" ? "Create Exam" : "Save Changes");
+
+  const anyDifficultyLabel = useAutoTranslate("Any difficulty");
+  const anySubjectLabel = useAutoTranslate("Any subject");
+  const anyTypeLabel = useAutoTranslate("Any type");
+
+  const easyLabel = useAutoTranslate("Easy");
+  const mediumLabel = useAutoTranslate("Medium");
+  const hardLabel = useAutoTranslate("Hard");
+
+  // 3. Bottom Draft Warning Banner Note
+  const draftBannerText = useAutoTranslate(
+    'This exam is a Draft — students won\'t see it until you set Status to "Published".'
+  );
+
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -259,26 +310,6 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
     e.preventDefault();
     if (!validate()) return;
 
-    // const payload: ExamFormPayload = {
-    //   title: form.title.trim(),
-    //   subject: form.subject.trim(),
-    //   durationMinutes: Number(form.durationMinutes),
-    //   totalMarks: Number(form.totalMarks),
-    //   passingMarks: Number(form.passingMarks),
-    //   status: form.status,
-    //   startTime: new Date(form.startTime).toISOString(),
-    //   endTime: new Date(form.endTime).toISOString(),
-    //   randomizationMode: form.randomizationMode,
-    //   negativeMarkingEnabled: form.negativeMarkingEnabled,
-    //   webcamMonitoringEnabled: form.webcamMonitoringEnabled,
-    //   multiFaceDetectionEnabled: form.multiFaceDetectionEnabled,
-    //   fullScreenModeEnabled: form.fullScreenModeEnabled,
-    //   audioMonitoringEnabled: form.audioMonitoringEnabled,
-    //   gazeSensitivity: form.gazeSensitivity,
-    //   maxTabSwitchWarnings: Number(form.maxTabSwitchWarnings),
-    //   selectionRules: rules,
-    // };
-
     const payload: ExamFormPayload = {
       title: form.title.trim(),
       subject: form.subject.trim(),
@@ -332,19 +363,20 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
       : currentPool.map((p) => ({ id: p.question.id, label: p.question.questionText, subject: p.question.subject }));
 
   return (
-    <Dialog open={open} onClose={onClose} title={mode === "create" ? "Create Exam" : "Edit Exam"} size="lg">
+    <Dialog open={open} onClose={onClose} title={dialogTitle} size="lg">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label="Title" value={form.title} onChange={(e) => setField("title", e.target.value)} error={errors.title} />
+          <Input label={titleLabel} value={form.title} onChange={(e) => setField("title", e.target.value)} error={errors.title} />
           <SubjectCombobox
-            label="Subject"
+            label={subjectLabel}
             value={form.subject}
             onChange={(v) => setField("subject", v)}
             subjects={subjectOptions}
+            placeholder={subjectPlaceholder}
             error={errors.subject}
           />
           <Input
-            label="Duration (minutes)"
+            label={durationLabel}
             type="number"
             min={1}
             value={form.durationMinutes}
@@ -352,7 +384,7 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
             error={errors.durationMinutes}
           />
           <Input
-            label="Total Marks"
+            label={totalMarksLabel}
             type="number"
             min={1}
             value={form.totalMarks}
@@ -360,7 +392,7 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
             error={errors.totalMarks}
           />
           <Input
-            label="Passing Marks"
+            label={passingMarksLabel}
             type="number"
             min={0}
             value={form.passingMarks}
@@ -368,36 +400,36 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
             error={errors.passingMarks}
           />
           <Select
-            label="Status"
+            label={statusLabel}
             value={form.status}
             onChange={(e) => setField("status", e.target.value as ExamStatus)}
           >
             {EXAM_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {s.charAt(0) + s.slice(1).toLowerCase()}
+                <LocalizedText text={s.charAt(0) + s.slice(1).toLowerCase()} />
               </option>
             ))}
           </Select>
           <Select
-            label="Randomization Mode"
+            label={randomizationLabel}
             value={form.randomizationMode}
             onChange={(e) => setField("randomizationMode", e.target.value as RandomizationMode)}
           >
             {RANDOMIZATION_MODES.map((m) => (
               <option key={m} value={m}>
-                {m.replace(/_/g, " ")}
+                <LocalizedText text={m.replace(/_/g, " ")} />
               </option>
             ))}
           </Select>
           <Input
-            label="Start Time"
+            label={startTimeLabel}
             type="datetime-local"
             value={form.startTime}
             onChange={(e) => setField("startTime", e.target.value)}
             error={errors.startTime}
           />
           <Input
-            label="End Time"
+            label={endTimeLabel}
             type="datetime-local"
             value={form.endTime}
             onChange={(e) => setField("endTime", e.target.value)}
@@ -406,14 +438,17 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
         </div>
 
         {form.status === "DRAFT" && (
-          <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
-            This exam is a Draft — students won&apos;t see it until you set Status to &quot;Published&quot;.
+          // <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
+          //   This exam is a Draft — students won&apos;t see it until you set Status to &quot;Published&quot;.
+          // </p>
+          <p className="text-xs text-amber-300">
+            {draftBannerText}
           </p>
         )}
 
         {/* ── Proctoring & marking settings ── */}
         <div className="rounded-xl border border-border p-4">
-          <p className="mb-3 text-sm font-medium text-paper">Proctoring & Marking</p>
+          <p className="mb-3 text-sm font-medium text-paper">{proctoringHeading}</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex items-center gap-2.5 text-sm text-paper/80">
               <input
@@ -422,7 +457,8 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                 onChange={(e) => setField("negativeMarkingEnabled", e.target.checked)}
                 className="h-4 w-4 rounded border-border accent-accent-sky"
               />
-              Negative marking enabled
+              {/* Negative marking enabled */}
+              {negativeMarkingLabel}
             </label>
             <label className="flex items-center gap-2.5 text-sm text-paper/80">
               <input
@@ -431,7 +467,8 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                 onChange={(e) => setField("webcamMonitoringEnabled", e.target.checked)}
                 className="h-4 w-4 rounded border-border accent-accent-sky"
               />
-              Webcam monitoring enabled
+              {/* Webcam monitoring enabled */}
+              {webcamMonitoringLabel}
             </label>
             <label className="flex items-center gap-2.5 text-sm text-paper/80">
               <input
@@ -440,7 +477,8 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                 onChange={(e) => setField("multiFaceDetectionEnabled", e.target.checked)}
                 className="h-4 w-4 rounded border-border accent-accent-sky"
               />
-              Multi-face detection enabled
+              {/* Multi-face detection enabled */}
+              {multiFaceLabel}
             </label>
             <label className="flex items-center gap-2.5 text-sm text-paper/80">
               <input
@@ -449,7 +487,8 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                 onChange={(e) => setField("fullScreenModeEnabled", e.target.checked)}
                 className="h-4 w-4 rounded border-border accent-accent-sky"
               />
-              Full-screen mode enforced
+              {/* Full-screen mode enforced */}
+              {fullscreenModeLabel}
             </label>
             <label className="flex items-center gap-2.5 text-sm text-paper/80">
               <input
@@ -458,22 +497,23 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                 onChange={(e) => setField("audioMonitoringEnabled", e.target.checked)}
                 className="h-4 w-4 rounded border-border accent-accent-sky"
               />
-              Audio monitoring enabled
+              {/* Audio monitoring enabled */}
+              {audioMonitoringLabel}
             </label>
 
             <Select
-              label="Gaze Sensitivity"
+              label={gazeSensitivityLabel}
               value={form.gazeSensitivity}
               onChange={(e) => setField("gazeSensitivity", e.target.value as GazeSensitivity)}
             >
               {GAZE_SENSITIVITIES.map((g) => (
                 <option key={g} value={g}>
-                  {g.charAt(0) + g.slice(1).toLowerCase()}
+                  <LocalizedText text={g.charAt(0) + g.slice(1).toLowerCase()} />
                 </option>
               ))}
             </Select>
             <Input
-              label="Max Tab-Switch Warnings"
+              label={maxTabSwitchLabel}
               type="number"
               min={1}
               value={form.maxTabSwitchWarnings}
@@ -482,26 +522,26 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
             />
           </div>
 
-          {form.audioMonitoringEnabled 
-          //   && (
-          //   <p className="mt-3 rounded-lg border border-accent-sky/30 bg-accent-sky/10 px-3 py-2 text-xs text-accent-sky">
-          //     Audio monitoring flags sustained loud talking/background noise picked up on the student&apos;s mic
-          //     during the exam (a live volume signal, not speech-to-text or speaker identification).
-          //   </p>
-          // )
+          {form.audioMonitoringEnabled
+            //   && (
+            //   <p className="mt-3 rounded-lg border border-accent-sky/30 bg-accent-sky/10 px-3 py-2 text-xs text-accent-sky">
+            //     Audio monitoring flags sustained loud talking/background noise picked up on the student&apos;s mic
+            //     during the exam (a live volume signal, not speech-to-text or speaker identification).
+            //   </p>
+            // )
           }
         </div>
 
         {/* ── Selection rule builder ── */}
         <div className="rounded-xl border border-border p-4">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-medium text-paper">Auto-Selection Rules</p>
+            <p className="text-sm font-medium text-paper">{autoSelectionRulesLabel}</p>
             <button
               type="button"
               onClick={addRule}
               className="flex items-center gap-1 text-xs font-medium text-accent-sky hover:text-accent-skyHover"
             >
-              <Plus className="h-3.5 w-3.5" /> Add rule
+              <Plus className="h-3.5 w-3.5" /> {addRuleBtnLabel}
             </button>
           </div>
           <p className="mb-3 text-xs text-muted">
@@ -519,7 +559,9 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                     onChange={(e) => updateRule(i, { subject: e.target.value || undefined })}
                     className="h-9 rounded-lg border border-border bg-surface-muted px-2 text-sm text-paper focus:border-accent-sky focus:outline-none"
                   >
-                    <option value="">Any subject</option>
+                    <option value="">
+                      <LocalizedText text="Any subject" />
+                    </option>
                     {subjectOptions.map((s) => (
                       <option key={s} value={s}>
                         {s}
@@ -531,7 +573,9 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                     onChange={(e) => updateRule(i, { questionType: (e.target.value || undefined) as SelectionRule["questionType"] })}
                     className="h-9 rounded-lg border border-border bg-surface-muted px-2 text-sm text-paper focus:border-accent-sky focus:outline-none"
                   >
-                    <option value="">Any type</option>
+                    <option value="">
+                      <LocalizedText text="Any type" />
+                    </option>
                     {QUESTION_TYPES.map((t) => (
                       <option key={t} value={t}>
                         {questionTypeLabel(t)}
@@ -543,10 +587,12 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                     onChange={(e) => updateRule(i, { difficultyLevel: (e.target.value || undefined) as SelectionRule["difficultyLevel"] })}
                     className="h-9 rounded-lg border border-border bg-surface-muted px-2 text-sm text-paper focus:border-accent-sky focus:outline-none"
                   >
-                    <option value="">Any difficulty</option>
+                    <option value="">
+                      <LocalizedText text="Any difficulty" />
+                    </option>
                     {DIFFICULTY_LEVELS.map((d) => (
                       <option key={d} value={d}>
-                        {d.charAt(0) + d.slice(1).toLowerCase()}
+                        <LocalizedText text={d.charAt(0).toUpperCase() + d.slice(1).toLowerCase()} />
                       </option>
                     ))}
                   </select>
@@ -577,7 +623,7 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
 
         {/* ── Curated question pool ── */}
         <div className="rounded-xl border border-border p-4">
-          <p className="mb-3 text-sm font-medium text-paper">Curated Question Pool (optional)</p>
+          <p className="mb-3 text-sm font-medium text-paper">{curatedPoolLabel}</p>
 
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -586,12 +632,12 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), runSearch())}
-                placeholder="Search questions by text..."
+                placeholder={searchPlaceholder}
                 className="h-10 w-full rounded-lg border border-border bg-surface-muted pl-9 pr-3 text-sm text-paper placeholder:text-muted focus:border-accent-sky focus:outline-none"
               />
             </div>
             <Button type="button" variant="secondary" onClick={runSearch} isLoading={isSearching} className="w-auto px-4">
-              Search
+              {searchBtnLabel}
             </Button>
           </div>
 
@@ -645,10 +691,11 @@ export function ExamFormDialog({ open, mode, initialExam, onClose, onSaved }: Pr
 
         <div className="flex justify-end gap-3 border-t border-border pt-5">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving} className="w-auto px-4">
-            Cancel
+            {cancelBtnLabel}
           </Button>
           <Button type="submit" isLoading={isSaving} className="w-auto px-5">
-            {mode === "create" ? "Create Exam" : "Save Changes"}
+            {/* {mode === "create" ? "Create Exam" : "Save Changes"} */}
+            {submitBtnLabel}
           </Button>
         </div>
       </form>

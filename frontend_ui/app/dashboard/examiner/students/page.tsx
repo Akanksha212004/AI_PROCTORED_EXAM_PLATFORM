@@ -12,6 +12,8 @@ import { useStudents, type StudentListItem } from "@/hooks/useStudents";
 import { ToggleStudentStatusDialog } from "@/components/students/ToggleStudentStatusDialog";
 import { cn } from "@/lib/utils";
 
+import { useI18n } from "@/hooks/useI18n";
+
 export default function StudentsPage() {
   return (
     <RoleGuard allowedRole="EXAMINER">
@@ -36,6 +38,7 @@ function relativeTime(iso: string | null): string {
 }
 
 function StudentsContent() {
+  const { t } = useI18n();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -61,10 +64,18 @@ function StudentsContent() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Students</h1>
+          {/* <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Students</h1>
           <p className="mt-1.5 text-sm text-paper/60">
             {total > 0 ? `${total} student${total === 1 ? "" : "s"} have taken your exams` : "Students who take your exams show up here"}
+          </p> */}
+
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
+            {t("students.title")}
+          </h1>
+          <p className="mt-1.5 text-sm text-paper/60">
+            {total > 0 ? `${total} ${t("students.subtitle")}` : t("students.title")}
           </p>
+
         </div>
 
         <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-72">
@@ -72,7 +83,8 @@ function StudentsContent() {
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by name or email"
+            // placeholder="Search by name or email"
+            placeholder={t("students.searchPlaceholder")}
             className="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-sm text-paper placeholder:text-paper/40 focus:border-accent-sky focus:outline-none"
           />
         </form>
@@ -99,12 +111,20 @@ function StudentsContent() {
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
-                  <th className="px-5 py-3 font-medium">Student</th>
+                  {/* <th className="px-5 py-3 font-medium">Student</th>
                   <th className="px-5 py-3 font-medium">Exams Taken</th>
                   <th className="px-5 py-3 font-medium">Average Score</th>
                   <th className="px-5 py-3 font-medium">Last Active</th>
                   <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium text-right">Action</th>
+                  <th className="px-5 py-3 font-medium text-right">Action</th> */}
+
+                  <th className="px-5 py-3 font-medium">{t("students.table.student")}</th>
+                  <th className="px-5 py-3 font-medium">{t("students.table.examsTaken")}</th>
+                  <th className="px-5 py-3 font-medium">{t("students.table.averageScore")}</th>
+                  <th className="px-5 py-3 font-medium">{t("students.table.lastActive")}</th>
+                  <th className="px-5 py-3 font-medium">{t("students.table.status")}</th>
+                  <th className="px-5 py-3 font-medium text-right">{t("students.table.action")}</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -159,6 +179,7 @@ function StudentRow({
   student: StudentListItem;
   onToggleStatus: (student: StudentListItem) => void;
 }) {
+  const { t } = useI18n();
   return (
     <tr className="border-b border-border/60 transition-colors last:border-0 hover:bg-white/[0.02]">
       <td className="px-5 py-3.5">
@@ -179,7 +200,8 @@ function StudentRow({
             student.isActive ? "bg-accent-teal/10 text-accent-teal" : "bg-paper/5 text-paper/40"
           )}
         >
-          {student.isActive ? "Active" : "Inactive"}
+          {/* {student.isActive ? "Active" : "Inactive"} */}
+          {student.isActive ? t("students.active") : t("students.inactive")}
         </span>
       </td>
       <td className="px-5 py-3.5 text-right">
@@ -192,7 +214,7 @@ function StudentRow({
               : "border-accent-teal/30 text-accent-teal hover:bg-accent-teal/10"
           )}
         >
-          {student.isActive ? "Deactivate" : "Activate"}
+          {student.isActive ? t("students.deactivate") : t("students.activate")}
         </button>
       </td>
     </tr>

@@ -945,6 +945,51 @@ export const en = {
     },
   },
 
+  "settings": {
+  "title": "Settings",
+  "subtitle": "Manage your account profile and password.",
+  "profile": "Profile",
+  "name": "Name",
+  "email": "Email",
+  "emailHelp": "Email can't be changed here.",
+  "saveProfile": "Save Profile",
+  "saving": "Saving...",
+  "changePassword": "Change Password",
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "passwordHint": "At least 8 characters, with an uppercase letter, lowercase letter, digit, and special character.",
+  "confirmPassword": "Confirm New Password",
+  "updatePassword": "Update Password",
+  "updating": "Updating...",
+  "passwordMismatch": "New password and confirmation don't match"
+},
+
+"analytics": {
+    "title": "Analytics",
+    "subtitle": "Based on finalized submissions across your exams, last 8 weeks.",
+    "subjectPerformance": "Subject Performance",
+    "averageScore": "Average score",
+    "attempts": "attempts"
+  },
+
+  "students": {
+    "title": "Students",
+    "subtitle": "student(s) have taken your exams.",
+    "searchPlaceholder": "Search by name or email",
+    "table": {
+      "student": "Student",
+      "examsTaken": "Exams Taken",
+      "averageScore": "Average Score",
+      "lastActive": "Last Active",
+      "status": "Status",
+      "action": "Action"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+
 };
 
 export type TranslationDictionary = typeof en;

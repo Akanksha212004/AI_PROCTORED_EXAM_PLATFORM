@@ -1,102 +1,3 @@
-// "use client";
-
-// import { Layers, Radio } from "lucide-react";
-// import Link from "next/link";
-
-// import { Card } from "@/components/ui/Card";
-// import { cn } from "@/lib/utils";
-// import { useExamStats } from "@/hooks/useExamStats";
-// import type { ExamStatus } from "@/types/exam";
-
-// const STATUS_CLASS: Record<ExamStatus, string> = {
-//   DRAFT: "bg-surface-muted text-muted border border-border",
-//   PUBLISHED: "bg-accent-teal/10 text-accent-teal",
-//   CANCELLED: "bg-accent-rose/10 text-accent-rose",
-// };
-
-// export function ExamOverviewCard() {
-//   const { stats, isLoading } = useExamStats();
-
-//   return (
-//     <Card className="p-5">
-//       <div className="mb-4 flex items-center justify-between">
-//         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
-//           <Layers className="h-4 w-4 text-accent-sky" />
-//           Exam Overview
-//         </p>
-//         <Link href="/dashboard/examiner/exams" className="text-xs font-medium text-accent-sky hover:underline">
-//           Manage exams
-//         </Link>
-//       </div>
-
-//       {isLoading || !stats ? (
-//         <div className="space-y-3">
-//           <div className="h-16 animate-pulse rounded-lg bg-surface-muted" />
-//           <div className="h-16 animate-pulse rounded-lg bg-surface-muted" />
-//         </div>
-//       ) : (
-//         <>
-//           <div className="mb-5 grid grid-cols-3 gap-3">
-//             <div className="rounded-lg border border-border bg-surface-muted p-3">
-//               <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted">
-//                 <Radio className="h-3 w-3 text-accent-rose" />
-//                 Active now
-//               </p>
-//               <p className="mt-1 font-mono text-xl font-bold text-paper">{stats.activeNowCount}</p>
-//             </div>
-//             <div className="rounded-lg border border-border bg-surface-muted p-3">
-//               <p className="text-[11px] uppercase tracking-wide text-muted">Upcoming</p>
-//               <p className="mt-1 font-mono text-xl font-bold text-paper">{stats.upcomingCount}</p>
-//             </div>
-//             <div className="rounded-lg border border-border bg-surface-muted p-3">
-//               <p className="text-[11px] uppercase tracking-wide text-muted">Total</p>
-//               <p className="mt-1 font-mono text-xl font-bold text-paper">{stats.totalExams}</p>
-//             </div>
-//           </div>
-
-//           {stats.recentExams.length === 0 ? (
-//             <p className="py-6 text-center text-sm text-muted">No exams created yet.</p>
-//           ) : (
-//             <ul className="space-y-2">
-//               {stats.recentExams.map((exam) => (
-//                 <li key={exam.id}>
-//                   <Link
-//                     href="/dashboard/examiner/exams"
-//                     className="flex items-center justify-between gap-3 rounded-lg border border-border px-3.5 py-2.5 transition-colors hover:border-accent-sky"
-//                   >
-//                     <div className="min-w-0">
-//                       <p className="truncate text-sm text-paper">{exam.title}</p>
-//                       <p className="text-xs text-muted">{exam.subject}</p>
-//                     </div>
-//                     <span
-//                       className={cn(
-//                         "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
-//                         STATUS_CLASS[exam.status]
-//                       )}
-//                     >
-//                       {exam.status}
-//                     </span>
-//                   </Link>
-//                 </li>
-//               ))}
-//             </ul>
-//           )}
-
-//           {stats.isSampled && (
-//             <p className="mt-3 text-[11px] text-muted">
-//               Counts based on the first 100 exams — add a dedicated stats endpoint for exact totals at scale.
-//             </p>
-//           )}
-//         </>
-//       )}
-//     </Card>
-//   );
-// }
-
-
-
-
-
 "use client";
 
 import { Layers, Radio } from "lucide-react";
@@ -107,6 +8,13 @@ import { cn } from "@/lib/utils";
 import { useExamStats } from "@/hooks/useExamStats";
 import { useI18n } from "@/hooks/useI18n";
 import type { ExamStatus } from "@/types/exam";
+
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
 
 const STATUS_CLASS: Record<ExamStatus, string> = {
   DRAFT: "bg-surface-muted text-muted border border-border",
@@ -133,7 +41,7 @@ function SubjectBars({ data }: { data: { subject: string; count: number }[] }) {
       {top.map((d, i) => (
         <div key={d.subject} className="flex items-center gap-3">
           <span className="w-24 shrink-0 truncate text-xs text-muted" title={d.subject}>
-            {d.subject}
+            <LocalizedText text={d.subject} />
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-muted">
             <div
@@ -217,8 +125,14 @@ export function ExamOverviewCard() {
                     className="flex items-center justify-between gap-3 rounded-lg border border-border px-3.5 py-2.5 transition-colors hover:border-accent-sky"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-sm text-paper">{exam.title}</p>
-                      <p className="text-xs text-muted">{exam.subject}</p>
+                      {/* <p className="truncate text-sm text-paper">{exam.title}</p>
+                      <p className="text-xs text-muted">{exam.subject}</p> */}
+                      <p className="truncate text-sm text-paper">
+                        <LocalizedText text={exam.title} />
+                      </p>
+                      <p className="text-xs text-muted">
+                        <LocalizedText text={exam.subject} />
+                      </p>
                     </div>
                     <span
                       className={cn(

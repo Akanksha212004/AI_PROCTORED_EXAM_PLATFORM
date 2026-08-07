@@ -24,6 +24,13 @@ import { questionTypeLabel } from "@/components/ui/Badge";
 
 import { getFileUrl } from "@/lib/utils";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+    const translated = useAutoTranslate(text);
+    return <>{translated}</>;
+}
+
 interface Props {
     open: boolean;
     mode: "create" | "edit";
@@ -86,6 +93,23 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploadingFile, setIsUploadingFile] = useState(false);
     const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null | undefined>(null);
+
+    // 1. Modal Title
+    const dialogTitle = useAutoTranslate(mode === "create" ? "Create Question" : "Edit Question");
+
+    // 2. Main Form Labels
+    const questionTextLabel = useAutoTranslate("Question Text");
+    const subjectLabel = useAutoTranslate("Subject");
+    // const questionTypeLabel = useAutoTranslate("Question Type");
+    const qTypeFieldLabel = useAutoTranslate("Question Type");
+    const difficultyLabel = useAutoTranslate("Difficulty Level");
+    const marksLabel = useAutoTranslate("Marks");
+    const negativeMarksLabel = useAutoTranslate("Negative Marks");
+
+    // 3. Bottom Sections (Jo chhoot gaye the)
+    const modelAnswerLabel = useAutoTranslate("Model Answer");
+    const shortAnswerHint = useAutoTranslate("Used by the AI auto-evaluator and shown to examiners during review.");
+    const longAnswerHint = useAutoTranslate("Plain text for now - a rich-text editor wasn't already in this project's dependencies.");
 
     useEffect(() => {
         if (open) {
@@ -237,12 +261,14 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
         <Dialog
             open={open}
             onClose={onClose}
-            title={mode === "create" ? "Create Question" : "Edit Question"}
+            // title={mode === "create" ? "Create Question" : "Edit Question"}
+            title={dialogTitle}
             size="lg"
         >
             <form onSubmit={handleSubmit} className="space-y-5">
                 <Textarea
-                    label="Question Text"
+                    // label="Question Text"
+                    label={questionTextLabel}
                     value={form.questionText}
                     onChange={(e) => setField("questionText", e.target.value)}
                     error={errors.questionText}
@@ -251,25 +277,28 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Input
-                        label="Subject"
+                        // label="Subject"
+                        label={subjectLabel}
                         value={form.subject}
                         onChange={(e) => setField("subject", e.target.value)}
                         error={errors.subject}
                         placeholder="e.g. Data Structures"
                     />
                     <Select
-                        label="Question Type"
+                        // label="Question Type"
+                        label={qTypeFieldLabel}
                         value={form.questionType}
                         onChange={(e) => handleTypeChange(e.target.value as QuestionType)}
                     >
                         {QUESTION_TYPES.map((t) => (
                             <option key={t} value={t}>
-                                {questionTypeLabel(t)}
+                                <LocalizedText text={questionTypeLabel(t)} />
                             </option>
                         ))}
                     </Select>
                     <Select
-                        label="Difficulty Level"
+                        // label="Difficulty Level"
+                        label={difficultyLabel}
                         value={form.difficultyLevel}
                         onChange={(e) => setField("difficultyLevel", e.target.value as DifficultyLevel)}
                     >
@@ -281,7 +310,8 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
                     </Select>
                     <div className="grid grid-cols-2 gap-4">
                         <Input
-                            label="Marks"
+                            // label="Marks"
+                            label={marksLabel}
                             type="number"
                             min={1}
                             value={form.marks}
@@ -289,7 +319,8 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
                             error={errors.marks}
                         />
                         <Input
-                            label="Negative Marks"
+                            // label="Negative Marks"
+                            label={negativeMarksLabel}
                             type="number"
                             min={0}
                             step="0.5"
@@ -306,14 +337,16 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
                     <div className="rounded-xl border border-border p-4">
                         <div className="mb-3 flex items-center justify-between">
                             <p className="text-sm font-medium text-paper">
-                                {form.questionType === "MCQ" ? "Options (select the one correct answer)" : "Options (select all correct answers)"}
+                                {/* {form.questionType === "MCQ" ? "Options (select the one correct answer)" : "Options (select all correct answers)"} */}
+                                <LocalizedText text={form.questionType === "MCQ" ? "Options (select the one correct answer)" : "Options"} />
                             </p>
                             <button
                                 type="button"
                                 onClick={addOption}
                                 className="flex items-center gap-1 text-xs font-medium text-accent-sky hover:text-accent-skyHover"
                             >
-                                <Plus className="h-3.5 w-3.5" /> Add option
+                                {/* <Plus className="h-3.5 w-3.5" /> Add option */}
+                                <Plus className="h-3.5 w-3.5" /> <LocalizedText text="Add option" />
                             </button>
                         </div>
 
@@ -325,8 +358,8 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
                                         onClick={() => toggleCorrect(i)}
                                         aria-label={opt.isCorrect ? "Marked correct" : "Mark as correct"}
                                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${opt.isCorrect
-                                                ? "border-accent-teal bg-accent-teal/15 text-accent-teal"
-                                                : "border-border text-muted hover:bg-white/5"
+                                            ? "border-accent-teal bg-accent-teal/15 text-accent-teal"
+                                            : "border-border text-muted hover:bg-white/5"
                                             } ${form.questionType === "MCQ" ? "rounded-full" : "rounded-lg"}`}
                                     >
                                         {opt.isCorrect ? "✓" : ""}
@@ -356,30 +389,32 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
 
                 {form.questionType === "SHORT_ANSWER" && (
                     <Textarea
-                        label="Model Answer"
+                        label={modelAnswerLabel}
                         value={form.modelAnswerText}
                         onChange={(e) => setField("modelAnswerText", e.target.value)}
                         error={errors.modelAnswerText}
                         rows={2}
-                        hint="Used by the AI auto-evaluator and shown to examiners during review."
+                        // hint="Used by the AI auto-evaluator and shown to examiners during review."
+                        hint={shortAnswerHint}
                     />
                 )}
 
                 {form.questionType === "LONG_ANSWER" && (
                     <Textarea
-                        label="Model Answer"
+                        label={modelAnswerLabel}
                         value={form.modelAnswerText}
                         onChange={(e) => setField("modelAnswerText", e.target.value)}
                         error={errors.modelAnswerText}
                         rows={6}
-                        hint="Plain text for now — a rich-text editor wasn't already in this project's dependencies, so one wasn't added per the 'no new libraries' constraint. Say the word and I'll wire one in."
+                        // hint="Plain text for now — a rich-text editor wasn't already in this project's dependencies, so one wasn't added per the 'no new libraries' constraint. Say the word and I'll wire one in."
+                        hint={shortAnswerHint}
                     />
                 )}
 
                 {form.questionType === "IMAGE_UPLOAD" && (
                     <div className="rounded-xl border border-dashed border-border p-6 text-center">
                         <ImageIcon className="mx-auto h-8 w-8 text-muted" />
-                        <p className="mt-2 text-sm text-paper">Reference solution upload</p>
+                        <p className="mt-2 text-sm text-paper"><LocalizedText text="Reference solution upload" /></p>
                         <p className="mx-auto mt-1 max-w-sm text-xs text-muted">
                             Upload the examiner-provided reference solution (image or PDF). Students never see this file.
                         </p>
@@ -391,7 +426,7 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
                                 rel="noopener noreferrer"
                                 className="mt-3 inline-block text-xs font-medium text-accent-sky underline underline-offset-4"
                             >
-                                View current reference solution
+                                <LocalizedText text="View current reference solution" />
                             </a>
                         )}
 
@@ -419,7 +454,7 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
 
                             {mode === "create" && selectedFile && (
                                 <p className="text-xs text-muted">
-                                    This file uploads automatically once you click &quot;Create Question&quot; below.
+                                    <LocalizedText text="This file uploads automatically once you click &quot;Create Question&quot; below."/>
                                 </p>
                             )}
                         </div>
@@ -428,10 +463,12 @@ export function QuestionFormDialog({ open, mode, initialQuestion, onClose, onSav
 
                 <div className="flex justify-end gap-3 border-t border-border pt-5">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving} className="w-auto px-4">
-                        Cancel
+                        {/* Cancel */}
+                        <LocalizedText text="Cancel" />
                     </Button>
                     <Button type="submit" isLoading={isSaving} className="w-auto px-5">
-                        {mode === "create" ? "Create Question" : "Save Changes"}
+                        {/* {mode === "create" ? "Create Question" : "Save Changes"} */}
+                        <LocalizedText text={mode === "create" ? "Create Question" : "Save Changes"} />
                     </Button>
                 </div>
             </form>

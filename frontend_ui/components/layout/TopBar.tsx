@@ -9,6 +9,8 @@ import { useNotifications, type NotificationItem, type NotificationType } from "
 import { cn } from "@/lib/utils";
 import type { User } from "@/types/auth";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
 const ROLE_LABEL: Record<User["role"], string> = {
   STUDENT: "Student",
   EXAMINER: "Examiner",
@@ -34,6 +36,11 @@ const NOTIFICATION_ICON_BG: Record<NotificationType, string> = {
   submission: "bg-accent-amber/10 text-accent-amber",
   graded: "bg-accent-violet/10 text-accent-violet",
 };
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
 
 function relativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -87,7 +94,8 @@ export function TopBar({ user, onLogout, onMenuClick }: Props) {
                 <span
                   className={`rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest ${ROLE_BADGE_CLASS[user.role]}`}
                 >
-                  {ROLE_LABEL[user.role]}
+                  {/* {ROLE_LABEL[user.role]} */}
+                  <LocalizedText text={ROLE_LABEL[user.role]} />
                 </span>
                 <span className="text-sm text-paper/80">{user.name}</span>
               </div>
@@ -150,7 +158,10 @@ function NotificationBell() {
       {open && (
         <div className="absolute right-0 top-full z-40 mt-2 w-80 rounded-xl border border-border bg-surface shadow-card sm:w-96">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <p className="font-display text-sm font-semibold text-paper">Notifications</p>
+            {/* <p className="font-display text-sm font-semibold text-paper">Notifications</p> */}
+            <p className="font-display text-sm font-semibold text-paper">
+              <LocalizedText text="Notifications" />
+            </p>
           </div>
 
           <div className="max-h-96 overflow-y-auto">
@@ -161,7 +172,10 @@ function NotificationBell() {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-muted">No notifications yet.</p>
+              // <p className="px-4 py-8 text-center text-sm text-muted">No notifications yet.</p>
+              <p className="px-4 py-8 text-center text-sm text-muted">
+                <LocalizedText text="No notifications yet." />
+              </p>
             ) : (
               <ul>
                 {items.map((item: NotificationItem) => (
@@ -172,7 +186,7 @@ function NotificationBell() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className={cn("text-sm", item.isUnread ? "font-medium text-paper" : "text-paper/70")}>
-                          {item.message}
+                          <LocalizedText text={item.message} />
                         </p>
                         <p className="mt-0.5 font-mono text-xs text-muted">{relativeTime(item.timestamp)}</p>
                       </div>

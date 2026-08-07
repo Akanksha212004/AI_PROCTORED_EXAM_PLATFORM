@@ -942,5 +942,50 @@ export const hi: TranslationDictionary = {
     analytics: "एनालिटिक्स",
     logout: "साइन आउट",
   },
+
+  "settings": {
+    "title": "सेटिंग्स",
+    "subtitle": "अपनी खाता प्रोफ़ाइल और पासवर्ड प्रबंधित करें।",
+    "profile": "प्रोफ़ाइल",
+    "name": "नाम",
+    "email": "ईमेल",
+    "emailHelp": "ईमेल को यहाँ से नहीं बदला जा सकता।",
+    "saveProfile": "प्रोफ़ाइल सहेजें",
+    "saving": "सहेजा जा रहा है...",
+    "changePassword": "पासवर्ड बदलें",
+    "currentPassword": "वर्तमान पासवर्ड",
+    "newPassword": "नया पासवर्ड",
+    "passwordHint": "कम से कम 8 वर्ण, जिसमें एक अपरकेस अक्षर, लोअरकेस अक्षर, अंक और विशेष वर्ण होना चाहिए।",
+    "confirmPassword": "नए पासवर्ड की पुष्टि करें",
+    "updatePassword": "पासवर्ड अपडेट करें",
+    "updating": "अपडेट किया जा रहा है...",
+    "passwordMismatch": "नया पासवर्ड और पुष्टि पासवर्ड मेल नहीं खाते"
+  },
+
+  "analytics": {
+    "title": "एनालिटिक्स",
+    "subtitle": "पिछले 8 सप्ताह में आपकी परीक्षाओं में आए सबमिशन के आधार पर।",
+    "subjectPerformance": "विषय अनुसार प्रदर्शन",
+    "averageScore": "औसत स्कोर",
+    "attempts": "प्रयास"
+  },
+
+  "students": {
+    "title": "छात्र",
+    "subtitle": "छात्रों ने आपकी परीक्षाएं दी हैं।",
+    "searchPlaceholder": "नाम या ईमेल से खोजें",
+    "table": {
+      "student": "छात्र",
+      "examsTaken": "दी गई परीक्षाएं",
+      "averageScore": "औसत स्कोर",
+      "lastActive": "अंतिम सक्रिय",
+      "status": "स्थिति",
+      "action": "कार्रवाई"
+    },
+    "active": "सक्रिय",
+    "inactive": "निष्क्रिय",
+    "deactivate": "निष्क्रिय करें",
+    "activate": "सक्रिय करें"
+  },
   
 };

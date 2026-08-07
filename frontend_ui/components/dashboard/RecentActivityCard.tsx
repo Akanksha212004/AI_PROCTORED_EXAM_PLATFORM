@@ -1,4 +1,3 @@
-
 "use client";
 
 import { CheckCircle2, ClipboardList, FileQuestion, Send } from "lucide-react";
@@ -12,6 +11,13 @@ import type { ActivityType, RecentActivityItem } from "@/types/dashboard";
 interface Props {
   activity: RecentActivityItem[];
   isLoading: boolean;
+}
+
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
 }
 
 const ICONS: Record<ActivityType, React.ReactNode> = {
@@ -107,7 +113,7 @@ export function RecentActivityCard({ activity, isLoading }: Props) {
                     {ICONS[item.type]}
                   </span>
                   <p className="mt-3 line-clamp-2 text-xs font-medium text-paper transition-colors group-hover:text-accent-sky">
-                    {item.message}
+                    [<LocalizedText text={item.message} />]
                   </p>
                   <p className="mt-1 font-mono text-[11px] text-muted">{relativeTime(item.timestamp)}</p>
                 </div>

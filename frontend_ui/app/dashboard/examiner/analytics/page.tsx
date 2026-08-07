@@ -8,6 +8,8 @@ import { ScoreTrendChart } from "@/components/dashboard/ScoreTrendChart";
 import { SubjectPerformanceCard } from "@/components/dashboard/SubjectPerformanceCard";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
+import { useI18n } from "@/hooks/useI18n";
+
 export default function AnalyticsPage() {
   return (
     <RoleGuard allowedRole="EXAMINER">
@@ -19,14 +21,17 @@ export default function AnalyticsPage() {
 }
 
 function AnalyticsContent() {
+  const { t } = useI18n();
   const { data, isLoading } = useAnalytics(8);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Analytics</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">
+          {t("analytics.title")} {/* ◄── Analytics -> Translated */}
+        </h1>
         <p className="mt-1.5 text-sm text-paper/60">
-          Based on finalized submissions across your exams, last 8 weeks.
+          {t("analytics.subtitle")} {/* ◄── Subtitle -> Translated */}
         </p>
       </div>
 

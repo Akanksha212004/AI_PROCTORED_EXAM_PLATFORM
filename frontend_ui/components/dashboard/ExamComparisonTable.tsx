@@ -7,9 +7,16 @@ import { useI18n } from "@/hooks/useI18n";
 import type { ExamComparisonRow } from "@/hooks/useAnalytics";
 import { cn } from "@/lib/utils";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
 interface Props {
   data: ExamComparisonRow[];
   isLoading: boolean;
+}
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
 }
 
 function scoreColorClass(score: number | null): string {
@@ -55,8 +62,16 @@ export function ExamComparisonTable({ data, isLoading }: Props) {
               {data.map((exam) => (
                 <tr key={exam.examId} className="border-b border-border/60 last:border-0">
                   <td className="px-5 py-3.5">
-                    <p className="font-medium text-paper">{exam.examTitle}</p>
-                    <p className="text-xs text-muted">{exam.subject}</p>
+                    {/* <p className="font-medium text-paper">{exam.examTitle}</p>
+                    <p className="text-xs text-muted">{exam.subject}</p> */}
+
+                    <p className="font-medium text-paper">
+                      <LocalizedText text={exam.examTitle} />
+                    </p>
+                    <p className="text-xs text-muted">
+                      <LocalizedText text={exam.subject} />
+                    </p>
+
                   </td>
                   <td className="px-5 py-3.5 text-paper/80">{exam.attempts}</td>
                   <td className="px-5 py-3.5">

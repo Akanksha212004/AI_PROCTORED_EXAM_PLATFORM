@@ -11,6 +11,8 @@ import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/useAuth";
 import { useSettings } from "@/hooks/useSettings";
 
+import { useI18n } from "@/hooks/useI18n";
+
 export default function SettingsPage() {
   return (
     <RoleGuard allowedRole="EXAMINER">
@@ -26,6 +28,7 @@ const inputClass =
 
 function SettingsContent() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const { updateProfile, changePassword, isSavingProfile, isSavingPassword } = useSettings();
 
   const [name, setName] = useState(user?.name ?? "");
@@ -45,7 +48,8 @@ function SettingsContent() {
   async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation don't match");
+      // toast.error("New password and confirmation don't match");
+      toast.error(t("settings.passwordMismatch"));
       return;
     }
     try {
@@ -61,8 +65,8 @@ function SettingsContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">Settings</h1>
-        <p className="mt-1.5 text-sm text-paper/60">Manage your account profile and password.</p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-paper sm:text-3xl">{t("settings.title")}</h1>
+        <p className="mt-1.5 text-sm text-paper/60">{t("settings.subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
@@ -70,11 +74,11 @@ function SettingsContent() {
           <form onSubmit={handleProfileSubmit} className="space-y-4">
             <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
               <UserIcon className="h-4 w-4 text-accent-sky" />
-              Profile
+              {t("settings.profile")}
             </p>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Name</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">{t("settings.name")}</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -85,13 +89,13 @@ function SettingsContent() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">Email</label>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">{t("settings.email")}</label>
               <input value={user?.email ?? ""} disabled className={inputClass} />
-              <p className="mt-1 text-xs text-muted">Email can&apos;t be changed here.</p>
+              <p className="mt-1 text-xs text-muted">{t("settings.emailHelp")}</p>
             </div>
 
             <Button type="submit" className="w-auto px-4" disabled={isSavingProfile || name.trim().length < 2}>
-              {isSavingProfile ? "Saving…" : "Save Profile"}
+              {isSavingProfile ? t("settings.saving") : t("settings.saveProfile")}
             </Button>
           </form>
         </Card>
@@ -100,7 +104,7 @@ function SettingsContent() {
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
               <KeyRound className="h-4 w-4 text-accent-violet" />
-              Change Password
+              {t("settings.currentPassword")}
             </p>
 
             <div>
@@ -118,7 +122,7 @@ function SettingsContent() {
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
-                New Password
+                {t("settings.newPassword")}
               </label>
               <input
                 type="password"
@@ -129,13 +133,13 @@ function SettingsContent() {
                 minLength={8}
               />
               <p className="mt-1 text-xs text-muted">
-                At least 8 characters, with an uppercase letter, lowercase letter, digit, and special character.
+                {t("settings.passwordHint")}
               </p>
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted">
-                Confirm New Password
+                {t("settings.confirmPassword")}
               </label>
               <input
                 type="password"
@@ -153,7 +157,7 @@ function SettingsContent() {
               className="w-auto px-4"
               disabled={isSavingPassword || !currentPassword || !newPassword}
             >
-              {isSavingPassword ? "Updating…" : "Update Password"}
+              {isSavingPassword ? t("settings.updating") : t("settings.updatePassword")}
             </Button>
           </form>
         </Card>

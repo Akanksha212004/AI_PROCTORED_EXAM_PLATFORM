@@ -5,6 +5,13 @@ import { X } from "lucide-react";
 import { Select } from "@/components/ui/Card";
 import { useI18n } from "@/hooks/useI18n";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 export interface ExamFilterState {
   subject: string;
 }
@@ -26,7 +33,7 @@ export function ExamFilters({ value, onChange, subjectOptions }: Props) {
           <option value="">{t("exams.filters.allSubjects")}</option>
           {subjectOptions.map((s) => (
             <option key={s} value={s}>
-              {s}
+              <LocalizedText text={s} /> {/* ◄── Sarvam AI Auto-Translate */}
             </option>
           ))}
         </Select>

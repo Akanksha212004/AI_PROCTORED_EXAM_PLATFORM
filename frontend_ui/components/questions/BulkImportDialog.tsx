@@ -15,6 +15,13 @@ import { DIFFICULTY_LEVELS } from "@/types/question";
 import type { DifficultyLevel, QuestionFormPayload, QuestionOption, QuestionType } from "@/types/question";
 import type { DraftQuestion } from "@/types/bulkImport";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -44,6 +51,16 @@ export function BulkImportDialog({ open, onClose, onImported }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [drafts, setDrafts] = useState<DraftQuestion[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 1. Dialog Titles (Upload step vs Review step)
+  const uploadTitle = useAutoTranslate("Bulk Import Questions");
+  const reviewTitle = useAutoTranslate(`Review ${drafts.length} Question(s)`);
+
+  // 2. Dialog Descriptions (Upload step vs Review step)
+  const uploadDesc = useAutoTranslate("Upload a PDF or DOCX file of questions to auto-generate drafts.");
+  const reviewDesc = useAutoTranslate("Nothing is saved yet — edit, remove, then confirm to add these to the Question Bank.");
+
+  const dialogTitle = useAutoTranslate("Bulk Import Questions");
 
   function reset() {
     setStep("upload");
@@ -200,12 +217,16 @@ export function BulkImportDialog({ open, onClose, onImported }: Props) {
     <Dialog
       open={open}
       onClose={handleClose}
-      title={step === "upload" ? "Bulk Import Questions" : `Review ${drafts.length} Question(s)`}
-      description={
-        step === "upload"
-          ? "Upload a PDF or DOCX file of questions to auto-generate drafts."
-          : "Nothing is saved yet — edit, remove, then confirm to add these to the Question Bank."
-      }
+      // title={step === "upload" ? "Bulk Import Questions" : `Review ${drafts.length} Question(s)`}
+      // description={
+      //   step === "upload"
+      //     ? "Upload a PDF or DOCX file of questions to auto-generate drafts."
+      //     : "Nothing is saved yet — edit, remove, then confirm to add these to the Question Bank."
+      // }
+
+      title={step === "upload" ? uploadTitle : reviewTitle}
+      description={step === "upload" ? uploadDesc : reviewDesc}
+
       size="lg"
     >
       {step === "upload" && (
@@ -235,9 +256,12 @@ export function BulkImportDialog({ open, onClose, onImported }: Props) {
               <>
                 <UploadCloud className="h-8 w-8 text-muted" />
                 <div>
-                  <p className="text-sm font-medium text-paper">Click to upload PDF or DOCX</p>
+                  <p className="text-sm font-medium text-paper">
+                    <LocalizedText text="Click to upload PDF or DOCX" />
+                  </p>
+
                   <p className="mt-1 text-xs text-muted">
-                    Questions are best-guess parsed — you&apos;ll review and edit every field before saving.
+                    <LocalizedText text="Questions are best-guess parsed — you'll review and edit every field before saving." />
                   </p>
                 </div>
               </>

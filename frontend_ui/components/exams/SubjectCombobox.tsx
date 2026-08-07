@@ -11,15 +11,23 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface Props {
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
+interface SubjectComboboxProps {
   label: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (v: string) => void;
   subjects: string[];
+  placeholder?: string; 
   error?: string;
 }
 
-export function SubjectCombobox({ label, value, onChange, subjects, error }: Props) {
+export function SubjectCombobox({ label, value, onChange, subjects, placeholder= "Select subject...", error }: SubjectComboboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -40,13 +48,14 @@ export function SubjectCombobox({ label, value, onChange, subjects, error }: Pro
     <div ref={containerRef} className="relative flex flex-col gap-1.5">
       <label className="text-sm font-medium text-paper/80">{label}</label>
       <input
+        type="text"
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
           setIsOpen(true);
         }}
         onFocus={() => setIsOpen(true)}
-        placeholder="Pick or type a subject..."
+        placeholder={placeholder}
         className={cn(
           "h-11 w-full rounded-lg border bg-surface-muted px-3.5 text-sm text-paper placeholder:text-muted",
           "border-border transition-colors duration-150 focus:border-accent-sky focus:outline-none",
@@ -67,7 +76,7 @@ export function SubjectCombobox({ label, value, onChange, subjects, error }: Pro
               }}
               className="block w-full px-3.5 py-2 text-left text-sm text-paper hover:bg-white/5"
             >
-              {s}
+              <LocalizedText text={s} />
             </button>
           ))}
           {isNewSubject && (
@@ -76,7 +85,7 @@ export function SubjectCombobox({ label, value, onChange, subjects, error }: Pro
               onClick={() => setIsOpen(false)}
               className="block w-full border-t border-border px-3.5 py-2 text-left text-sm text-accent-sky hover:bg-white/5"
             >
-              Use new subject: &quot;{value.trim()}&quot;
+              <LocalizedText text="New subject:" /> &quot;{value.trim()}&quot;
             </button>
           )}
         </div>

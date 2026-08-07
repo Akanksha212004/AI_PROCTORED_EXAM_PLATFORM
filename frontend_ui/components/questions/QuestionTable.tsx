@@ -5,6 +5,7 @@ import { Eye, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Badge, difficultyTone, questionTypeLabel } from "@/components/ui/Badge";
 import { useI18n } from "@/hooks/useI18n";
 import { useTranslatedTexts } from "@/hooks/useTranslatedTexts";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import type { Question } from "@/types/question";
 
 interface Props {
@@ -18,6 +19,11 @@ interface Props {
   onView: (q: Question) => void;
   onEdit: (q: Question) => void;
   onDelete: (q: Question) => void;
+}
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
 }
 
 function truncate(text: string, max = 70) {
@@ -34,8 +40,9 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
   // lib/i18n/translations dictionaries instead.
   // Flattened to one array so a single batch request covers the whole
   // page instead of one request per row.
-  const flatTexts = questions.flatMap((q) => [q.questionText, q.subject]);
-  const { translated } = useTranslatedTexts(flatTexts);
+
+  // const flatTexts = questions.flatMap((q) => [q.questionText, q.subject]);
+  // const { translated } = useTranslatedTexts(flatTexts);
 
   if (isLoading) {
     return (
@@ -74,8 +81,8 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
         </thead>
         <tbody>
           {questions.map((q, index) => {
-            const translatedQuestionText = translated[index * 2] ?? q.questionText;
-            const translatedSubject = translated[index * 2 + 1] ?? q.subject;
+            // const translatedQuestionText = translated[index * 2] ?? q.questionText;
+            // const translatedSubject = translated[index * 2 + 1] ?? q.subject;
 
             return (
               <tr key={q.id} className="border-b border-border/60 hover:bg-white/[0.03]">
@@ -83,10 +90,20 @@ export function QuestionTable({ questions, isLoading, page, limit, onView, onEdi
                   {(page - 1) * limit + index + 1}
                 </td>
                 <td className="max-w-[260px] py-3.5 pr-4 text-paper">
-                  <span className="block truncate sm:whitespace-normal sm:break-words">{truncate(translatedQuestionText)}</span>
-                  <span className="mt-0.5 block text-xs text-muted sm:hidden">{translatedSubject}</span>
+                  {/* <span className="block truncate sm:whitespace-normal sm:break-words">{truncate(translatedQuestionText)}</span> */}
+                  <span className="block truncate sm:whitespace-normal sm:break-words">
+                    <LocalizedText text={truncate(q.questionText)} />
+                  </span>
+
+                  {/* <span className="mt-0.5 block text-xs text-muted sm:hidden">{translatedSubject}</span> */}
+                  <span className="mt-0.5 block text-xs text-muted sm:hidden">
+                    <LocalizedText text={q.subject} />
+                  </span>
                 </td>
-                <td className="hidden py-3.5 pr-4 text-muted sm:table-cell">{translatedSubject}</td>
+                {/* <td className="hidden py-3.5 pr-4 text-muted sm:table-cell">{translatedSubject}</td> */}
+                <td className="hidden py-3.5 pr-4 text-muted sm:table-cell">
+                  <LocalizedText text={q.subject} />
+                </td>
                 <td className="hidden py-3.5 pr-4 md:table-cell">
                   <Badge tone="sky">{questionTypeLabel(q.questionType, t)}</Badge>
                 </td>

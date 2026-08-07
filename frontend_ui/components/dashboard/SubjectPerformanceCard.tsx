@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/Card";
 import type { SubjectPerformance } from "@/hooks/useAnalytics";
 import { cn } from "@/lib/utils";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+import { useI18n } from "@/hooks/useI18n";
 interface Props {
   data: SubjectPerformance[];
   isLoading: boolean;
@@ -18,15 +21,27 @@ function barColorClass(score: number | null): string {
   return "bg-accent-rose";
 }
 
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
+function LocalizedSubjectName({ name }: { name: string }) {
+  const translatedName = useAutoTranslate(name);
+  return <span>{translatedName}</span>;
+}
+
 export function SubjectPerformanceCard({ data, isLoading }: Props) {
+  const { t } = useI18n();
+  
   return (
     <Card interactive className="p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <p className="flex items-center gap-2 font-display text-base font-semibold text-paper">
           <BookOpen className="h-4 w-4 text-accent-violet" />
-          Subject Performance
+          {t("analytics.subjectPerformance")}
         </p>
-        <p className="text-xs text-muted">Average score</p>
+        <p className="text-xs text-muted">{t("analytics.averageScore")}</p>
       </div>
 
       {isLoading ? (
@@ -42,10 +57,15 @@ export function SubjectPerformanceCard({ data, isLoading }: Props) {
           {data.map((subject) => (
             <div key={subject.subject}>
               <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="truncate pr-2 text-paper/80">{subject.subject}</span>
+                {/* <span className="truncate pr-2 text-paper/80">{subject.subject}</span> */}
+                
+                <span className="truncate pr-2 text-paper/80">
+                  <LocalizedText text={subject.subject} />
+                </span>
+
                 <span className="shrink-0 text-xs text-muted">
-                  {subject.averageScore !== null ? `${subject.averageScore}%` : "—"} · {subject.attempts} attempt
-                  {subject.attempts === 1 ? "" : "s"}
+                  {subject.averageScore !== null ? `${subject.averageScore}%` : "—"} · {" "}
+                  {subject.attempts} {t("analytics.attempts")}
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
