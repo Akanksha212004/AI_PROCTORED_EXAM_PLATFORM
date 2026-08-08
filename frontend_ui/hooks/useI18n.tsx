@@ -36,9 +36,14 @@ function readByPath(source: unknown, path: string): unknown {
 
 function interpolate(template: string, vars?: Record<string, string | number>): string {
   if (!vars) return template;
-  return template.replace(/\{(\w+)\}/g, (match, token) =>
-    token in vars ? String(vars[token]) : match
-  );
+  // Supports both `{token}` and `{{token}}` placeholder styles — some
+  // dictionary entries (e.g. examTaking.questionOf) use double braces —
+  // matching the double-brace form first so it's consumed whole rather
+  // than leaving stray outer braces behind.
+  return template.replace(/\{\{(\w+)\}\}|\{(\w+)\}/g, (match, doubleToken, singleToken) => {
+    const token = doubleToken ?? singleToken;
+    return token in vars ? String(vars[token]) : match;
+  });
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {

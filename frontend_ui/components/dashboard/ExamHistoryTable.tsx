@@ -14,6 +14,13 @@ import { Badge } from "@/components/ui/Badge";
 import { useI18n } from "@/hooks/useI18n";
 import type { GradingStatus, MySubmissionListItem } from "@/types/examSession";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 interface Props {
   history: MySubmissionListItem[];
   isLoading: boolean;
@@ -74,10 +81,12 @@ export function ExamHistoryTable({ history, isLoading, limit = 5 }: Props) {
                       href={`/dashboard/student/report/${item.id}`}
                       className="font-medium text-paper transition-colors hover:text-accent-sky"
                     >
-                      {item.examTitle}
+                      <LocalizedText text={item.examTitle} />
                     </Link>
                   </td>
-                  <td className="py-3 pr-3 text-paper/60">{item.examSubject}</td>
+                  <td className="py-3 pr-3 text-paper/60">
+                    <LocalizedText text={item.examSubject} />
+                  </td>
                   <td className="py-3 pr-3 text-paper/60">
                     {item.submittedAt ? new Date(item.submittedAt).toLocaleDateString() : "—"}
                   </td>

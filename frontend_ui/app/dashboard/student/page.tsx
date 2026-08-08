@@ -40,6 +40,13 @@ import { cn } from "@/lib/utils";
 
 import type { MySubmissionListItem } from "@/types/examSession";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 export default function StudentDashboardPage() {
   return (
     <RoleGuard allowedRole="STUDENT">
@@ -348,8 +355,12 @@ function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
       )}
 
       <div className="relative min-w-0">
-        <p className="truncate font-display text-sm font-semibold text-paper">{exam.title}</p>
-        <p className="truncate text-xs text-paper/60">{exam.subject}</p>
+        <p className="truncate font-display text-sm font-semibold text-paper">
+          <LocalizedText text={exam.title} />
+        </p>
+        <p className="truncate text-xs text-paper/60">
+          <LocalizedText text={exam.subject} />
+        </p>
       </div>
 
       <div className="relative flex flex-col gap-1.5 text-[11px] text-paper/50">
@@ -429,8 +440,12 @@ function RecentResultsCard({
               className="flex items-center justify-between rounded-xl border border-border p-3.5 transition-colors hover:bg-white/5"
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-paper">{r.examTitle}</p>
-                <p className="text-xs text-paper/50">{r.examSubject}</p>
+                <p className="truncate text-sm font-medium text-paper">
+                  <LocalizedText text={r.examTitle} />
+                </p>
+                <p className="text-xs text-paper/50">
+                  <LocalizedText text={r.examSubject} />
+                </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <span className="text-sm font-semibold text-paper">

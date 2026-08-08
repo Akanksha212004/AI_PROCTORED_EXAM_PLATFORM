@@ -14,6 +14,13 @@ import { useI18n } from "@/hooks/useI18n";
 import type { GradingStatus, SessionStatus } from "@/types/examSession";
 import { cn } from "@/lib/utils";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 export default function ExamHistoryPage() {
   return (
     <RoleGuard allowedRole="STUDENT">
@@ -95,8 +102,12 @@ function ExamHistoryContent() {
               className="flex flex-wrap items-center justify-between gap-4 p-5 transition-colors hover:border-accent-teal/40"
             >
               <div className="min-w-[200px]">
-                <p className="font-display text-lg font-semibold text-paper">{item.examTitle}</p>
-                <p className="mt-0.5 text-sm text-paper/50">{item.examSubject}</p>
+                <p className="font-display text-lg font-semibold text-paper">
+                  <LocalizedText text={item.examTitle} />
+                </p>
+                <p className="mt-0.5 text-sm text-paper/50">
+                  <LocalizedText text={item.examSubject} />
+                </p>
               </div>
 
               <div className="text-sm text-paper/60">

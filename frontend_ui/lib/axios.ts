@@ -54,11 +54,6 @@ apiClient.interceptors.response.use(
       return new Promise(() => { }); // Prevents "Something went wrong" toast
     }
 
-    if (error.response?.status === 409) {
-      console.warn("409 Conflict ignored silently:", error.config?.url);
-      return new Promise(() => { }); // Prevents "Something went wrong" toast
-    }
-
     return Promise.reject(error);
   }
 );

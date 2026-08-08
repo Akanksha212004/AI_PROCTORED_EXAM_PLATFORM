@@ -16,6 +16,13 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
 import type { StudentSubjectPerformance } from "@/hooks/useStudentDashboard";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 interface Props {
   data: StudentSubjectPerformance[];
   isLoading: boolean;
@@ -61,7 +68,9 @@ export function StudentSubjectPerformanceCard({ data, isLoading }: Props) {
         <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
           {data.map((subject, index) => (
             <div key={subject.subject} className="flex items-center gap-3 text-sm">
-              <span className="w-32 shrink-0 truncate text-paper/80 sm:w-36">{subject.subject}</span>
+              <span className="w-32 shrink-0 truncate text-paper/80 sm:w-36">
+                <LocalizedText text={subject.subject} />
+              </span>
               <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-muted">
                 <div
                   className={cn(

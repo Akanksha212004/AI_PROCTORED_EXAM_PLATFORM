@@ -1,3 +1,48 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink text-paper font-body antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent-sky/30;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme("colors.accent.sky");
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+} */
+
+
+
+
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +50,17 @@
 @layer base {
   :root {
     color-scheme: dark;
+  }
+
+  /* Scroll stays fully functional — only the visible scrollbar track/thumb
+   * is hidden, so it stops reserving horizontal space (which was pushing
+   * things like the pagination '>' arrow off-screen on narrow viewports). */
+  html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* old Edge/IE */
+  }
+  html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, new Edge */
   }
 
   body {

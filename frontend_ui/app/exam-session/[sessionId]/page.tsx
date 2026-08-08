@@ -207,19 +207,8 @@ function ExamSessionContent() {
         <FullScreenGate onRequestFullscreen={requestFullscreen} />
       )}
 
-      {session.exam.webcamMonitoringEnabled && (
-        <ProctoringCameraWidget
-          status={cameraStatus}
-          faceCount={faceCount}
-          gazeDirection={gazeDirection}
-          mobileDeviceDetected={mobileDeviceDetected}
-          videoRef={videoRef}
-          canvasRef={canvasRef}
-        />
-      )}
-
       <header className="flex flex-col gap-2 border-b border-border bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div className="min-w-0 pr-28 sm:pr-0">
+        <div className="min-w-0">
           <p className="truncate font-medium text-paper">{translatedExamTitle}</p>
           <p className="truncate text-xs text-muted">{translatedExamSubject}</p>
         </div>
@@ -233,6 +222,19 @@ function ExamSessionContent() {
             activeIndex={activeIndex}
             visitedQuestionIds={visitedQuestionIds}
             onSelect={setActiveIndex}
+            cameraSlot={
+              session.exam.webcamMonitoringEnabled ? (
+                <ProctoringCameraWidget
+                  status={cameraStatus}
+                  faceCount={faceCount}
+                  gazeDirection={gazeDirection}
+                  mobileDeviceDetected={mobileDeviceDetected}
+                  videoRef={videoRef}
+                  canvasRef={canvasRef}
+                  className="w-24 sm:w-28 md:w-32"
+                />
+              ) : undefined
+            }
           />
         </aside>
 

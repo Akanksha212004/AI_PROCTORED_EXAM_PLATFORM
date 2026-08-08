@@ -21,6 +21,13 @@ import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+
+function LocalizedText({ text }: { text: string }) {
+  const translated = useAutoTranslate(text);
+  return <>{translated}</>;
+}
+
 export default function StudentProfilePage() {
   return (
     <RoleGuard allowedRole="STUDENT">
@@ -153,7 +160,9 @@ function ProfileContent() {
             {subjectPerformance.map((s) => (
               <div key={s.subject}>
                 <div className="mb-1.5 flex items-center justify-between text-sm">
-                  <span className="text-paper/80">{s.subject}</span>
+                  <span className="text-paper/80">
+                    <LocalizedText text={s.subject} />
+                  </span>
                   <span className="font-medium text-paper">{s.averageScore ?? "—"}%</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
