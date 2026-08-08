@@ -29,7 +29,13 @@ const STATUS_KEY: Record<ExamStatus, string> = {
   CANCELLED: "examStatus.CANCELLED",
 };
 
-const BAR_COLORS = ["#3FA7E8", "#14B8A6", "#8B7FE8", "#F5A623", "#5FB6EE"];
+const BAR_GRADIENTS = [
+  "linear-gradient(90deg, #3FA7E8 0%, #6366F1 100%)",
+  "linear-gradient(90deg, #14B8A6 0%, #3FA7E8 100%)",
+  "linear-gradient(90deg, #8B7FE8 0%, #EC4899 100%)",
+  "linear-gradient(90deg, #F5A623 0%, #F97316 100%)",
+  "linear-gradient(90deg, #5FB6EE 0%, #8B7FE8 100%)",
+];
 const MAX_BARS = 5;
 
 function SubjectBars({ data }: { data: { subject: string; count: number }[] }) {
@@ -48,7 +54,7 @@ function SubjectBars({ data }: { data: { subject: string; count: number }[] }) {
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
                 width: `${(d.count / max) * 100}%`,
-                background: BAR_COLORS[i % BAR_COLORS.length],
+                background: BAR_GRADIENTS[i % BAR_GRADIENTS.length],
               }}
             />
           </div>

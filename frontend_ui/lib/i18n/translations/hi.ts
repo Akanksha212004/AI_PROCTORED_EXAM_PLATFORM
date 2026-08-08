@@ -55,6 +55,7 @@ export const hi: TranslationDictionary = {
     profile: "प्रोफ़ाइल",
     userManagement: "उपयोगकर्ता प्रबंधन",
     examinerRequests: "परीक्षक अनुरोध",
+    more: "और",
     quickTip: "त्वरित सुझाव",
     quickTipBody: "परीक्षा शुरू करने से पहले सुनिश्चित करें कि आपका कैमरा, माइक्रोफ़ोन और इंटरनेट काम कर रहे हैं।",
   },

@@ -23,7 +23,7 @@ export function ProctoringMicWidget({ status, level, isSpeaking }: Props) {
   const litBars = Math.round(Math.min(1, level / 0.3) * barCount);
 
   return (
-    <div className="w-44 overflow-visible rounded-xl border border-border bg-surface shadow-card">
+    <div className="w-44 overflow-visible rounded-xl border border-border bg-card-surface shadow-card">
       <div className="flex items-center gap-2 px-3 py-2.5">
         {status === "denied" || status === "error" ? (
           <MicOff className="h-3.5 w-3.5 shrink-0 text-accent-rose" />

@@ -13,7 +13,7 @@ export function FullScreenGate({ onRequestFullscreen }: Props) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/95 backdrop-blur-sm">
-      <div className="max-w-sm rounded-2xl border border-accent-rose/40 bg-surface p-8 text-center shadow-card">
+      <div className="max-w-sm rounded-2xl border border-accent-rose/40 bg-card-surface p-8 text-center shadow-card">
         <Maximize2 className="mx-auto h-10 w-10 text-accent-rose" />
         <h2 className="mt-4 font-display text-lg font-semibold text-paper">
           {t("examTaking.fullscreenGate.title")}

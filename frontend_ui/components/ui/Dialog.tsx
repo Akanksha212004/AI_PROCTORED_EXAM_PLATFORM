@@ -41,7 +41,7 @@ export function Dialog({ open, onClose, title, description, children, size = "md
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/70 px-4 py-8 backdrop-blur-sm animate-in fade-in">
       <div
         className={cn(
-          "w-full rounded-2xl border border-border bg-surface shadow-card",
+          "w-full rounded-2xl border border-border bg-card-surface shadow-card",
           sizeClasses[size]
         )}
         role="dialog"

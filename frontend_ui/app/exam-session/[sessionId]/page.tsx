@@ -147,7 +147,7 @@ function ExamSessionContent() {
   if (finalResult && finalResult.status !== "IN_PROGRESS") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-ink px-4">
-        <div className="max-w-md rounded-2xl border border-border bg-surface p-8 text-center shadow-card">
+        <div className="max-w-md rounded-2xl border border-border bg-card-surface p-8 text-center shadow-card">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-teal/15">
             <CheckCircle2 className="h-8 w-8 text-accent-teal" />
           </div>

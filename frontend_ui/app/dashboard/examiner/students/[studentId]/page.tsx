@@ -111,7 +111,7 @@ function StudentDetailContent() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card className="flex items-center gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent-sky/10 text-accent-sky">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-tone-sky text-white shadow-sm shadow-accent-sky/25">
             <ListChecks className="h-5 w-5" />
           </span>
           <div>
@@ -120,7 +120,7 @@ function StudentDetailContent() {
           </div>
         </Card>
         <Card className="flex items-center gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent-violet/10 text-accent-violet">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-tone-violet text-white shadow-sm shadow-accent-violet/25">
             <Award className="h-5 w-5" />
           </span>
           <div>
@@ -131,7 +131,7 @@ function StudentDetailContent() {
           </div>
         </Card>
         <Card className="flex items-center gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent-amber/10 text-accent-amber">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-tone-amber text-white shadow-sm shadow-accent-amber/25">
             <Clock className="h-5 w-5" />
           </span>
           <div>

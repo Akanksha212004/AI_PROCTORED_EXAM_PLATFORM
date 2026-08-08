@@ -55,6 +55,7 @@ export const ta: TranslationDictionary = {
     profile: "சுயவிவரம்",
     userManagement: "பயனர் மேலாண்மை",
     examinerRequests: "தேர்வாளர் கோரிக்கைகள்",
+    more: "மேலும்",
     quickTip: "விரைவு குறிப்பு",
     quickTipBody: "தேர்வைத் தொடங்குவதற்கு முன், உங்கள் கேமரா, மைக்ரோஃபோன் மற்றும் இணையம் வேலை செய்கிறதா என்பதை உறுதிசெய்யவும்.",
   },

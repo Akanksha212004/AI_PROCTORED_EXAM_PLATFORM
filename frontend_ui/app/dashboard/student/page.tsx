@@ -156,8 +156,8 @@ function StudentDashboardContent() {
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {todaysExams.slice(0, 4).map((exam) => (
-                <ExamHeroCard key={exam.id} exam={exam} />
+              {todaysExams.slice(0, 4).map((exam, index) => (
+                <ExamHeroCard key={exam.id} exam={exam} index={index} />
               ))}
             </div>
           )}
@@ -192,11 +192,11 @@ function StudentDashboardContent() {
 }
 
 const accentIconClasses: Record<"teal" | "sky" | "rose" | "violet" | "amber", string> = {
-  teal: "bg-gradient-to-br from-accent-teal/25 to-accent-teal/5 text-accent-teal",
-  sky: "bg-gradient-to-br from-accent-sky/25 to-accent-sky/5 text-accent-sky",
-  rose: "bg-gradient-to-br from-accent-rose/25 to-accent-rose/5 text-accent-rose",
-  violet: "bg-gradient-to-br from-accent-violet/25 to-accent-violet/5 text-accent-violet",
-  amber: "bg-gradient-to-br from-accent-amber/25 to-accent-amber/5 text-accent-amber",
+  teal: "bg-tone-teal text-white shadow-sm shadow-accent-teal/25",
+  sky: "bg-tone-sky text-white shadow-sm shadow-accent-sky/25",
+  rose: "bg-tone-rose text-white shadow-sm shadow-accent-rose/25",
+  violet: "bg-tone-violet text-white shadow-sm shadow-accent-violet/25",
+  amber: "bg-tone-amber text-white shadow-sm shadow-accent-amber/25",
 };
 
 const hoverBorderClasses: Record<"teal" | "sky" | "rose" | "violet" | "amber", string> = {
@@ -205,6 +205,15 @@ const hoverBorderClasses: Record<"teal" | "sky" | "rose" | "violet" | "amber", s
   rose: "hover:border-accent-rose/50",
   violet: "hover:border-accent-violet/50",
   amber: "hover:border-accent-amber/50",
+};
+
+/** Rich gradient card backgrounds for the four top-line stat cards. */
+const cardBgClasses: Record<"teal" | "sky" | "rose" | "violet" | "amber", string> = {
+  teal: "bg-gradient-to-br from-[#0E5478] via-[#0C3550] to-[#0B2135] border-accent-teal/25",
+  sky: "bg-gradient-to-br from-[#26418F] via-[#152A5C] to-[#0B2135] border-accent-sky/25",
+  rose: "bg-gradient-to-br from-[#832B45] via-[#4A1E2E] to-[#0B2135] border-accent-rose/25",
+  violet: "bg-gradient-to-br from-[#4A2E86] via-[#2C1C52] to-[#0B2135] border-accent-violet/25",
+  amber: "bg-gradient-to-br from-[#7A3A0F] via-[#4A2410] to-[#0B2135] border-accent-amber/25",
 };
 
 function StudentStatsCards({
@@ -286,36 +295,47 @@ function StatCard({
   accent: "teal" | "sky" | "rose" | "violet" | "amber";
 }) {
   return (
-    <Card
+    <div
       className={cn(
-        "group flex items-start gap-4 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glow-sky",
+        "group flex items-start gap-4 rounded-2xl border p-5 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glow-sky",
+        cardBgClasses[accent],
         hoverBorderClasses[accent]
       )}
     >
       <div
         className={cn(
-          "relative rounded-xl p-2.5 transition-transform duration-200 group-hover:scale-105",
+          "relative rounded-xl p-2.5 shadow-md transition-transform duration-200 group-hover:scale-105",
           accentIconClasses[accent]
         )}
       >
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-paper/70">{label}</p>
         <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-paper">{value}</p>
-        <p className="mt-0.5 text-xs text-muted">{hint}</p>
+        <p className="mt-0.5 text-xs text-paper/60">{hint}</p>
       </div>
-    </Card>
+    </div>
   );
 }
 
-function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
+/** Rotating gradient set for live exam cards — purely decorative variety so a row
+ * of "live now" cards doesn't look monotone, matching the reference dashboard. */
+const LIVE_ACCENT_GRADIENTS = [
+  { badge: "border-accent-violet/30 bg-accent-violet/10 text-accent-violet", dot: "bg-accent-violet", button: "bg-gradient-to-r from-[#8B7FE8] to-[#6366F1]" },
+  { badge: "border-accent-sky/30 bg-accent-sky/10 text-accent-sky", dot: "bg-accent-sky", button: "bg-gradient-to-r from-[#3FA7E8] to-[#6366F1]" },
+  { badge: "border-accent-teal/30 bg-accent-teal/10 text-accent-teal", dot: "bg-accent-teal", button: "bg-gradient-to-r from-[#14B8A6] to-[#3FA7E8]" },
+  { badge: "border-accent-rose/30 bg-accent-rose/10 text-accent-rose", dot: "bg-accent-rose", button: "bg-gradient-to-r from-[#EF4444] to-[#EC4899]" },
+];
+
+function ExamHeroCard({ exam, index }: { exam: StudentExamCardData; index: number }) {
   const router = useRouter();
   const { t } = useI18n();
   const [isStarting, setIsStarting] = useState(false);
 
   const isLive = exam.availability === "live";
   const isUpcoming = exam.availability === "upcoming";
+  const accent = LIVE_ACCENT_GRADIENTS[index % LIVE_ACCENT_GRADIENTS.length];
 
   async function handleStart() {
     setIsStarting(true);
@@ -341,8 +361,8 @@ function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
       )}
 
       {isLive ? (
-        <span className="relative flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-accent-teal/30 bg-accent-teal/10 px-2 py-0.5 text-[10px] font-semibold text-accent-teal">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-teal" />
+        <span className={cn("relative flex w-fit shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold", accent.badge)}>
+          <span className={cn("h-1.5 w-1.5 animate-pulse rounded-full", accent.dot)} />
           {t("dashboard.student.examCard.liveNow")}
         </span>
       ) : (
@@ -380,7 +400,12 @@ function ExamHeroCard({ exam }: { exam: StudentExamCardData }) {
       </div>
 
       {isLive ? (
-        <Button onClick={handleStart} isLoading={isStarting} className="relative mt-1 h-9 w-full text-xs">
+        <Button
+          variant="ghost"
+          onClick={handleStart}
+          isLoading={isStarting}
+          className={cn("relative mt-1 h-9 w-full text-xs text-white shadow-md", accent.button)}
+        >
           <PlayCircle className="h-4 w-4" />
           {t("dashboard.student.examCard.startExam")}
         </Button>

@@ -54,7 +54,7 @@ export function LanguageSwitcher({ variant = "dark", className }: Props) {
         <div
           className={cn(
             "absolute right-0 top-full z-40 mt-2 w-48 overflow-hidden rounded-xl border shadow-card",
-            variant === "dark" ? "border-border bg-surface" : "border-black/10 bg-white"
+            variant === "dark" ? "border-border bg-card-surface" : "border-black/10 bg-white"
           )}
         >
           <ul>

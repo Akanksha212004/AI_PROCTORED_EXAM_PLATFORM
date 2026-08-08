@@ -16,9 +16,9 @@ interface Props {
 
 function barColorClass(score: number | null): string {
   if (score === null) return "bg-paper/15";
-  if (score >= 70) return "bg-accent-teal";
-  if (score >= 50) return "bg-accent-amber";
-  return "bg-accent-rose";
+  if (score >= 70) return "bg-gradient-to-r from-accent-teal to-accent-sky";
+  if (score >= 50) return "bg-gradient-to-r from-accent-amber to-[#F97316]";
+  return "bg-gradient-to-r from-accent-rose to-[#EC4899]";
 }
 
 function LocalizedText({ text }: { text: string }) {

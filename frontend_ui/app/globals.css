@@ -1,48 +1,3 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    color-scheme: dark;
-  }
-
-  body {
-    @apply bg-ink text-paper font-body antialiased;
-  }
-
-  ::selection {
-    @apply bg-accent-sky/30;
-  }
-
-  :focus-visible {
-    outline: 2px solid theme("colors.accent.sky");
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-}
-
-@layer utilities {
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-} */
-
-
-
-
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,7 +19,7 @@
   }
 
   body {
-    @apply bg-ink text-paper font-body antialiased;
+    @apply bg-ink bg-page-glow bg-fixed text-paper font-body antialiased;
   }
 
   ::selection {
@@ -82,6 +37,16 @@
 @layer utilities {
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Used on the horizontal header nav so it can scroll on narrower desktop
+   * widths without showing a visible scrollbar track. */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }
 

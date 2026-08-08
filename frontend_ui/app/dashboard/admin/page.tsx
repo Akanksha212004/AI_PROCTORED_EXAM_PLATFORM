@@ -99,11 +99,11 @@ const QUICK_ACCESS: QuickAccessCard[] = [
 ];
 
 const TONE_ICON_BG: Record<QuickAccessCard["tone"], string> = {
-  sky: "bg-accent-sky/10 text-accent-sky",
-  teal: "bg-accent-teal/10 text-accent-teal",
-  amber: "bg-amber-500/10 text-amber-400",
-  rose: "bg-accent-rose/10 text-accent-rose",
-  violet: "bg-accent-violet/10 text-accent-violet",
+  sky: "bg-tone-sky text-white shadow-sm shadow-accent-sky/25",
+  teal: "bg-tone-teal text-white shadow-sm shadow-accent-teal/25",
+  amber: "bg-tone-amber text-white shadow-sm shadow-accent-amber/25",
+  rose: "bg-tone-rose text-white shadow-sm shadow-accent-rose/25",
+  violet: "bg-tone-violet text-white shadow-sm shadow-accent-violet/25",
 };
 
 const TONE_HOVER_BORDER: Record<QuickAccessCard["tone"], string> = {
@@ -167,7 +167,7 @@ function AdminDashboardContent() {
         <p className="mb-4 text-xs font-medium uppercase tracking-wide text-muted">
           {t("admin.dashboard.quickAccess")}
         </p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           {QUICK_ACCESS.map((item) => (
             <Link key={item.href} href={item.href}>
               <Card interactive className={cn("group flex h-full items-center gap-4", TONE_HOVER_BORDER[item.tone])}>

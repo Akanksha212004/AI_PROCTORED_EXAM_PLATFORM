@@ -66,7 +66,7 @@ export const ProctoringCameraWidget = memo(function ProctoringCameraWidget({
         // the camera itself gets to be the larger element. Desktop (lg+):
         // reverts to the exact original design — a fixed widget floating
         // top-right of the viewport.
-        "relative z-10 w-32 shrink-0 overflow-visible rounded-xl border border-border bg-surface shadow-card sm:w-40 md:w-48 lg:fixed lg:right-4 lg:top-24 lg:z-40 lg:w-44 lg:shrink",
+        "relative z-10 w-32 shrink-0 overflow-visible rounded-xl border border-border bg-card-surface shadow-card sm:w-40 md:w-48 lg:fixed lg:right-4 lg:top-24 lg:z-40 lg:w-44 lg:shrink",
         className
       )}
     >

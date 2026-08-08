@@ -65,7 +65,7 @@ export function SubjectCombobox({ label, value, onChange, subjects, placeholder=
       {error && <p className="text-xs font-medium text-accent-rose">{error}</p>}
 
       {isOpen && (filtered.length > 0 || isNewSubject) && (
-        <div className="absolute top-full z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border bg-surface shadow-card">
+        <div className="absolute top-full z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border bg-card-surface shadow-card">
           {filtered.map((s) => (
             <button
               key={s}

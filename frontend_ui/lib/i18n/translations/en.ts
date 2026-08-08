@@ -47,6 +47,7 @@ export const en = {
     profile: "Profile",
     userManagement: "User Management",
     examinerRequests: "Examiner Requests",
+    more: "More",
     quickTip: "Quick Tip",
     quickTipBody: "Make sure your camera, microphone and internet are working before starting an exam.",
   },

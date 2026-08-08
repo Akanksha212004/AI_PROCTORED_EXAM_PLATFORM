@@ -29,11 +29,11 @@ interface Props {
 }
 
 const SUBJECT_COLOR_PALETTE = [
-  "bg-accent-teal",
-  "bg-accent-sky",
-  "bg-accent-violet",
-  "bg-accent-amber",
-  "bg-accent-rose",
+  "bg-gradient-to-r from-accent-teal to-accent-sky",
+  "bg-gradient-to-r from-accent-sky to-accent-violet",
+  "bg-gradient-to-r from-accent-violet to-accent-rose",
+  "bg-gradient-to-r from-accent-amber to-[#F97316]",
+  "bg-gradient-to-r from-accent-rose to-[#EC4899]",
 ];
 
 function barColorClass(index: number, score: number | null): string {

@@ -118,7 +118,7 @@ export function PreExamChecklist({
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-ink">
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-10">
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8">
+        <div className="rounded-2xl border border-border bg-card-surface p-6 shadow-card sm:p-8">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-sky/15">
               <ShieldAlert className="h-5 w-5 text-accent-sky" />
